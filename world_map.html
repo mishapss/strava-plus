@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>GPS-Track Karte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/maplibre-gl@2.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/maplibre-gl@2.5.0/dist/maplibre-gl.js"></script>
+<script>
+  // Karte initialisieren
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://demotiles.maplibre.org/style.json', // kostenloser Basemap-Stil
+    center: [0, 0],
+    zoom: 2
+  });
+
+  // JSON-Datei dynamisch laden
+  fetch('track.json')  // <-- Pfad zu deiner JSON-Datei
+    .then(response => response.json())
+    .then(data => {
+      // Trackpunkte in GeoJSON konvertieren
+      const coordinates = data.map(pt => [pt.lon, pt.lat]);
+      const geojson = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: coordinates
+            }
+          }
+        ]
+      };
+
+      map.on('load', () => {
+        // Linie hinzufügen
+        map.addSource('route', { type: 'geojson', data: geojson });
+        map.addLayer({
+          id: 'route-line',
+          type: 'line',
+          source: 'route',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round'
+          },
+          paint: {
+            'line-color': '#FC4C02', // Strava-orange
+            'line-width': 7
+          }
+        });
+
+        // Karte auf die Route zoomen
+        const bounds = coordinates.reduce((b, coord) => b.extend(coord), new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+        map.fitBounds(bounds, { padding: 50 });
+
+        // Start- und Zielpunkt Marker hinzufügen
+        const startMarker = new maplibregl.Marker({ color: 'green' })
+          .setLngLat(coordinates[0])
+          .setPopup(new maplibregl.Popup().setHTML(`Start Höhe: ${data[0].ele} m`))
+          .addTo(map);
+
+        const endMarker = new maplibregl.Marker({ color: 'red' })
+          .setLngLat(coordinates[coordinates.length - 1])
+          .setPopup(new maplibregl.Popup().setHTML(`Ziel Höhe: ${data[data.length - 1].ele} m`))
+          .addTo(map);
+      });
+    })
+    .catch(err => console.error('Fehler beim Laden der JSON-Datei:', err));
+</script>
+</body>
+</html>

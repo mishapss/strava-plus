@@ -1,0 +1,36 @@
+hi
+
+   <trkpt lat="51.0539630" lon="13.7490780">
+    <ele>105.0</ele>
+    <time>2026-04-05T10:15:25Z</time>
+    <extensions>
+     <gpxtpx:TrackPointExtension>
+      <gpxtpx:atemp>21</gpxtpx:atemp>
+     </gpxtpx:TrackPointExtension>
+    </extensions>
+   </trkpt>
+
+
+
+
+   <trkpt lat="51.0539830" lon="13.7491540">
+    <ele>105.0</ele>
+    <time>2026-04-05T10:15:26Z</time>
+    <extensions>
+     <gpxtpx:TrackPointExtension>
+      <gpxtpx:atemp>21</gpxtpx:atemp>
+     </gpxtpx:TrackPointExtension>
+    </extensions>
+   </trkpt>
+   <trkpt lat="51.0540030" lon="13.7492300">
+    <ele>105.0</ele>
+    <time>2026-04-05T10:15:27Z</time>
+    <extensions>
+     <gpxtpx:TrackPointExtension>
+      <gpxtpx:atemp>21</gpxtpx:atemp>
+     </gpxtpx:TrackPointExtension>
+    </extensions>
+   </trkpt>
+set JAVA_HOME=C:\Users\MikhailLeshchenko\jdk\jdk-25.0.2+10
+
+C:\Users\MikhailLeshchenko>set PATH=%JAVA_HOME%\bin;%PATH%
