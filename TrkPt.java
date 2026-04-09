@@ -15,8 +15,15 @@ public class TrkPt {
         this.time = time;
     }
 
+    public TrkPt (double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+        this.ele = 0;
+        this.time = null;        
+    }
+
     @Override
     public String toString() {
-        return "lat=" + lat + ", lon=" + lon + ", ele=" + ele + ", time=" + time;
+        return "[" + lat + " ,"+ lon + "],";
     }
 }

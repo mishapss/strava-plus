@@ -1,4 +1,6 @@
 import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
+import java.io.*;
+
 
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
@@ -6,30 +8,83 @@ import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
 import java.io.InputStream; // um die saten vom Client zu lesen
 
 public class SimplePostServer{
-    
+    private static String savedGeoJson = "";
+    private static String savedHtml = "";
     private static String savedContent = "";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, Exception {
+        XmlReader.loadGpx("ride.gpx"); 
+        System.out.println("GeoJSON erzeugt: " + XmlReader.geoJsonData);
+
+        savedGeoJson = XmlReader.geoJsonData;
+
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);                              // erstellt einen http-server auf port 8000; localhost (standard)
                                       
 
-        server.createContext("/notes", exchange -> {                                                        // definiert einen pfad; alles, was an "/notes" geschickt wird, landet hier
-            
-            if ("POST".equals(exchange.getRequestMethod())) {                                               // prüft ob es eine post-anfrage ist
-                InputStream is = exchange.getRequestBody();                                                 // holt den body aus der anfrage (genau das, was FileUploader geschickt hat)
-                byte[] data = is.readAllBytes();                                                            // liest alle Bytes aus dem Body; komplette Datei im Speicher
-                savedContent = new String(data, "UTF-8");                                                   // wandelt Bytes in text um, dait sie eingelesen werden können
+        server.createContext("/geojson", exchange -> {
+            String method = exchange.getRequestMethod();
 
-                System.out.println("File content: " + savedContent);
-                System.out.println("received Data size: " + data.length);
+            if ("GET".equals(method)) {
+                // GeoJSON aus XmlReader holen
+                String response = (savedGeoJson != null) ? savedGeoJson : "{}";
 
-                String response = "POST request received";
-                exchange.sendResponseHeaders(200, response.getBytes().length);                              // sendet, dass statuscode 200 ist (alles ok) und die lände der antwort
-                try (OutputStream os = exchange.getResponseBody()) {                                        // öffnet den response-body
-                    os.write(response.getBytes("UTF-8"));                                                          // schreibt den text rein, das später an client gesendet wird
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes("UTF-8"));
                 }
-            
-            } else if ("GET".equals(exchange.getRequestMethod())) {                                         // browser sendet immer get; ich brauche die Teil, um etwas im Browser zu sehen
+
+            } else if ("POST".equals(method)) {
+                // Datei vom FileUploader empfangen
+                InputStream is = exchange.getRequestBody();
+                byte[] data = is.readAllBytes();
+                savedContent = new String(data, "UTF-8");
+
+                String response = "GeoJson uploaded";
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes("UTF-8"));
+                }
+
+            } else {
+                // Andere Methoden nicht erlaubt
+                exchange.sendResponseHeaders(405, -1);
+            }
+        });
+
+        server.createContext("/upload-html", exchange -> {
+            if ("POST".equals(exchange.getRequestMethod())) {
+                InputStream is = exchange.getRequestBody();
+                byte[] data = is.readAllBytes();
+                savedHtml = new String(data, "UTF-8");
+
+                String response = "HTML uploaded successfully";
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes("UTF-8"));
+                }
+            } else if ("GET".equals(exchange.getRequestMethod())) {
+                String response = (savedHtml != null && !savedHtml.isEmpty()) ? savedHtml : "<h1>No HTML uploaded</h1>";
+                exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes("UTF-8"));
+                }
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        });
+
+        
+        server.start();
+        System.out.println("Server started on port 8000");
+        System.out.println("Post geojson to /geojson");
+        System.out.println("Post geojson to /upload-html");
+    }
+}
+/*else if ("GET".equals(exchange.getRequestMethod())) {                                         // browser sendet immer get; ich brauche die Teil, um etwas im Browser zu sehen
                 String response = "<html><body>"
                 + "<meta charset='UTF-8'>"
                 + "<h1>Upload Server läuft</h1>"
@@ -45,8 +100,4 @@ public class SimplePostServer{
             } else {
                 exchange.sendResponseHeaders(405, -1); //Method ist nicht erlaubt
             }
-        });
-        server.start();
-        System.out.println("Server started on port 8000");
-    }
-}
+            */

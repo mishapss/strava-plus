@@ -9,9 +9,10 @@ import java.util.List; // zum erstellen einer liste von byte-arrays
 import java.net.http.HttpRequest.BodyPublishers; // hilft request-body senden und response lesen
 import java.net.http.HttpResponse.BodyHandlers;
 import java.io.IOException;
-// github test
+
 public class FileUploader {
     private static final String BASE_URL = "http://localhost:8000/notes";                           // URL-Addresse des Servers, an den wir etwas schicken (Variable)
+    private static final String HTML_URL = "http://localhost:8000/upload-html";
     private static final String BOUNDARY = "boundary";                                              // string für multipart/form-data, der die teile der datei trennt (notwendig bei multipart/form-data) (Variable)
 
 
@@ -28,8 +29,8 @@ public class FileUploader {
 
         try {
             HttpRequest request = HttpRequest.newBuilder()                                          // startet den aufbau der anfrage
-                .uri(URI.create(BASE_URL))                                                          // Ziel-URL
-                .header("Content-Type", "text/plain")                                               // informiert den Server über den Datentyp (Text)
+                .uri(URI.create(HTML_URL))                                                          // Ziel-URL
+                .header("Content-Type", "text/html")                                               // informiert den Server über den Datentyp (Text)
                 .POST(BodyPublishers.ofFile(filePath))                                              // POST-Methode mit Dateiinhalt
                 .build();                                                                           // erstellt endgültige httprequest objekt
 
