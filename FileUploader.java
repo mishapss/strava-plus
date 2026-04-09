@@ -9,7 +9,7 @@ import java.util.List; // zum erstellen einer liste von byte-arrays
 import java.net.http.HttpRequest.BodyPublishers; // hilft request-body senden und response lesen
 import java.net.http.HttpResponse.BodyHandlers;
 import java.io.IOException;
-
+// github test
 public class FileUploader {
     private static final String BASE_URL = "http://localhost:8000/notes";                           // URL-Addresse des Servers, an den wir etwas schicken (Variable)
     private static final String BOUNDARY = "boundary";                                              // string für multipart/form-data, der die teile der datei trennt (notwendig bei multipart/form-data) (Variable)
