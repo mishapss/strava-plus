@@ -14,24 +14,23 @@ import java.util.ArrayList;
 
 public class XmlReader {
 
-    public static String geoJsonData;
+    public static String geoJsonData;                           //speicher für die fertige route
 
-    public static void loadGpx(String fileName) throws Exception {
-        File xmlFile = new File(fileName);                      //datei-objekt erstellen
-        double fullDist = 0;
+    public static void loadGpx(String fileName) throws Exception { //lesen gpx
+        File xmlFile = new File(fileName);                      //datei-objekt erstellen, öfnen
+        double fullDist = 0;                                    
 
-        ArrayList<TrkPt> trackPoints = new ArrayList<>();       //alle gps punkte seichern
+        ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
 
-        if (!xmlFile.exists()) {
+        if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
             System.out.println("XML File existiert nicht");
             return;
         }
 
-        XmlMapper xmlMapper = new XmlMapper();                  //jackson tool, um sml zu lesen
+        XmlMapper xmlMapper = new XmlMapper();                  //tool um aus xml in java zu gehen
         try {
-            JsonNode root = xmlMapper.readTree(xmlFile);        //xml wird in baumstruktur geladen    
+            JsonNode root = xmlMapper.readTree(xmlFile);        //xml wird als baumstruktur geladen    
 
-            ObjectMapper jsonMapper = new ObjectMapper();       //
             JsonNode trkptNode = root.path("trk").path("trkseg").path("trkpt");
 
             for (JsonNode trkpt : trkptNode){
@@ -44,7 +43,7 @@ public class XmlReader {
                 trackPoints.add(punkt);                          //jeder punkt zur liste hinzugefügt                
             }
 
-            geoJsonData = buildGeoJsonForMap(trackPoints);
+            geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
             
         } catch (IOException e) {
@@ -57,7 +56,7 @@ public class XmlReader {
         loadGpx("ride.gpx");
     }
  
-    public static double distance(TrkPt a, TrkPt b) {
+    public static double distance(TrkPt a, TrkPt b) { //distanz ausrechnen mit Haversine-Formel 
         double fullDist = 0;
 
         double lat1Rad = Math.toRadians(a.lat);
@@ -78,7 +77,7 @@ public class XmlReader {
                 
         return dist;
         /*
-        for (int i = 0; i < trackPoints.size() - 1; i++) {                  //distanz ausrechnen           
+        for (int i = 0; i < trackPoints.size() - 1; i++) {                  //ganze distanz ausrechnen           
             
             TrkPt b = trackPoints.get(i);
             TrkPt a = trackPoints.get(i+1);
@@ -92,7 +91,7 @@ public class XmlReader {
         }
         
         System.out.println("fulldist: " + fullDist + " km");
-        jsonFormatter(trackPoints);   */                                       //liste als json anzeigen
+        */
     } 
 
     public static void jsonFormatter(ArrayList<TrkPt> list) throws Exception { //was komt hier rein?
@@ -106,37 +105,36 @@ public class XmlReader {
 
 
     public static String buildGeoJsonForMap(ArrayList<TrkPt> trackPoints) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();                              //tool um json zu bauen, lesen, erstellen, formatieren
 
-        ArrayNode coordinatesNode = mapper.createArrayNode();
-        for (TrkPt pt: trackPoints) {
+        ArrayNode coordinatesNode = mapper.createArrayNode();                  //liste für koordinaten
+        for (TrkPt pt: trackPoints) {                                          //lon lat statt lat lon, da maplibre so will 
             ArrayNode point = mapper.createArrayNode();
             point.add(pt.lon);
-            point.add(pt.lat);
+            point.add(pt.lat);                                                  
             coordinatesNode.add(point);
         }
 
-            ObjectNode feature = mapper.createObjectNode();
-            feature.put("type", "Feature");
+            ObjectNode feature = mapper.createObjectNode();                    //erstellt einen leeren objekt 
+            feature.put("type", "Feature");                                    //mit "type", "Feature" einfühlen ->  {"type": "Feature"} = json
             ObjectNode geometry = mapper.createObjectNode();
-            geometry.put("type", "LineString");
-            geometry.set("coordinates", coordinatesNode);
-            feature.set("geometry", geometry);
+            geometry.put("type", "LineString");                                //sagt der karte, es ist eine linie
+            geometry.set("coordinates", coordinatesNode);                      //koordinaten einfügen
+            feature.set("geometry", geometry);                                 //alles zusammenbauen
 
             ObjectNode properties = mapper.createObjectNode();
             properties.put("color", "#FC4C02");
             feature.set("properties", properties);
 
-            // FeatureCollection
             ArrayNode features = mapper.createArrayNode();
             features.add(feature);
 
-            ObjectNode featureCollection = mapper.createObjectNode();
+            ObjectNode featureCollection = mapper.createObjectNode();          
             featureCollection.put("type", "FeatureCollection");
-            featureCollection.set("features", features);
+            featureCollection.set("features", features);                       //bauet fertiger stuktur
 
             ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-            return writer.writeValueAsString(featureCollection);
+            return writer.writeValueAsString(featureCollection);               //fertiger json-string
     }
     
 }
