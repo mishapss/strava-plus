@@ -1,0 +1,15 @@
+Schritt 3: Route berechnen / analysieren
+Schreibe eine Methode distance(TrkPt a, TrkPt b), z. B. Haversine-Formel für GPS-Koordinaten.
+Iteriere über die Trackpoints paarweise (i und i+1) und summiere die Distanzen → Gesamtlänge der Route.
+Optional: Berechne Höhenunterschiede (ele2 - ele1) für Steigung/Höhenprofil.
+
+Schritt 4: Route ausgeben
+Drucke alle Punkte in Reihenfolge:
+z. B. lat=..., lon=..., ele=..., time=...
+Drucke die Gesamtdistanz und Höhenunterschiede.
+Optional: Exportiere die Route in JSON oder CSV, um sie in einer Karte zu visualisieren.
+
+Schritt 5: Optional
+Später kannst du auch atemp aus den Extensions auslesen.
+Oder mehrere Segmente (trkseg) berücksichtigen.
+Oder die Route auf einer Karte darstellen (Leaflet / Google Maps).
