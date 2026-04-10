@@ -30,7 +30,7 @@ public class FileUploader {
         try {
             HttpRequest request = HttpRequest.newBuilder()                                          // startet den aufbau der anfrage
                 .uri(URI.create(HTML_URL))                                                          // Ziel-URL
-                .header("Content-Type", "text/html")                                               // informiert den Server über den Datentyp (Text)
+                .header("Content-Type", "text/html")                                                // informiert den Server über den Datentyp (Text)
                 .POST(BodyPublishers.ofFile(filePath))                                              // POST-Methode mit Dateiinhalt
                 .build();                                                                           // erstellt endgültige httprequest objekt
 
