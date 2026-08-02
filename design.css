@@ -1,0 +1,61 @@
+/*verstekte standard-feld*/
+input[type="file"] {
+    display: none;
+}
+
+/*style für das label*/
+.custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #FC4C02;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.custom-file-upload:hover {
+    background-color: #e34402;
+}
+
+/*äußere rahmen*/
+.content-wrapper {
+    max-width: 1400px;
+    width: 90%;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 20px;
+}
+
+.map-section {
+    display: flex;
+    padding: 0;
+    height: 500px; /* Фиксированная высота важна для карты! */
+    overflow: hidden;
+    margin-left: 40%; /* Сдвиг вправо */
+    margin-top: 10%;  /* Отступ сверху */
+    width: 60%;       /* Уменьшите ширину, иначе карта уйдет за край экрана */
+}
+
+.stats-table {
+    width: 70%;
+    padding: 20 px auto;
+    border-right: 1px solid #eee;
+    overflow-y: auto;
+}
+
+#map {
+    width: 70%;
+    height: 100%;
+}

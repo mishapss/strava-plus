@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Панель тренировки (Strava Plus)</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.22.0/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@5.22.0/dist/maplibre-gl.js'></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+        }
+
+        /* Главный контейнер на две колонки (Таблица + Карта) */
+        .dashboard-container {
+            display: table;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Левая колонка с таблицей и кнопками */
+        .sidebar {
+            display: table-cell;
+            width: 350px;
+            vertical-align: top;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* Правая колонка с картой */
+        .map-container {
+            display: table-cell;
+            vertical-align: top;
+            position: relative;
+            height: 100vh;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Стили заголовков */
+        h2 {
+            margin-top: 0;
+            color: #222;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #FC4C02; /* Оранжевый акцент Strava */
+            padding-bottom: 8px;
+        }
+
+        /* Красивая кнопка выбора файла */
+        .custom-file-upload {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            background-color: #FC4C02;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #e34402;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #222;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 25px;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #444;
+        }
+
+        /* Стилизация таблицы с данными тренировки */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .stats-table tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        .stats-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .stats-table td {
+            padding: 12px 6px;
+            font-size: 0.95rem;
+        }
+
+        /* Левая ячейка (название метрики) */
+        .stats-table td.label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Правая ячейка (значение метрики) */
+        .stats-table td.value {
+            text-align: right;
+            font-weight: bold;
+            color: #111;
+            font-variant-numeric: tabular-nums; /* Чтобы цифры не прыгали */
+        }
+
+        /* Выделение важных показателей цветом */
+        .highlight {
+            color: #FC4C02 !important;
+        }
+    </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <div class="sidebar">
+        <h2>Панель трека</h2>
+        
+        <label for="fileInput" class="custom-file-upload">
+            Выбрать файл GPX
+        </label>
+        <input id="fileInput" type="file" />
+        <button id="uploadButton" class="action-btn">Отправить на сервер</button>
+
+        <h2>Показатели заезда</h2>
+
+        <p id="server-comment" style="color: #FC4C02;font-weight: bold; margin-bottom: 15px;"></p> 
+
+        <table class="stats-table">
+            <tr>
+                <td class="label">Дистанция</td>
+                <td id="stat-distance" class="value highlight">-- км</td>
+            </tr>
+            <tr>
+                <td class="label">Время в пути</td>
+                <td id="stat-time" class="value">--</td>
+            </tr>
+            <tr>
+                <td class="label">Средняя скорость</td>
+                <td id="stat-avg-speed" class="value">-- км/ч</td>
+            </tr>
+            <tr>
+                <td class="label">Макс. скорость</td>
+                <td id="stat-max-speed" class="value">-- км/ч</td>
+            </tr>
+            <tr>
+                <td class="label">Набор высоты</td>
+                <td id="stat-elevation" class="value highlight">-- м</td>
+            </tr>
+            <tr>
+                <td class="label">Средний пульс</td>
+                <td id="stat-avg-hr" class="value">-- уд/мин</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. Инициализация карты
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/bright', 
+      center: [10.44, 51.16], 
+      zoom: 5
+    });
+
+    // 2. Обработчик клика: отправляем файл на сервер
+    document.getElementById('uploadButton').addEventListener('click', () => {
+      const fileInput = document.getElementById('fileInput');
+      const selectedFile = fileInput.files[0];
+
+      if (selectedFile) {
+        console.log("Отправка файла на сервер:", selectedFile.name);
+        
+        fetch('http://localhost:8000/geojson', { 
+          method: 'POST',
+          body: selectedFile
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log("Сервер успешно обработал файл:", data);
+            // Файл обработан на бэкенде, теперь обновляем карту и таблицу данными из Java!
+            updateDashboard();
+        })
+        .catch(err => console.error("Ошибка при отправке файла:", err));
+      } else {
+        alert("Пожалуйста, сначала выберите файл!");
+      }
+    });
+
+    // 3. Функция запроса GeoJSON и обновления интерфейса
+    function updateDashboard() {
+      fetch('http://localhost:8000/geojson')
+        .then(res => res.json())
+        .then(geojson => {
+          console.log("Получен GeoJSON от сервера:", geojson);
+
+          //schutz vor dem fehler
+          if (!geojson || !geojson.features || geojson.features.length === 0) {
+            console.log("Es gibt noch keine Route, warte auf GPX Upload");
+            return;
+          }
+          
+          // Обновляем линию маршрута на карте
+          if (map.getSource('route')) {
+              map.getSource('route').setData(geojson);
+          } else {
+              map.addSource('route', { type: 'geojson', data: geojson });
+              map.addLayer({
+                id: 'route-line',
+                type: 'line',
+                source: 'route',
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': '#FC4C02', 'line-width': 7 }
+              });
+          }
+
+          // Исправлено: Центрирование карты по координатам без опечаток
+          const coordinates = geojson.features[0].geometry.coordinates;
+          const bounds = coordinates.reduce((acc, coord) => {
+            return acc.extend(coord);
+          }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+          map.fitBounds(bounds, { padding: 50 });
+
+          const routeProperties = geojson.features[0].properties
+        
+          // Обновляем таблицу слева данными из Java ObjectNode properties
+          if (routeProperties) {
+              console.log("Успешно нашли свойства маршрута:", routeProperties);
+
+              document.getElementById('stat-distance').innerText = routeProperties.distanceBetweenPointsGerundet + " км";
+              document.getElementById('stat-time').innerText = routeProperties.time;
+              document.getElementById('stat-avg-speed').innerText = routeProperties.averageSpeedGerundet + " км/ч";
+              document.getElementById('stat-max-speed').innerText = routeProperties.maxGeschwindigkeitKmh + " км/ч";
+              document.getElementById('stat-elevation').innerText = routeProperties.hoeheSummeGerundet + " м";
+              document.getElementById('stat-avg-hr').innerText = routeProperties.averageHR + " уд/мин";
+
+              if (routeProperties.comment) {
+                console.log("komment:" , routeProperties.comment);
+              }
+          } else{
+              console.log("properties nicht gefunden")
+          }
+        })
+        .catch(err => console.error("Ошибка при получении данных маршрута:", err));
+    }
+
+    // Автоматически проверяем наличие маршрута при первой загрузке карты
+    map.on('load', () => {
+        updateDashboard();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add a GeoJSON line</title>
+    <meta property="og:description" content="Add a GeoJSON line to a map using addSource, then style it using addLayer’s paint properties." />
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.22.0/dist/maplibre-gl.css' />
+    <!--<link rel="stylesheet" href="design.css">  -->
+    <script src='https://unpkg.com/maplibre-gl@5.22.0/dist/maplibre-gl.js'></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body, #map {
+    width: 90%;
+    height: 90%;
+}
+
+        
+    </style>
+</head>
+<body>
+
+  <div class="content-wrapper">
+
+    <input id="fileInput" type="file"/>
+    <button id="uploadButton">Datei schicken</button>
+
+
+    <div class="card map-section" style="height: 500px; margin-left: 40%; margin-top: 10%;">
+
+      <div id="map" style="width: 100%; height: 100%;"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    document.getElementById('uploadButton').addEventListener('click', () => {
+      const fileInput = document.getElementById('fileInput');
+      
+      // 3. Prüfen, ob eine Datei ausgewählt wurde
+      if (fileInput.files.length > 0) {
+        const selectedFile = fileInput.files[0];
+        console.log("Datei gefunden:", selectedFile.name);
+        fetch('http://localhost:8000/geojson', { //schicken die variable an den server
+          method: 'POST',
+          body: selectedFile
+        })
+        .then(responce => responce.text())
+        .then(data => console.log("Server sagt: " + data));
+        
+      } else {
+        alert("Bitte wähle zuerst eine Datei aus!");
+      }
+
+
+    });
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/bright', // Standard Style
+      center: [10.44, 51.16], // Startposition (Deutschland)
+      zoom: 5
+    });
+
+    fetch('http://localhost:8000/geojson')  // URL auf deinem Server
+      .then(res => res.json())
+      .then(geojson => {
+        map.on('load', () => {
+        map.addSource('route', { type: 'geojson', data: geojson });
+        map.addLayer({
+          id: 'route-line',
+          type: 'line',
+          source: 'route',
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          paint: { 'line-color': '#FC4C02', 'line-width': 7 }
+        });
+
+        const coordiantes = geojson.features[0].geometry.coordiantes;
+        const bounds = coordinates.reduce((acc, coord) => {
+          return acc.extend(coord);
+        }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+        map.fitBounds(bounds, { padding: 50 });
+      });
+    })
+    .catch(err => console.error("Fehler beim Laden der Route:", err));
+
+  </script>
+</body>
+</html>
