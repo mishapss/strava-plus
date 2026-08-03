@@ -6,7 +6,6 @@ public class TrkPt {
     public String time;
     public double geschwindigkeitMps;
     public int hr;
-    private int heartRate;
 
     public TrkPt (double lat, double lon, double ele, String time, double geschwindigkeitMps, int hr) {                //voller Konsktruktor
         this.lat = lat;
@@ -28,12 +27,9 @@ public class TrkPt {
         this.time = time;
     }
 
-    public TrkPt(int heartRate){
-        this.heartRate = heartRate;
-    }
 
     public int getHeartRate() {
-        return this.heartRate;
+        return hr;
     }
 
     @Override
