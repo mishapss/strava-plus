@@ -24,13 +24,25 @@ public class XmlReader {
     public static double maxGeschwindigkeitKmh;
     public static double hoeheSummeGerundet;
     public static int averageHR;
+    public static int maxHeartRate;
+    public static String timeIn0HrZone;
+    public static String timeIn1HrZone;
+    public static String timeIn2HrZone;
+    public static String timeIn3HrZone;
+    public static String timeIn4HrZone;
+    public static String timeIn5HrZone;
+    public static String activeTimeFormatted;
     public static double averageSpeedGerundet;
+    public static int trainingLoad;
+    public static int aerobicTrainingLoad;  
 
 
     public static void loadGpx(String fileName) throws Exception { //lesen gpx
         File xmlFile = new File(fileName);                       //datei-objekt erstellen, öffnen                                   
         XmlReader reader = new XmlReader();
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
+
+        WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
             System.out.println("XML File existiert nicht");
@@ -78,26 +90,44 @@ public class XmlReader {
             long minutes = duration.toMinutes();
             int minutesInt = Math.toIntExact(minutes);
 
-            double restHoursDouble = minutesInt/60.0;
             int restHours = minutesInt/60;
-            int restMinutes = minutesInt - restHours * 60;
-            int restSekunden = sekundenInt - minutesInt * 60;
 
-
-
-            time = restHours + "h " + restMinutes + "min " + restSekunden + "sek" + "\n";
-
-
+            time = reader.stringFormatZoneTime(sekundenInt);
 
             //ausrechnung der distanz
             double distanceBetweenPoints = calculateTotalDistance(trackPoints);
             distanceBetweenPointsGerundet = Math.round(distanceBetweenPoints * 100.0) / 100.0;
 
+            WorkoutResult result = analyzer.analyzeWorkout(trackPoints, 200);
+            int[] zones = result.timeInZone;
+            
+            trainingLoad = (int)analyzer.getTrainingLoad(trackPoints, 200, 49);
+            aerobicTrainingLoad = (int)analyzer.getAerobicTrainingEffect(trackPoints, 200, 49);
+
+            timeIn0HrZone = reader.stringFormatZoneTime(zones[0]);
+            timeIn1HrZone = reader.stringFormatZoneTime(zones[1]);
+            timeIn2HrZone = reader.stringFormatZoneTime(zones[2]);
+            timeIn3HrZone = reader.stringFormatZoneTime(zones[3]);
+            timeIn4HrZone = reader.stringFormatZoneTime(zones[4]);
+            timeIn5HrZone = reader.stringFormatZoneTime(zones[5]);
+
+            int activeTime = result.heartZones.get(0).size() + result.heartZones.get(1).size() + result.heartZones.get(2).size()
+            + result.heartZones.get(3).size() +
+            result.heartZones.get(4).size() + result.heartZones.get(5).size();
+
+            
+            activeTimeFormatted = reader.stringFormatZoneTime(activeTime);
 
 
             //ausrechnung der durschnittlichen Geschwindigkeit
             double averageSpeed = 0.0;
-            averageSpeed = distanceBetweenPoints/restHoursDouble;
+            int distanceInMeters = (int)(distanceBetweenPoints * 1000); //distanz in meter
+            double geschwindigkeitInMps = distanceInMeters / (double) activeTime; //geschwindigkeit in m/s
+
+            System.out.println("distanceInMeters: " + distanceInMeters + " activeTime: " + activeTime + " geschwindigkeitInMps: " + geschwindigkeitInMps);
+            averageSpeed = geschwindigkeitInMps * 3.6; //geschwindigkeit in
+
+
             System.out.print("distanceBetweenPoints: " + distanceBetweenPoints + " restHours: " + restHours);
             averageSpeedGerundet = Math.round(averageSpeed * 100.0) / 100.0;
 
@@ -113,7 +143,6 @@ public class XmlReader {
                 }
             }
             maxGeschwindigkeitKmh = Math.round(maxGeschwindigkeit * 3.6 * 100) / 100.0;
-
 
 
             //ausrechnung der höheanstieg
@@ -138,16 +167,15 @@ public class XmlReader {
             }
             averageHR = summeHR / trackPoints.size();
 
+            maxHeartRate = analyzer.getMaxHr(trackPoints);
 
+            
 
             //ausgabe
-            System.out.print(" average Speed: " + averageSpeedGerundet + 
-            " distance: " + distanceBetweenPointsGerundet + " time: " + time
-            + " Anstieg: " + hoeheSummeGerundet + " max speed: " + maxGeschwindigkeitKmh + 
+            System.out.print(" average Speed: " + averageSpeedGerundet + " trainingsbelsatung: " + trainingLoad +
+            " distance: " + distanceBetweenPointsGerundet + " time: " + time + " maxHR: " + maxHeartRate
+            + " Anstieg: " + hoeheSummeGerundet + " max speed: " + maxGeschwindigkeitKmh + " activeTimeFormatted: " + activeTimeFormatted +
             " average HR: " + averageHR + "\n" );
-
-            //ausgabe hr daten
-            int[] zones = reader.analyzeWorkout(trackPoints, 200); 
             
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
@@ -158,126 +186,24 @@ public class XmlReader {
         }
     }
 
-        public int[] analyzeWorkout(List<TrkPt> points, int maxHr) { //analysiert hr daten
-        List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
-        
-        for (int i = 0; i < 6; i ++) {
-            heartZones.add(new ArrayList<>());
+    public String stringFormatZoneTime(int totalSeconds) {
+
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+
+        int seconds = totalSeconds % 60;
+        if (hours == 0) {
+            return String.format("%02d:%02d", minutes, seconds);
+        }
+        else {
+            return String.format("%d:%02d:%02d", hours, minutes, seconds);
         }
         
-        for (TrkPt point : points) {
-            int currentHeartRate = point.getHeartRate(); // jetzige HR
-
-            int zoneIndex = determineZone(currentHeartRate, maxHr);
-            heartZones.get(zoneIndex).add(currentHeartRate); // einfügt in die entsprechende zone den hr wert
-            //System.out.println("Heart Rate: " + currentHeartRate + ", Zone: " + zoneIndex);
-        }        
-
-        //ausrechnung der verbringenden zeit in jeder zone        
-        int[] timeInZone = new int[6];
-
-        for (int i = 0; i < points.size() - 1; i++) {
-            TrkPt current = points.get(i);
-            TrkPt next = points.get(i + 1);
-
-            int zoneIndex = determineZone(current.getHeartRate(), maxHr);
-
-            long seconds = calculateTimeDifferenceInSeconds(current.time, next.time);
-
-            timeInZone[zoneIndex] += seconds;     
-        }
-
-        //ausgabe
-        System.out.println("Time in Zone " + 0 + ": " + timeInZone[0] + " seconds");
-        System.out.println("Time in Zone " + 1 + ": " + timeInZone[1] + " seconds");
-        System.out.println("Time in Zone " + 2 + ": " + timeInZone[2] + " seconds");
-        System.out.println("Time in Zone " + 3 + ": " + timeInZone[3] + " seconds");
-        System.out.println("Time in Zone " + 4 + ": " + timeInZone[4] + " seconds");
-        System.out.println("Time in Zone " + 5 + ": " + timeInZone[5] + " seconds");
-
-        int sumTotalTime = timeInZone[0] + timeInZone[1] + timeInZone[2] + timeInZone[3] + timeInZone[4] + timeInZone[5];
-        int sumActiveTime = (heartZones.get(0).size() + heartZones.get(1).size() + heartZones.get(2).size() + heartZones.get(3).size() + heartZones.get(4).size() + heartZones.get(5).size());
-
-        System.out.println("sumTotalTime in Zones 0-5: " + sumTotalTime + " seconds");
-        System.out.println("sumActiveTime in Zones 0-5: " + sumActiveTime + " seconds");
-
-        return timeInZone;
     }
 
-        public long calculateTimeDifferenceInSeconds(String current, String next) { // berechnet die Zeitdifferenz zwischen zwei Zeitpunkten in Sekunden, brauche für ausrechnung der Zeit in jeder Herzfrequenzzone
+    
 
-        String startTimeString = current;
-        String endTimeString = next;
-
-        // Превращаем текстовые строки в объекты времени Instant
-        Instant startToParse = Instant.parse(startTimeString);
-        Instant endToParse = Instant.parse(endTimeString);
-
-        //Считаем разницу между ними
-        Duration duration = Duration.between(startToParse, endToParse);
-        return duration.getSeconds();
-    }
-
-    public int determineZone(int heartRate, int maxHr) { // berechnet die herzfrequenzzone basierend auf der aktuellen herzfrequenz und der maximalen herzfrequenz
-        List<List<Integer>> heartZones = new ArrayList<>();       
-        
-        for (int i = 0; i < 6; i ++) {
-            heartZones.add(new ArrayList<>());
-        }
-        
-        double percentage = (double) heartRate / maxHr * 100;
-
-        if (percentage < 50) {
-            heartZones.get(0).add(heartRate);
-            System.out.println(heartZones.get(0));
-            return 0;
-        }
-        if (percentage < 60) {
-            heartZones.get(1).add(heartRate);
-            return 1;
-        }
-        if (percentage < 70) {
-            heartZones.get(2).add(heartRate);
-            return 2;
-        }
-        if (percentage < 80) {
-            heartZones.get(3).add(heartRate);
-            return 3;
-        }
-        if (percentage < 90) {
-            heartZones.get(4).add(heartRate);
-            return 4;
-        }
-        heartZones.get(5).add(heartRate);
-        return 5;
-    }
-
-    public int getDurchschnittlicheHR(List<TrkPt> points) { // berechnet die durchschnittliche Herzfrequenz aus der Liste von TrkPt-Objekten
-        int sum = 0;
-        int countHR = 0;
-        int durschnittlicheHR = 0;
-
-        for (TrkPt point: points) {
-            int currentHeartRate = point.getHeartRate();
-            if (currentHeartRate > 0) {
-                sum += currentHeartRate;
-                countHR++;
-            }
-        }
-        durschnittlicheHR = sum / countHR;
-        return durschnittlicheHR;
-    }
-    public int getMaxHr(List<TrkPt> points) {
-        //ausrechnung der max hr
-        int maxHeartRate = 0;
-        for (TrkPt point : points) {
-            int currentHeartRate = point.getHeartRate(); // jetzige HR
-            if (currentHeartRate > maxHeartRate) {
-                maxHeartRate = currentHeartRate;
-            }
-        }
-        return maxHeartRate;
-    }
+    
 
     public static void main(String[] args) throws Exception {
         //loadGpx("ride.gpx");
@@ -351,12 +277,21 @@ public class XmlReader {
 
             ObjectNode properties = mapper.createObjectNode();
             properties.put("color", "#a03a3a");
-            properties.put("distanceBetweenPointsGerundet", distanceBetweenPointsGerundet);
+            properties.put("distanceBetweenPointsGerundet", distanceBetweenPointsGerundet); // kommt alles aus loadGpx
             properties.put("time", time);
+            properties.put("activeTimeFormatted", activeTimeFormatted);
             properties.put("averageSpeedGerundet", averageSpeedGerundet );
             properties.put("maxGeschwindigkeitKmh", maxGeschwindigkeitKmh );
             properties.put("hoeheSummeGerundet", hoeheSummeGerundet );
+            properties.put("maxHeartRate", maxHeartRate);
             properties.put("averageHR", averageHR);
+            properties.put("timeIn0HrZone", timeIn0HrZone);
+            properties.put("timeIn1HrZone", timeIn1HrZone);
+            properties.put("timeIn2HrZone", timeIn2HrZone);
+            properties.put("timeIn3HrZone", timeIn3HrZone);
+            properties.put("timeIn4HrZone", timeIn4HrZone);
+            properties.put("timeIn5HrZone", timeIn5HrZone);
+            properties.put("trainingLoad", trainingLoad);
             properties.put("comment", "test");
             feature.set("properties", properties);
 

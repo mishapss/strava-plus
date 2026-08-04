@@ -1,51 +1,15 @@
+import java.util.List;
 import java.io.File;                                                        //datei öfnen
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.time.Duration;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-public class TimeSet {
+import java.util.ArrayList;
+
+public class WorkoutAnalyzer { //klasse für die analyze des trainings
     
-    public int maxHr = 200;
-
-    public static void main(String[] args) throws IOException {
-
-        File xmlFile = new File("C:\\Users\\MikhailLeshchenko\\strava_plus\\route_uploaf.gpx");  //C:\\Users\\User\\projects_programming\\strava-plus-main\\route_uploaf.gpx
-        XmlMapper xmlMapper = new XmlMapper();                  //tool um aus xml in java zu gehen
-        List<TrkPt> points = new ArrayList<>();
-
-        try {
-            JsonNode root = xmlMapper.readTree(xmlFile);        //xml wird als baumstruktur geladen    
-
-            JsonNode trkptNode = root.path("trk").path("trkseg").path("trkpt");
-
-            for (JsonNode trkpt : trkptNode){
-                double lat = trkpt.path("lat").asDouble();
-                double lon = trkpt.path("lon").asDouble();
-                double ele = trkpt.path("ele").asDouble();
-                String time = trkpt.path("time").asText();
-
-                int hr = trkpt.path("extensions").path("hr").asInt();
-
-                TrkPt point = new TrkPt(lat, lon, ele, time, 0.0, hr);
-                points.add(point);                         //jeder punkt zur liste hinzugefügt             
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        TimeSet timeSet = new TimeSet();
-        timeSet.analyzeWorkout(points, 200);
-        int durchschnittlicheHR = timeSet.getDurchschnittlicheHR(points);
-        int maxHR = timeSet.getMaxHr(points);
-        System.out.println("Durchschnittliche Herzfrequenz: " + durchschnittlicheHR);
-        System.out.println("Maximale Herzfrequenz: " + maxHR);
-    }
-
-    public void analyzeWorkout(List<TrkPt> points, int maxHr) {
+    public WorkoutResult analyzeWorkout(List<TrkPt> points, int maxHr) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
+        XmlReader reader = new XmlReader(); // erstellt ein neues XmlReader objekt, um die GPX-Datei zu lesen
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -58,6 +22,7 @@ public class TimeSet {
             heartZones.get(zoneIndex).add(currentHeartRate); // einfügt in die entsprechende zone den hr wert
             //System.out.println("Heart Rate: " + currentHeartRate + ", Zone: " + zoneIndex);
         }        
+
 
         //ausrechnung der verbringenden zeit in jeder zone        
         int[] timeInZone = new int[6];
@@ -80,15 +45,12 @@ public class TimeSet {
         System.out.println("Time in Zone " + 3 + ": " + timeInZone[3] + " seconds");
         System.out.println("Time in Zone " + 4 + ": " + timeInZone[4] + " seconds");
         System.out.println("Time in Zone " + 5 + ": " + timeInZone[5] + " seconds");
+        //System.out.println(reader.activeTimeFormatted);
 
-        int sumTotalTime = timeInZone[0] + timeInZone[1] + timeInZone[2] + timeInZone[3] + timeInZone[4] + timeInZone[5];
-        int sumActiveTime = (heartZones.get(0).size() + heartZones.get(1).size() + heartZones.get(2).size() + heartZones.get(3).size() + heartZones.get(4).size() + heartZones.get(5).size());
-
-        System.out.println("sumTotalTime in Zones 0-5: " + sumTotalTime + " seconds");
-        System.out.println("sumActiveTime in Zones 0-5: " + sumActiveTime + " seconds");
+        return new WorkoutResult(timeInZone, heartZones);
     }
 
-    public long calculateTimeDifferenceInSeconds(String current, String next) {
+    public long calculateTimeDifferenceInSeconds(String current, String next) { // berechnet die Zeitdifferenz zwischen zwei Zeitpunkten in Sekunden, brauche für ausrechnung der Zeit in jeder Herzfrequenzzone
 
         String startTimeString = current;
         String endTimeString = next;
@@ -108,27 +70,24 @@ public class TimeSet {
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
         }
-        
-        double percentage = (double) heartRate / maxHr * 100;
 
-        if (percentage < 50) {
+        if (heartRate < 142) {
             heartZones.get(0).add(heartRate);
-            System.out.println(heartZones.get(0));
             return 0;
         }
-        if (percentage < 60) {
+        if (heartRate < 159) {
             heartZones.get(1).add(heartRate);
             return 1;
         }
-        if (percentage < 70) {
+        if (heartRate < 168) {
             heartZones.get(2).add(heartRate);
             return 2;
         }
-        if (percentage < 80) {
+        if (heartRate < 181) {
             heartZones.get(3).add(heartRate);
             return 3;
         }
-        if (percentage < 90) {
+        if (heartRate < 188) {
             heartZones.get(4).add(heartRate);
             return 4;
         }
@@ -151,6 +110,7 @@ public class TimeSet {
         durschnittlicheHR = sum / countHR;
         return durschnittlicheHR;
     }
+
     public int getMaxHr(List<TrkPt> points) {
         //ausrechnung der max hr
         int maxHeartRate = 0;
@@ -161,5 +121,43 @@ public class TimeSet {
             }
         }
         return maxHeartRate;
+    }
+
+    public double getTrainingLoad(List<TrkPt> points, int maxHR, int ruheHR) { //methode um die trainingsbelastung zu berechnen
+        double e = Math.E;
+        double trainingLoad = 0.0;
+        double relativeHR = 0.0;    
+        double intensityFaktor = 0.0;
+        
+        for (TrkPt point : points) {
+            int currentHeartRate = point.getHeartRate(); // jetzige HR
+
+            relativeHR = (currentHeartRate - ruheHR) / (double)(maxHR - ruheHR); //relative Herzfrequenz berechnen
+
+            intensityFaktor = 0.64 * Math.pow(e, (1.92 * relativeHR))/53;
+            
+            trainingLoad += relativeHR * intensityFaktor;
+        }
+
+        return trainingLoad;
+    }
+
+    public double getTrainingstatus() {
+        return 0.0; //methode zur berechnung der trainingsstatus, die noch implementiert werden muss
+    }
+
+
+
+    //machdenken, wie man es realisiert, da die skala von 0 bis 6 geht, eine methode finden oder die daten analysieren
+    public double getAerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
+        double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
+        WorkoutResult result = analyzeWorkout(points, 200);
+        int[] zones = result.timeInZone;
+
+        double aerobicWert = zones[1] * 0.3 + zones[2] * 1.0 + zones[3] * 1.5 + zones[4] * 1.8 + zones[5] * 0.5; //zeit in den aeroben zonen
+        double aerobicFraction = aerobicWert / (zones[0] + zones[1] + zones[2] + zones[3] + zones[4] + zones[5]); //anteil der aeroben zeit an der gesamten zeit
+        double aerobicTrainingEffect = trainingLoad * aerobicFraction / 8.57; //berechnung des aeroben trainingseffekt
+        System.out.println("Aerobic Training Effect: " + aerobicTrainingEffect);
+        return aerobicTrainingEffect;
     }
 }

@@ -148,39 +148,75 @@
         <h2>Панель трека</h2>
         
         <label for="fileInput" class="custom-file-upload">
-            Выбрать файл GPX
+            gpx datei auswählen
         </label>
         <input id="fileInput" type="file" />
-        <button id="uploadButton" class="action-btn">Отправить на сервер</button>
+        <button id="uploadButton" class="action-btn">an den server schicken</button>
 
-        <h2>Показатели заезда</h2>
+        <h2>fahrt info</h2>
 
         <p id="server-comment" style="color: #FC4C02;font-weight: bold; margin-bottom: 15px;"></p> 
 
         <table class="stats-table">
             <tr>
-                <td class="label">Дистанция</td>
-                <td id="stat-distance" class="value highlight">-- км</td>
+                <td class="label">distanz</td>
+                <td id="stat-distance" class="value highlight">-- km</td>
             </tr>
             <tr>
-                <td class="label">Время в пути</td>
+                <td class="label">zeit</td>
                 <td id="stat-time" class="value">--</td>
             </tr>
             <tr>
-                <td class="label">Средняя скорость</td>
-                <td id="stat-avg-speed" class="value">-- км/ч</td>
+                <td class="label">zeit in bewegung</td>
+                <td id="stat-active-time" class="value">--</td>
             </tr>
             <tr>
-                <td class="label">Макс. скорость</td>
-                <td id="stat-max-speed" class="value">-- км/ч</td>
+                <td class="label">durchschnittliche geschwindigkeit</td>
+                <td id="stat-avg-speed" class="value">-- km/h</td>
             </tr>
             <tr>
-                <td class="label">Набор высоты</td>
-                <td id="stat-elevation" class="value highlight">-- м</td>
+                <td class="label">max geschwindigkeit</td>
+                <td id="stat-max-speed" class="value">-- km/h</td>
             </tr>
             <tr>
-                <td class="label">Средний пульс</td>
-                <td id="stat-avg-hr" class="value">-- уд/мин</td>
+                <td class="label">anstieg</td>
+                <td id="stat-elevation" class="value highlight">-- m</td>
+            </tr>
+            <tr>
+                <td class="label">max hr</td>
+                <td id="stat-max-hr" class="value">-- bpm</td>
+            </tr>
+            <tr>
+                <td class="label">durchschnittlicher hr</td>
+                <td id="stat-avg-hr" class="value">-- bpm</td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 0. HR Zone</td>
+                <td id="stat-time-in-0-hr-zone" class="value">-- h min sec</td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 1. HR Zone</td>
+                <td id="stat-time-in-1-hr-zone" class="value">-- h min sec</td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 2. HR Zone</td>
+                <td id="stat-time-in-2-hr-zone" class="value">-- h min sec </td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 3. HR Zone</td>
+                <td id="stat-time-in-3-hr-zone" class="value">-- h min sec</td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 4. HR Zone</td>
+                <td id="stat-time-in-4-hr-zone" class="value">-- h min sec</td>
+            </tr>
+            <tr>
+                <td class="label">Zeit in der 5. HR Zone</td>
+                <td id="stat-time-in-5-hr-zone" class="value">-- h min sec</td>
+            </tr>
+            <tr>
+                <td class="label">Trainingsbelastung</td>
+                <td id="stat-training-load" class="value">--</td>
             </tr>
         </table>
     </div>
@@ -264,12 +300,22 @@
           if (routeProperties) {
               console.log("Успешно нашли свойства маршрута:", routeProperties);
 
-              document.getElementById('stat-distance').innerText = routeProperties.distanceBetweenPointsGerundet + " км";
+              document.getElementById('stat-distance').innerText = routeProperties.distanceBetweenPointsGerundet + " km";
               document.getElementById('stat-time').innerText = routeProperties.time;
-              document.getElementById('stat-avg-speed').innerText = routeProperties.averageSpeedGerundet + " км/ч";
-              document.getElementById('stat-max-speed').innerText = routeProperties.maxGeschwindigkeitKmh + " км/ч";
-              document.getElementById('stat-elevation').innerText = routeProperties.hoeheSummeGerundet + " м";
-              document.getElementById('stat-avg-hr').innerText = routeProperties.averageHR + " уд/мин";
+              document.getElementById('stat-active-time').innerText = routeProperties.activeTimeFormatted;
+              document.getElementById('stat-avg-speed').innerText = routeProperties.averageSpeedGerundet + " km/h";
+              document.getElementById('stat-max-speed').innerText = routeProperties.maxGeschwindigkeitKmh + " km/h";
+              document.getElementById('stat-elevation').innerText = routeProperties.hoeheSummeGerundet + " m";
+              document.getElementById('stat-max-hr').innerText = routeProperties.maxHeartRate + " bpm"; //maxHeartRate kommt aus XmlReader.java
+              document.getElementById('stat-avg-hr').innerText = routeProperties.averageHR + " bpm";
+              document.getElementById('stat-time-in-0-hr-zone').innerText = routeProperties.timeIn0HrZone;
+              document.getElementById('stat-time-in-1-hr-zone').innerText = routeProperties.timeIn1HrZone;
+              document.getElementById('stat-time-in-2-hr-zone').innerText = routeProperties.timeIn2HrZone;
+              document.getElementById('stat-time-in-3-hr-zone').innerText = routeProperties.timeIn3HrZone;
+              document.getElementById('stat-time-in-4-hr-zone').innerText = routeProperties.timeIn4HrZone;
+              document.getElementById('stat-time-in-5-hr-zone').innerText = routeProperties.timeIn5HrZone;
+              document.getElementById('stat-training-load').innerText = routeProperties.trainingLoad;
+
 
               if (routeProperties.comment) {
                 console.log("komment:" , routeProperties.comment);
