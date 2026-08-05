@@ -49,13 +49,12 @@ public class FileUploader {
             } else {
                 System.out.println("failed to upload the file: '" +  fileName + "'");
                 System.out.println("Error: " + response.body());
-                //System.out.println(output);
             }
         } catch(IOException | InterruptedException e ){
             System.out.println("Error:" + e.getMessage());
             e.printStackTrace();                                                                    // zeigt detaliert, was schief ist
         }
-        //System.out.println(output);
+        
         
     }
 }

@@ -1,6 +1,6 @@
 import java.util.List;
-import java.io.File;                                                        //datei öfnen
-import java.io.IOException;
+//import java.io.File;                                                        //datei öfnen
+//import java.io.IOException;
 import java.time.Instant;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
     
     public WorkoutResult analyzeWorkout(List<TrkPt> points, int maxHr) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
-        XmlReader reader = new XmlReader(); // erstellt ein neues XmlReader objekt, um die GPX-Datei zu lesen
+        //XmlReader reader = new XmlReader(); // erstellt ein neues XmlReader objekt, um die GPX-Datei zu lesen
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -39,6 +39,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         }
 
         //ausgabe
+        /* 
         System.out.println("Time in Zone " + 0 + ": " + timeInZone[0] + " seconds");
         System.out.println("Time in Zone " + 1 + ": " + timeInZone[1] + " seconds");
         System.out.println("Time in Zone " + 2 + ": " + timeInZone[2] + " seconds");
@@ -46,7 +47,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         System.out.println("Time in Zone " + 4 + ": " + timeInZone[4] + " seconds");
         System.out.println("Time in Zone " + 5 + ": " + timeInZone[5] + " seconds");
         //System.out.println(reader.activeTimeFormatted);
-
+*/
         return new WorkoutResult(timeInZone, heartZones);
     }
 
@@ -71,7 +72,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             heartZones.add(new ArrayList<>());
         }
 
-        if (heartRate < 142) {
+        if (heartRate < 137) {
             heartZones.get(0).add(heartRate);
             return 0;
         }
@@ -79,7 +80,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             heartZones.get(1).add(heartRate);
             return 1;
         }
-        if (heartRate < 168) {
+        if (heartRate < 175) {
             heartZones.get(2).add(heartRate);
             return 2;
         }
@@ -87,7 +88,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             heartZones.get(3).add(heartRate);
             return 3;
         }
-        if (heartRate < 188) {
+        if (heartRate < 191) {
             heartZones.get(4).add(heartRate);
             return 4;
         }
@@ -138,7 +139,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             
             trainingLoad += relativeHR * intensityFaktor;
         }
-
+        System.out.println("relativeHR: " + relativeHR);
         return trainingLoad;
     }
 
@@ -146,18 +147,54 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return 0.0; //methode zur berechnung der trainingsstatus, die noch implementiert werden muss
     }
 
-
-
-    //machdenken, wie man es realisiert, da die skala von 0 bis 6 geht, eine methode finden oder die daten analysieren
     public double getAerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
+        double e = Math.E;
+
         double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
         WorkoutResult result = analyzeWorkout(points, 200);
         int[] zones = result.timeInZone;
 
-        double aerobicWert = zones[1] * 0.3 + zones[2] * 1.0 + zones[3] * 1.5 + zones[4] * 1.8 + zones[5] * 0.5; //zeit in den aeroben zonen
+        //faktoren benötigte zur berechnung        
+        double faktor0 = 0.539;
+        double faktor1 = 0.315;
+        double faktor2 = 0.799;
+        double faktor3 = 0.2;
+        double faktor4 = 0.1;
+        double faktor5 = 0.05;
+
+        
+        double aerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
+        zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen
+        
         double aerobicFraction = aerobicWert / (zones[0] + zones[1] + zones[2] + zones[3] + zones[4] + zones[5]); //anteil der aeroben zeit an der gesamten zeit
-        double aerobicTrainingEffect = trainingLoad * aerobicFraction / 8.57; //berechnung des aeroben trainingseffekt
-        System.out.println("Aerobic Training Effect: " + aerobicTrainingEffect);
-        return aerobicTrainingEffect;
+
+        double aerobicTrainingEffect = trainingLoad * aerobicFraction; //berechnung des aeroben trainingseffekt
+       
+        /* 
+        System.out.println("aerobicwert zone 0: " + zones[0] * faktor0 + " aerobicwert zone 1: " + zones[1] * faktor1 +
+        " aerobicwert zone 2: " + zones[2] * faktor2 + " aerobicwert zone 3: " + zones[3] * faktor3 + 
+        " aerobicwert zone 4: " + zones[4] * faktor4 + " aerobicwert zone 5: " + zones[5] * faktor5);
+        */
+
+        double aerobicTE = 5 * (1 - Math.pow(e, (-aerobicTrainingEffect / 60))); //berechnung des aeroben trainingseffekt auf einer skala von 0 bis 5
+        
+        System.out.println("TB: " + getTrainingLoad(points, 200, 47));
+
+        
+        
+        return Math.round(aerobicTE * 10.0) / 10.0;
+    }
+
+    public double getKalorienVerbrauch(List<TrkPt> points, int gewicht, int alter) { //methode zur berechnung des Kalorienverbrauchs anhand der Herzfrequenzdaten und des Gewichts
+        double kcalGesamt = 0.0;
+        for (TrkPt point: points)   {
+            int currentHeartRate = point.getHeartRate();
+            double kcalInMin = (-55.0969 + 0.6309 * currentHeartRate + 0.1988 * gewicht + 0.2017 * alter) / 8; //berechnung der Kalorien pro Minute
+
+            kcalGesamt += kcalInMin / 60; //gesamtkalorienverbrauch
+        }
+        System.out.println("Kalorienverbrauch: " + kcalGesamt);
+        return Math.round(kcalGesamt * 100.0) / 100.0; 
+        
     }
 }

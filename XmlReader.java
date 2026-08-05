@@ -11,15 +11,19 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;                                                        //datei öfnen
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
+//import java.time.format.DateTimeFormatter;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
+//import java.util.List;
+import java.time.ZoneId;
 
 public class XmlReader {
 
     public static String geoJsonData;                           //speicher für die fertige route
     public static double distanceBetweenPointsGerundet;
     public static String time;
+    public static String dateString;
     public static double averageSpeed;
     public static double maxGeschwindigkeitKmh;
     public static double hoeheSummeGerundet;
@@ -35,13 +39,15 @@ public class XmlReader {
     public static double averageSpeedGerundet;
     public static int trainingLoad;
     public static int aerobicTrainingLoad;  
+    public static double kalorien;
+    public static double aerobicTrainingEffect;
 
 
     public static void loadGpx(String fileName) throws Exception { //lesen gpx
         File xmlFile = new File(fileName);                       //datei-objekt erstellen, öffnen                                   
         XmlReader reader = new XmlReader();
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
-
+        
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
@@ -81,7 +87,14 @@ public class XmlReader {
 
             // Превращаем текстовые строки в объекты времени Instant
             Instant startToParse = Instant.parse(startTimeString);
+            System.out.println(startToParse); //2026-06-29T16:33:35Z
             Instant endToParse = Instant.parse(endTimeString);
+
+            //berechnung des datums
+            LocalDate date = startToParse.atZone(ZoneId.systemDefault()).toLocalDate();
+            String dateString = date.toString();
+            XmlReader.dateString = dateString;
+
 
             //Считаем разницу между ними
             Duration duration = Duration.between(startToParse, endToParse);
@@ -123,14 +136,15 @@ public class XmlReader {
             double averageSpeed = 0.0;
             int distanceInMeters = (int)(distanceBetweenPoints * 1000); //distanz in meter
             double geschwindigkeitInMps = distanceInMeters / (double) activeTime; //geschwindigkeit in m/s
-
-            System.out.println("distanceInMeters: " + distanceInMeters + " activeTime: " + activeTime + " geschwindigkeitInMps: " + geschwindigkeitInMps);
             averageSpeed = geschwindigkeitInMps * 3.6; //geschwindigkeit in
-
-
-            System.out.print("distanceBetweenPoints: " + distanceBetweenPoints + " restHours: " + restHours);
             averageSpeedGerundet = Math.round(averageSpeed * 100.0) / 100.0;
 
+            //ausrechnung der Kalorien
+            double kalorien = analyzer.getKalorienVerbrauch(trackPoints, 200, 19);//ausrechnung der kalorien
+            XmlReader.kalorien = kalorien;
+
+            double aerobicTrainingEffect = analyzer.getAerobicTrainingEffect(trackPoints, 200, 47);
+            XmlReader.aerobicTrainingEffect = aerobicTrainingEffect;
 
             //ausrechnung der max geschwindigkeit
             double maxGeschwindigkeit = 0.0;
@@ -175,7 +189,7 @@ public class XmlReader {
             System.out.print(" average Speed: " + averageSpeedGerundet + " trainingsbelsatung: " + trainingLoad +
             " distance: " + distanceBetweenPointsGerundet + " time: " + time + " maxHR: " + maxHeartRate
             + " Anstieg: " + hoeheSummeGerundet + " max speed: " + maxGeschwindigkeitKmh + " activeTimeFormatted: " + activeTimeFormatted +
-            " average HR: " + averageHR + "\n" );
+            " average HR: " + averageHR + " kalorien: " + kalorien + "\n" );
             
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
@@ -274,9 +288,11 @@ public class XmlReader {
             geometry.put("type", "LineString");                                //sagt der karte, es ist eine linie
             geometry.set("coordinates", coordinatesNode);                      //koordinaten einfügen
             feature.set("geometry", geometry);                                 //alles zusammenbauen
+            
 
             ObjectNode properties = mapper.createObjectNode();
             properties.put("color", "#a03a3a");
+            properties.put("date", dateString);
             properties.put("distanceBetweenPointsGerundet", distanceBetweenPointsGerundet); // kommt alles aus loadGpx
             properties.put("time", time);
             properties.put("activeTimeFormatted", activeTimeFormatted);
@@ -292,6 +308,9 @@ public class XmlReader {
             properties.put("timeIn4HrZone", timeIn4HrZone);
             properties.put("timeIn5HrZone", timeIn5HrZone);
             properties.put("trainingLoad", trainingLoad);
+            properties.put("kalorien", kalorien);
+            properties.put("aerobicTrainingEffect", aerobicTrainingEffect);
+
             properties.put("comment", "test");
             feature.set("properties", properties);
 

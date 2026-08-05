@@ -159,6 +159,10 @@
 
         <table class="stats-table">
             <tr>
+                <td class="label">Datum</td>
+                <td id="stat-datum" class="value highlight">--</td>
+            </tr>
+            <tr>
                 <td class="label">distanz</td>
                 <td id="stat-distance" class="value highlight">-- km</td>
             </tr>
@@ -217,6 +221,14 @@
             <tr>
                 <td class="label">Trainingsbelastung</td>
                 <td id="stat-training-load" class="value">--</td>
+            </tr>
+            <tr>
+                <td class="label">Kalorien</td>
+                <td id="stat-kalorien" class="value">--</td>
+            </tr>
+            <tr>
+                <td class="label">Aerobik Trainingseffekt</td>
+                <td id="stat-aerobic-training-effect" class="value">--</td>
             </tr>
         </table>
     </div>
@@ -299,7 +311,7 @@
           // Обновляем таблицу слева данными из Java ObjectNode properties
           if (routeProperties) {
               console.log("Успешно нашли свойства маршрута:", routeProperties);
-
+              document.getElementById('stat-datum').innerText = routeProperties.date;
               document.getElementById('stat-distance').innerText = routeProperties.distanceBetweenPointsGerundet + " km";
               document.getElementById('stat-time').innerText = routeProperties.time;
               document.getElementById('stat-active-time').innerText = routeProperties.activeTimeFormatted;
@@ -315,6 +327,9 @@
               document.getElementById('stat-time-in-4-hr-zone').innerText = routeProperties.timeIn4HrZone;
               document.getElementById('stat-time-in-5-hr-zone').innerText = routeProperties.timeIn5HrZone;
               document.getElementById('stat-training-load').innerText = routeProperties.trainingLoad;
+              document.getElementById('stat-kalorien').innerText = routeProperties.kalorien;
+              document.getElementById('stat-aerobic-training-effect').innerText = routeProperties.aerobicTrainingEffect;
+              
 
 
               if (routeProperties.comment) {
