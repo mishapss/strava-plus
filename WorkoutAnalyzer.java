@@ -6,10 +6,19 @@ import java.time.Duration;
 import java.util.ArrayList;
 
 public class WorkoutAnalyzer { //klasse für die analyze des trainings
+    public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
     
-    public WorkoutResult analyzeWorkout(List<TrkPt> points, int maxHr) { //analysiert hr daten
+    public WorkoutResult analyzeWorkout(List<TrkPt> points) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
         //XmlReader reader = new XmlReader(); // erstellt ein neues XmlReader objekt, um die GPX-Datei zu lesen
+
+        int[] hr = SQLite.getHRDaten();
+
+        int maxHR = hr[0];
+        int ruheHR = hr[1];
+
+        //debug
+        System.out.println("maxHr: " + maxHR + "ruheHr: " + ruheHR);
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -18,7 +27,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
 
-            int zoneIndex = determineZone(currentHeartRate, maxHr);
+            int zoneIndex = determineZone(currentHeartRate, maxHR);
             heartZones.get(zoneIndex).add(currentHeartRate); // einfügt in die entsprechende zone den hr wert
         }        
 
@@ -30,7 +39,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             TrkPt current = points.get(i);
             TrkPt next = points.get(i + 1);
 
-            int zoneIndex = determineZone(current.getHeartRate(), maxHr);
+            int zoneIndex = determineZone(current.getHeartRate(), maxHR);
 
             long seconds = calculateTimeDifferenceInSeconds(current.time, next.time);
 
@@ -100,8 +109,8 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return durschnittlicheHR;
     }
 
-    public int getMaxHr(List<TrkPt> points) {
-        //ausrechnung der max hr
+    public int getMaxHr(List<TrkPt> points) { //ausrechnung der max hr
+        
         int maxHeartRate = 0;
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
@@ -130,15 +139,15 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return trainingLoad;
     }
 
-    public double getTrainingstatus() {
-        return 0.0; //methode zur berechnung der trainingsstatus, die noch implementiert werden muss
+    public double getTrainingstatus() { //methode zur berechnung der trainingsstatus, die noch implementiert werden muss
+        return 0.0; 
     }
 
     public double getAerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
         double e = Math.E;
 
         double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
-        WorkoutResult result = analyzeWorkout(points, 200);
+        WorkoutResult result = analyzeWorkout(points);
         int[] zones = result.timeInZone;
 
         //faktoren benötigte zur berechnung        
@@ -160,11 +169,12 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         
         return Math.round(aerobicTE * 10.0) / 10.0;
     }
+    
     public double getAnaerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
         double e = Math.E;
 
         double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
-        WorkoutResult result = analyzeWorkout(points, 200);
+        WorkoutResult result = analyzeWorkout(points);
         int[] zones = result.timeInZone;
 
         //faktoren benötigte zur berechnung        

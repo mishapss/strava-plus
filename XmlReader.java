@@ -44,7 +44,7 @@ public class XmlReader {
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
         
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
-        SQLite dbconnecter = new SQLite();
+        //SQLite dbconnecter = new SQLite();
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
             System.out.println("XML File existiert nicht");
@@ -102,7 +102,7 @@ public class XmlReader {
             double distanceBetweenPoints = calculateTotalDistance(trackPoints);
             distanceBetweenPointsGerundet = Math.round(distanceBetweenPoints * 100.0) / 100.0;
 
-            WorkoutResult result = analyzer.analyzeWorkout(trackPoints, 200);
+            WorkoutResult result = analyzer.analyzeWorkout(trackPoints);
             int[] zones = result.timeInZone;
             
             trainingLoad = (int)analyzer.getTrainingLoad(trackPoints, 200, 49);
@@ -191,6 +191,7 @@ public class XmlReader {
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
                 hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
 
+            //hr daten vom training in db einfügen
             SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
             
         } catch (IOException e) {
