@@ -28,9 +28,9 @@ public class FaktorSucher {
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();
 
         for (Training training: trainings) {
-            double aerobicTrainingEffekt = analyzer.getAerobicTrainingEffect(trainings,200, 47);
+            double aerobicTrainingEffekt = analyzer.getAerobicTrainingEffect(training.getPoints(),200, 47);
 
-            double fehler = aerobicTrainingEffekt - aerobicTrainingEffektCoros;
+            double fehler = aerobicTrainingEffekt - training.getAerobicTrainingEffektCoros();
             double quadratischFehler = fehler * fehler;
 
         }

@@ -20,7 +20,6 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
             int zoneIndex = determineZone(currentHeartRate, maxHr);
             heartZones.get(zoneIndex).add(currentHeartRate); // einfügt in die entsprechende zone den hr wert
-            //System.out.println("Heart Rate: " + currentHeartRate + ", Zone: " + zoneIndex);
         }        
 
 
@@ -37,17 +36,6 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
             timeInZone[zoneIndex] += seconds;     
         }
-
-        //ausgabe
-        /* 
-        System.out.println("Time in Zone " + 0 + ": " + timeInZone[0] + " seconds");
-        System.out.println("Time in Zone " + 1 + ": " + timeInZone[1] + " seconds");
-        System.out.println("Time in Zone " + 2 + ": " + timeInZone[2] + " seconds");
-        System.out.println("Time in Zone " + 3 + ": " + timeInZone[3] + " seconds");
-        System.out.println("Time in Zone " + 4 + ": " + timeInZone[4] + " seconds");
-        System.out.println("Time in Zone " + 5 + ": " + timeInZone[5] + " seconds");
-        //System.out.println(reader.activeTimeFormatted);
-*/
         return new WorkoutResult(timeInZone, heartZones);
     }
 
@@ -139,7 +127,6 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             
             trainingLoad += relativeHR * intensityFaktor;
         }
-        System.out.println("relativeHR: " + relativeHR);
         return trainingLoad;
     }
 
@@ -161,7 +148,6 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         double faktor3 = 0.2;
         double faktor4 = 0.1;
         double faktor5 = 0.05;
-
         
         double aerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
         zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen
@@ -169,20 +155,41 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         double aerobicFraction = aerobicWert / (zones[0] + zones[1] + zones[2] + zones[3] + zones[4] + zones[5]); //anteil der aeroben zeit an der gesamten zeit
 
         double aerobicTrainingEffect = trainingLoad * aerobicFraction; //berechnung des aeroben trainingseffekt
-       
-        /* 
-        System.out.println("aerobicwert zone 0: " + zones[0] * faktor0 + " aerobicwert zone 1: " + zones[1] * faktor1 +
-        " aerobicwert zone 2: " + zones[2] * faktor2 + " aerobicwert zone 3: " + zones[3] * faktor3 + 
-        " aerobicwert zone 4: " + zones[4] * faktor4 + " aerobicwert zone 5: " + zones[5] * faktor5);
-        */
 
-        double aerobicTE = 5 * (1 - Math.pow(e, (-aerobicTrainingEffect / 60))); //berechnung des aeroben trainingseffekt auf einer skala von 0 bis 5
-        
-        System.out.println("TB: " + getTrainingLoad(points, 200, 47));
-
-        
+        double aerobicTE = 5 * (1 - Math.pow(e, (-aerobicTrainingEffect / 60))); //berechnung des aeroben trainingseffekt auf einer skala von 0 bis 5     
         
         return Math.round(aerobicTE * 10.0) / 10.0;
+    }
+    public double getAnaerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
+        double e = Math.E;
+
+        double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
+        WorkoutResult result = analyzeWorkout(points, 200);
+        int[] zones = result.timeInZone;
+
+        //faktoren benötigte zur berechnung        
+        double faktor0 = 0.0;
+        double faktor1 = 0.005;
+        double faktor2 = 0.06;
+        double faktor3 = 0.2;
+        double faktor4 = 0.45;
+        double faktor5 = 0.6;
+        
+        double anaerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
+        zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen
+
+        System.out.println("anaerobicWert: " + anaerobicWert);
+        
+        double anaerobicFraction = anaerobicWert / (zones[0] + zones[1] + zones[2] + zones[3] + zones[4] + zones[5]); //anteil der aeroben zeit an der gesamten zeit
+        System.out.println("anaerobicFraction: " + anaerobicFraction);
+
+        double anaerobicTrainingEffect = trainingLoad * anaerobicFraction; //berechnung des aeroben trainingseffekt
+        System.out.println("anaerobicTrainingEffect: " + anaerobicTrainingEffect);
+
+        double anaerobicTE = 5 * (1 - Math.pow(e, (-anaerobicTrainingEffect / 60))); //berechnung des aeroben trainingseffekt auf einer skala von 0 bis 5     
+        System.out.println("anaerobicTE: " + anaerobicTE);
+        System.out.println("ate: " + Math.round(anaerobicTE * 10.0) / 10.0);
+        return Math.round(anaerobicTE * 10.0) / 10.0;
     }
 
     public double getKalorienVerbrauch(List<TrkPt> points, int gewicht, int alter) { //methode zur berechnung des Kalorienverbrauchs anhand der Herzfrequenzdaten und des Gewichts
@@ -193,7 +200,6 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
             kcalGesamt += kcalInMin / 60; //gesamtkalorienverbrauch
         }
-        System.out.println("Kalorienverbrauch: " + kcalGesamt);
         return Math.round(kcalGesamt * 100.0) / 100.0; 
         
     }

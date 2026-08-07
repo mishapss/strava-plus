@@ -3,19 +3,13 @@ import com.fasterxml.jackson.databind.JsonNode;                             //da
 import com.fasterxml.jackson.databind.ObjectWriter;                         //formatierung json schön
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-//import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-
 import java.io.File;                                                        //datei öfnen
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-//import java.time.format.DateTimeFormatter;
 import java.time.Duration;
 import java.util.ArrayList;
-//import java.util.List;
 import java.time.ZoneId;
 
 public class XmlReader {
@@ -41,6 +35,7 @@ public class XmlReader {
     public static int aerobicTrainingLoad;  
     public static double kalorien;
     public static double aerobicTrainingEffect;
+    public static double anaerobicTrainingEffect;
 
 
     public static void loadGpx(String fileName) throws Exception { //lesen gpx
@@ -49,6 +44,7 @@ public class XmlReader {
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
         
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
+        SQLite dbconnecter = new SQLite();
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
             System.out.println("XML File existiert nicht");
@@ -69,11 +65,10 @@ public class XmlReader {
 
                 double geschwindigkeitMps = trkpt.path("extensions").path("speed").asDouble();
                 int hr = trkpt.path("extensions").path("hr").asInt();
-                //System.out.println(" HR: " + hr);
 
 
                 TrkPt punkt = new TrkPt(lat, lon, ele, time, geschwindigkeitMps, hr);    //jeder punkt als objekt gespeichert 
-                trackPoints.add(punkt);                          //jeder punkt zur liste hinzugefügt             
+                trackPoints.add(punkt);                                                  //jeder punkt zur liste hinzugefügt             
             }
 
             
@@ -100,11 +95,7 @@ public class XmlReader {
             Duration duration = Duration.between(startToParse, endToParse);
             long sekunden = duration.toSeconds();
             int sekundenInt = Math.toIntExact(sekunden);
-            long minutes = duration.toMinutes();
-            int minutesInt = Math.toIntExact(minutes);
-
-            int restHours = minutesInt/60;
-
+            
             time = reader.stringFormatZoneTime(sekundenInt);
 
             //ausrechnung der distanz
@@ -146,6 +137,9 @@ public class XmlReader {
             double aerobicTrainingEffect = analyzer.getAerobicTrainingEffect(trackPoints, 200, 47);
             XmlReader.aerobicTrainingEffect = aerobicTrainingEffect;
 
+            double anaerobicTrainingEffect = analyzer.getAnaerobicTrainingEffect(trackPoints, 200, 47);
+            XmlReader.anaerobicTrainingEffect = anaerobicTrainingEffect;
+
             //ausrechnung der max geschwindigkeit
             double maxGeschwindigkeit = 0.0;
 
@@ -183,8 +177,6 @@ public class XmlReader {
 
             maxHeartRate = analyzer.getMaxHr(trackPoints);
 
-            
-
             //ausgabe
             System.out.print(" average Speed: " + averageSpeedGerundet + " trainingsbelsatung: " + trainingLoad +
             " distance: " + distanceBetweenPointsGerundet + " time: " + time + " maxHR: " + maxHeartRate
@@ -193,6 +185,13 @@ public class XmlReader {
             
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
+
+            //dbconnecter.connect(trainingLoad);
+            int training_id = SQLite.addTrainingDatenToDB(
+                dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
+                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
+
+            SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
             
         } catch (IOException e) {
             System.err.println("Fehler beim Einlesen: " + e.getMessage());
@@ -310,6 +309,7 @@ public class XmlReader {
             properties.put("trainingLoad", trainingLoad);
             properties.put("kalorien", kalorien);
             properties.put("aerobicTrainingEffect", aerobicTrainingEffect);
+            properties.put("anaerobicTrainingEffect", anaerobicTrainingEffect);
 
             properties.put("comment", "test");
             feature.set("properties", properties);
