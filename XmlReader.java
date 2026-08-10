@@ -87,7 +87,15 @@ public class XmlReader {
 
             //berechnung des datums
             LocalDate date = startToParse.atZone(ZoneId.systemDefault()).toLocalDate();
-            String dateString = date.toString();
+            String dateString = date.toString(); //2026-06-29
+            int year = date.getYear();
+            int month = date.getMonthValue();
+            
+            System.out.println("test zum monthausgabe");
+            System.out.println(String.format("%02d", month));
+            
+            int day = date.getDayOfMonth();
+            System.out.println("day: " + day + " month: " + month + " year: " + year);
             XmlReader.dateString = dateString;
 
 
@@ -191,6 +199,19 @@ public class XmlReader {
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
                 hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
 
+            double jahresDistanz = SQLite.getDistanzJahrAusDB(2026);
+
+            System.out.println("test zum monthausgabe");
+            String monatString = String.format("%02d", month); // aus 7 -> 07 für monatausgabe
+            int monatInt = Integer.parseInt(monatString); //str -> int
+
+            double monatDistanz = SQLite.getDistanzMonatAusDB(2026, monatInt);
+
+            System.out.println("Distanz 2026: " + jahresDistanz + " km");
+            System.out.println("Distanz monat: " + monatDistanz + " km");
+
+            SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
+
             //hr daten vom training in db einfügen
             SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
             
@@ -214,10 +235,6 @@ public class XmlReader {
         }
         
     }
-
-    
-
-    
 
     public static void main(String[] args) throws Exception {
         //loadGpx("ride.gpx");

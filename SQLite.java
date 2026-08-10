@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.YearMonth;
 
 public class SQLite {
     public static int trainingLoad;
@@ -77,19 +78,6 @@ public class SQLite {
             }
             return false;
     }
-    
-    //Methode um die verbindung zur db erstellen
-    /* 
-    public static Connection connect() throws SQLException{
-        try (var conn = DriverManager.getConnection(url); //verbindung zum DB
-            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) { //vorbereitung des sql befehls            
-
-            System.out.println("Verbindung zum DB hergestellt + Daten gespeichert");
-            return DriverManager.getConnection(url);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }*/
 
     public static int addTrainingDatenToDB(
         String dateString,
@@ -107,8 +95,6 @@ public class SQLite {
         double kalorien,
         String dateiName
         ) {
-
-        
 
         int training_id = -1;
 
@@ -242,6 +228,7 @@ public class SQLite {
                 pstmt.setDouble(1, distanceBetweenPointsGerundet);
                 pstmt.setString(2, dateString);
                 ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
+                getDistanzJahrAusDB(2026);
 
                 return rs.next();
 
@@ -252,31 +239,93 @@ public class SQLite {
             }
     }
 
-    public static double getDistanzAusDB(String name) { //methode prüfen
-        String sqlAbfrage = "SELECT gesamteDistanzproJar FROM users WHERE name = ?";
+    public static double getDistanzJahrAusDB(int jahr) { //methode, die das distanz in dem monat zurückgibt
+        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
+
+        String start = jahr + "-01-01";
+        String end = (jahr + 1) + "-01-01";
+
+        System.out.println("start: " + start + " end: " + end);
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
 
-                pstmt.setString(1, name);
+                pstmt.setString(1, start);
+                pstmt.setString(2, end);
 
                 ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
                 
                 if (rs.next()) {
-                    return rs.getDouble("gesamteDistanzProJahr");
+
+                    return rs.getDouble(1);
                 }
 
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
                 e.printStackTrace();
             }
-
             return 0.0;
     }
 
-    public static void addDistanzToJahr(String dateString, double distanceBetweenPointsGerundet) { //methode um die distanz zu datenbank distanzProJahr hinzufügen
+    public static double getDistanzMonatAusDB(int year, int gegebenerMonat) { //methode, die das distanz in dem monat zurückgibt
+        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
 
+        YearMonth monat = YearMonth.of(year, gegebenerMonat);
+        
+        String start = monat.atDay(1).toString();
+        String end = monat.plusMonths(1).toString();
+
+        System.out.println("start: " + start + " end: " + end);
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
+
+                pstmt.setString(1, start);
+                pstmt.setString(2, end);
+
+                ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
+                
+                if (rs.next()) {
+
+                    return rs.getDouble(1);
+                }
+
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+            return 0.0;
     }
+
+    public static double getDistanzWoche() { //methode, die das distanz in der woche zurückgibt
+        return 0.0;    
+    }
+     
+
+    public static void addDistanzToJahr(String name, double distanceBetweenPointsGerundet) { //methode um die distanz zu datenbank distanzProJahr hinzufügen
+        double fruehereDistanz = getDistanzJahrAusDB(2026);
+
+        double newDistanzProJahr = fruehereDistanz + distanceBetweenPointsGerundet;
+
+        String sqlAbfrage = "UPDATE users SET gesamteDistanzProJahr = ? WHERE name = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
+
+                pstmt.setDouble(1, newDistanzProJahr);
+                pstmt.setString(2, name);
+
+                System.out.println("newDistanzProJahr: " + newDistanzProJahr);
+
+                pstmt.executeUpdate(); //führt die abfrage aus und liefert das ergebnis
+                
+                System.out.println("gesamte Distanz pro Jahr: " + newDistanzProJahr);
+                
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+    }    
 
     public static void main(String[] args) {
         //File xmlFile = new File(fileName);
