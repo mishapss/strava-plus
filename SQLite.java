@@ -4,7 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 
 public class SQLite {
     public static int trainingLoad;
@@ -297,10 +300,234 @@ public class SQLite {
             return 0.0;
     }
 
-    public static double getDistanzWoche() { //methode, die das distanz in der woche zurückgibt
-        return 0.0;    
+    public static double getDistanzWoche(String startWoche, String endWoche) { //methode, die das distanz in der woche zurückgibt
+        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
+
+        System.out.println("startwoche: " + startWoche + " endwoche: " + endWoche);
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
+
+                pstmt.setString(1, startWoche);
+                pstmt.setString(2, endWoche);
+
+                ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
+                
+                if (rs.next()) {
+
+                    return rs.getDouble(1);
+                }
+
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+            return 0.0;
+    }
+
+    public static void updateChallengeProgressKilometer(double distanz) { //Methode für die ausrechnung des neuen progress
+        //1. challenge prüfen, ob er gemacht wird
+        String sqlAbfrageKilometer = "SELECT ziel, fortschrittwert, challengeID, challengeProgress FROM challenges WHERE status = '1' AND zielDatentyp = 'km'";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrageKilometer)) {
+
+                ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
+        
+                //2. die daten ausrechnen
+                while (rs.next()) {
+                    double alteDistanz = rs.getDouble("fortschrittwert");
+                    double ziel = rs.getInt("ziel");
+                    int challengeID = rs.getInt("challengeID");
+
+                    double newDistanz = distanz + alteDistanz;
+
+                    double newChallengeProgress = newDistanz / ziel;
+
+                    //3. die daten speichern
+                    String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
+                    
+                    try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
+
+                        update.setDouble(1, newDistanz);
+                        update.setDouble(2, newChallengeProgress);
+                        update.setInt(3, challengeID);
+                        update.executeUpdate();
+                    }
+                }
+            } catch (SQLException e ){
+            e.printStackTrace();
+        }
+    }
+
+    public static long formateTime(String time) { //schreibt die zeit in sekunden
+        String[] teile = time.split(":");
+
+
+        if (teile.length == 3) {
+            return Duration.ofHours(Long.parseLong(teile[0]))
+                           .plusMinutes(Long.parseLong(teile[1]))
+                           .plusSeconds(Long.parseLong(teile[2]))
+                           .getSeconds();
+        } else if (teile.length == 2) {
+            return Duration.ofMinutes(Long.parseLong(teile[0]))
+                           .plusSeconds(Long.parseLong(teile[1]))
+                           .getSeconds();
+        } else if (teile.length == 1) {
+            return Duration.ofSeconds(Long.parseLong(teile[0])).getSeconds();
+        }
+
+        throw new IllegalArgumentException("ungültiges Zeitformat: " + time);   
+    }
+
+    public static void updateChallengeProgressMinutes(String time) { //methode für die ausrechnung des neuen zeitlichen progress 
+        String sqlAbfrageMinuten = "SELECT ziel, fortschrittwert, challengeID, challengeProgress FROM challenges WHERE status = 1 AND zielDatentyp = 'minuten'";
+
+        try (var conn =  DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrageMinuten)) {
+                
+                ResultSet rs = pstmt.executeQuery(); //ausführung der Abfrage
+
+                while (rs.next()) {
+                    double alteZeit = rs.getDouble("fortschrittwert");
+                    
+                    int ziel = rs.getInt("ziel");
+                    int challengeID = rs.getInt("challengeID");
+
+                    long timeFormatted = formateTime(time);
+
+                    double newMinuten = timeFormatted / 60.0;
+
+                    double newZeit = alteZeit + newMinuten;
+
+                    double newChallengeProgress = newZeit / ziel;
+
+                    System.out.print("neue challengezeitprograss: " + newChallengeProgress);
+
+                    String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
+
+                    try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
+
+                        update.setDouble(1, newZeit);
+                        update.setDouble(2, newChallengeProgress);
+                        update.setInt(3, challengeID);
+                        int rows = update.executeUpdate();
+
+                        System.out.println("anzahl der geänderten wors: " + rows);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
     }
      
+    public static void updateChallengeProgressHoehenmeter(double hoehenmeter) { //methode für die ausrechnung des neuen höhenmeters für challenge
+        String sqlAbfrageHoehenmeter = "SELECT ziel, fortschrittwert, challengeID FROM challenges WHERE status = 1 AND zielDatentyp = 'höhenmeter'";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrageHoehenmeter)) {
+
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int ziel = rs.getInt("ziel");
+                    double fortschrittwert = rs.getDouble("fortschrittwert");
+                    int challengeID = rs.getInt("challengeID");
+
+                    double neuFortschrittwert = hoehenmeter + fortschrittwert;
+                    double neuChallengeProgress = neuFortschrittwert / ziel;
+
+                    String sqlAbfrageSpeichern = "UPDATE challenges SET challengeProgress = ?, fortschrittwert = ? WHERE challengeID = ?";
+
+                    try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
+                        update.setDouble(1, neuChallengeProgress);
+                        update.setDouble(2, neuFortschrittwert);
+                        update.setInt(3, challengeID);
+                        update.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+
+    public static void updateChallengeProgressTage(String dateString, double distanz) {
+        String sqlAbfrageTage = "SELECT ziel, fortschrittwert, challengeProgress, challengeID FROM challenges WHERE status = 1 AND zielDatentyp = 'tage'";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrageTage)) {
+
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int ziel = rs.getInt("ziel");
+                    double fortschrittwert = rs.getDouble("fortschrittwert");
+                    int challengeID = rs.getInt("challengeID");
+                    double challengeProgress = rs.getDouble("challengeProgress");
+
+                    checkTrainingGueltigeBereich(dateString, challengeID);
+
+                    int trainingId = getTrainingID(distanz, dateString); //trainingID = -1 -> training wurde noch nicht hinzugefügt
+                    
+                    double newFortschrittwert;
+                    double newChallengeProgress;
+
+                    if (trainingId == -1){
+                        newFortschrittwert = fortschrittwert + 1;
+                        newChallengeProgress = newFortschrittwert / ziel;
+                    } else {
+                        newFortschrittwert = fortschrittwert;
+                        newChallengeProgress = challengeProgress;
+                    }
+
+                    String sqlAbfageSpeichern = "UPDATE challenges SET challengeProgress = ?, fortschrittwert = ? WHERE challengeID = ?";
+
+                    //checkTrainingGueltigeBereich(dateString, challengeID)
+
+                    try (PreparedStatement update = conn.prepareStatement(sqlAbfageSpeichern)) {
+                        update.setDouble(1, newChallengeProgress);
+                        update.setDouble(2, newFortschrittwert);
+                        update.setInt(3, challengeID);
+                        update.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+
+    public static boolean checkTrainingGueltigeBereich(String dateString, int challengeID) {
+        String sqlAbfrage = "SELECT challengeStartDate, challengeEndDate FROM challenges WHERE challengeID = ?";
+        
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
+                
+                pstmt.setInt(1, challengeID);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    String challengeStartDate = rs.getString("challengeStartDate");
+                    String challengeEndDate = rs.getString("challengeEndDate");
+
+
+                    LocalDate datumTraining = LocalDate.parse(dateString); //parse von 08-08-2026
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                    LocalDate datumStart = LocalDate.parse(challengeStartDate, formatter); //parse von challengeStartDate
+                    LocalDate datumEnd = LocalDate.parse(challengeEndDate, formatter); //parse von challengeEndDate
+
+                    System.out.println(!datumTraining.isBefore(datumStart) && !datumTraining.isAfter(datumEnd));
+                    return !datumTraining.isBefore(datumStart) && !datumTraining.isAfter(datumEnd);
+                    
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+
+    }
 
     public static void addDistanzToJahr(String name, double distanceBetweenPointsGerundet) { //methode um die distanz zu datenbank distanzProJahr hinzufügen
         double fruehereDistanz = getDistanzJahrAusDB(2026);

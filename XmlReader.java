@@ -194,27 +194,45 @@ public class XmlReader {
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
 
-            //dbconnecter.connect(trainingLoad);
+            //einfügt die daten om training in datenbank
             int training_id = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
                 hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
 
+            
+                //aktualisiert die daten des progresses in db
+            SQLite.updateChallengeProgressKilometer(distanceBetweenPoints);
+
+
+            SQLite.updateChallengeProgressMinutes(time);
+
+
+            SQLite.updateChallengeProgressHoehenmeter(hoeheSumme);
+
+            SQLite.updateChallengeProgressTage(dateString, distanceBetweenPointsGerundet);
+
+            
+            //bekommt die jahresdistanz aus db
             double jahresDistanz = SQLite.getDistanzJahrAusDB(2026);
 
-            System.out.println("test zum monthausgabe");
+            
+            //bekommt monatsdistanz aus db
             String monatString = String.format("%02d", month); // aus 7 -> 07 für monatausgabe
             int monatInt = Integer.parseInt(monatString); //str -> int
-
             double monatDistanz = SQLite.getDistanzMonatAusDB(2026, monatInt);
 
-            System.out.println("Distanz 2026: " + jahresDistanz + " km");
-            System.out.println("Distanz monat: " + monatDistanz + " km");
-
+            //bekommt wochendistanz aus db
+            double wochenDistanz = SQLite.getDistanzWoche("2026-08-03", "2026-08-09");
+            
+            
+            //aktualisiert distanz im jahr
             SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
+
 
             //hr daten vom training in db einfügen
             SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
             
+        
         } catch (IOException e) {
             System.err.println("Fehler beim Einlesen: " + e.getMessage());
             e.printStackTrace();
@@ -222,7 +240,6 @@ public class XmlReader {
     }
 
     public String stringFormatZoneTime(int totalSeconds) {
-
         int hours = totalSeconds / 3600;
         int minutes = (totalSeconds % 3600) / 60;
 

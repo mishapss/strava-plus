@@ -53,9 +53,7 @@ public class FileUploader {
         } catch(IOException | InterruptedException e ){
             System.out.println("Error:" + e.getMessage());
             e.printStackTrace();                                                                    // zeigt detaliert, was schief ist
-        }
-        
-        
+        }        
     }
 }
 
