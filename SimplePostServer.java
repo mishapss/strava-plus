@@ -6,9 +6,11 @@ import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Serve
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.InputStream; // um die saten vom Client zu lesen
+import com.fasterxml.jackson.databind.ObjectMapper; 
 
 public class SimplePostServer{
     private static String savedGeoJson = "";
@@ -77,7 +79,26 @@ public class SimplePostServer{
             } else {
                 exchange.sendResponseHeaders(405, -1);
             }
-        });            
+        });
+        
+        server.createContext("/api/challenges", exchange -> { //exchange = wenn jemand die adresse aufruft, wird dieser teil ausgeführt
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) { //prüft, ob der client get anfrage sendet(daten aufruft)
+
+                ChallengeData data = ChallengeLoader.getDatenAusDBToUpload();
+
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonResponse = mapper.writeValueAsString(data); //baut aus meinen daten ein json-string
+
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8"); //sagt dem browser, dass die daten kommen in json, utf-8
+
+                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8); //umwandelt die daten in bytes, damit in interner übertragen werden können
+                exchange.sendResponseHeaders(200, responseBytes.length); //sagt dem browser, wie viele bytes er erwarten kann
+
+                try (OutputStream os = exchange.getResponseBody()) { //schließt os nach dem senden
+                    os.write(responseBytes); //schiebt die daten-bytes direkt zum browser
+                }
+            }
+        });
 
 
         server.createContext("/upload-html", exchange -> {

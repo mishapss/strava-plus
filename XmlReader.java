@@ -194,22 +194,26 @@ public class XmlReader {
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
 
+            //aktualisiert die daten des progresses in db
+            SQLite.updateChallengeProgressKilometer(dateString, distanceBetweenPoints);
+
+
+            SQLite.updateChallengeProgressMinutes(time, dateString, distanceBetweenPoints);           
+
+
+            SQLite.updateChallengeProgressHoehenmeter(dateString, hoeheSumme, distanceBetweenPoints);
+
+
+            SQLite.updateChallengeProgressTage(dateString, distanceBetweenPointsGerundet, distanceBetweenPoints);
+
+
             //einfügt die daten om training in datenbank
             int training_id = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
                 hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
 
             
-                //aktualisiert die daten des progresses in db
-            SQLite.updateChallengeProgressKilometer(distanceBetweenPoints);
 
-
-            SQLite.updateChallengeProgressMinutes(time);
-
-
-            SQLite.updateChallengeProgressHoehenmeter(hoeheSumme);
-
-            SQLite.updateChallengeProgressTage(dateString, distanceBetweenPointsGerundet);
 
             
             //bekommt die jahresdistanz aus db
