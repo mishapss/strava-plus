@@ -128,6 +128,13 @@
             }
 
             challenges.forEach(challenge => {//baut dynamische challenge karte für webseite
+                const challengeID = challenge.challengeID;
+                const buttonID = `join-btn-${challengeID}`;
+
+                const idParticipating = challenge.status === 1;
+                const buttonText = idParticipating ? "Bereits badei" : "An Herausforderung teilnehmen";
+                const buttonDisabled = idParticipating ? "disabled" : "";
+
                 const cardHTML = `
                             <div class="challenge-card">
                                 <img class="challenge-image" src="${challenge.imagePath}" alt="${challenge.challengeName}">
@@ -136,14 +143,14 @@
                                     <p class="description">${challenge.challengeDescription}</p>
                                     <p class="challenge-date">${challenge.challengeStartDate} bis ${challenge.challengeEndDate}</p>
                                     <p class="participants">👤 Status: ${challenge.status}</p>
-                                    <button id="${buttonID}" class="action-btn">An Herausforderung teilnehmen</button>
+                                    <button id="${buttonID}" class="action-btn" ${buttonDisabled}>${buttonText}</button>
                                 </div>
                             </div>
                         `;
                         container.insertAdjacentHTML('beforeend', cardHTML);//fügt das neu erzeugte karten-html am ende in die seite ein
                         const buttonElement = document.getElementById(buttonID);
 
-                        buttonElement.addEventListener('click', () => {
+                        buttonElement.addEventListener('click', () => {                          
                             fetch('http://localhost:8000/api/join-challenge', {
                                 method: 'POST',
                                 headers: {
@@ -155,14 +162,18 @@
                                 if (!response.ok) {
                                     throw new Error("Server-Fehler: " + response.status)
                                 }
-                                return response.json();//wandelt der Antwort in json um
-
-                                //Wandle die Antwort im .then() in JSON um
-
-
-                                
+                                return response.json();//wandelt der Antwort in json um                              
                             })
-
+                            .then(data => {
+                                if (data === true || data.success === true) {
+                                    buttonElement.innerText = "Bereits dabei";
+                                    buttonElement.disabled = true;
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Fehler beim Beitreten: ", err);
+                                alert("Fehler beim Beitreten zum Challenge");
+                            })
                         });
                     });
                 })

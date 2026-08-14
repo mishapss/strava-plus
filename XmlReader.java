@@ -217,16 +217,16 @@ public class XmlReader {
 
             
             //bekommt die jahresdistanz aus db
-            double jahresDistanz = SQLite.getDistanzJahrAusDB(2026);
+            //double jahresDistanz = SQLite.getDistanzJahrAusDB(2026);
 
             
             //bekommt monatsdistanz aus db
-            String monatString = String.format("%02d", month); // aus 7 -> 07 für monatausgabe
-            int monatInt = Integer.parseInt(monatString); //str -> int
-            double monatDistanz = SQLite.getDistanzMonatAusDB(2026, monatInt);
+            //String monatString = String.format("%02d", month); // aus 7 -> 07 für monatausgabe
+            //int monatInt = Integer.parseInt(monatString); //str -> int
+            //double monatDistanz = SQLite.getDistanzMonatAusDB(2026, monatInt);
 
             //bekommt wochendistanz aus db
-            double wochenDistanz = SQLite.getDistanzWoche("2026-08-03", "2026-08-09");
+            //double wochenDistanz = SQLite.getDistanzWoche("2026-08-03", "2026-08-09");
             
             
             //aktualisiert distanz im jahr

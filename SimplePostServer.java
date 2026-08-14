@@ -2,7 +2,7 @@
 import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
 //import java.io.*;
 
-import java.io.File;
+//import java.io.File;
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
@@ -102,6 +102,8 @@ public class SimplePostServer{
             }
         });
 
+        server.createContext("/api/join-challenge", new JoinChallengeHandler());
+
         server.createContext("/challenges", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 Path path = Paths.get("challenges.html"); // verweist auf die datei in ordner
@@ -185,7 +187,7 @@ public class SimplePostServer{
                     challengeID = Integer.parseInt(query.split("=")[1]);
                 }
 
-                boolean userTeilnimmt = ChallengeLoader.challengePrüfer(challengeID);
+                boolean userTeilnimmt = ChallengeLoader.challengePruefer(challengeID);
 
                 String jsonResponse = "{\"userTeilnimmt\": " + userTeilnimmt + "}";
 

@@ -1,4 +1,5 @@
 public class ChallengeData {
+    public int challengeID;
     public String challengeName;
     public String challengeDescription;
     public String challengeStartDate;
@@ -8,6 +9,7 @@ public class ChallengeData {
     public String imagePath;
 
     public ChallengeData(
+                int challengeID,
                 String challengeName, 
                 String challengeDescription, 
                 String challengeStartDate, 
@@ -16,6 +18,8 @@ public class ChallengeData {
                 int ziel,
                 String imagePath
                 ) {
+                    
+        this.challengeID = challengeID;                  
         this.challengeName = challengeName;
         this.challengeDescription = challengeDescription;
         this.challengeStartDate = challengeStartDate;
