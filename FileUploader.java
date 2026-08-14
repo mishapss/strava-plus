@@ -11,13 +11,13 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.io.IOException;
 
 public class FileUploader {
-    //private static final String BASE_URL = "http://localhost:8000/notes";                           // URL-Addresse des Servers, an den wir etwas schicken (Variable)
+    //private static final String BASE_URL = "http://localhost:8000/notes";                         // URL-Addresse des Servers, an den wir etwas schicken (Variable)
     private static final String HTML_URL = "http://localhost:8000/upload-html";
-    //private static final String BOUNDARY = "boundary";                                              // string für multipart/form-data, der die teile der datei trennt (notwendig bei multipart/form-data) (Variable)
+    //private static final String BOUNDARY = "boundary";                                            // string für multipart/form-data, der die teile der datei trennt (notwendig bei multipart/form-data) (Variable)
 
 
     public static void main(String[] args) {
-        String fileName = "world_map_with_tables.html";                                                         // definiren die datei, dei hochgeladen werden soll (Variable)
+        String fileName = "world_map_with_tables.html";                                             // definiren die datei, dei hochgeladen werden soll (Variable)
         Path filePath = Paths.get(fileName);                                                        //pfad zu datei als pfad objekt
         HttpClient client = HttpClient.newHttpClient();                                             // erstellt HttpClient, der die anfrage sendet
 

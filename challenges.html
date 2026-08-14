@@ -20,9 +20,14 @@
 
         .challenges-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minimax(280px,1fr));
+        /* auto-fill verhindert, dass 1 einzelne Karte die ganze Zeile ausfüllt */
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 20px;
         padding: 20px;
+        
+        /* Optional: Zentriert das Grid auf großen Bildschirmen */
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     .challenge-card {
@@ -103,38 +108,94 @@
 
     <script>
     function uploadChallenges() {
-        fetch('http://localhost:8000/api/challenges')
-        .then(response => response.json())
+        fetch('http://localhost:8000/api/challenges') // schickt anfrage an den server auf route api/challenges
+        .then(response => {                           // sobald der server antwortete, mach folgendes
+            if (!response.ok) {                       // prüft, ob alles ok ist
+                throw new Error("Server-Fehler: " + response.status); // fehler, wenn es schief geht
+            } 
+            return response.json();                   //nimmt string text vom server und wandelt ihn in javaskript-array
+        })
         .then(data => {
-            const container = document.getElementById('challenges-container');
+            const container = document.getElementById('challenges-container'); //greift sich das div-element aus html-code
             container.innerHTML = ''; //platzhalter "lade..." entfernen
 
-            //wenn vom server ein array mit viele challenges kommt
+            //wenn vom server ein array mit viele challenges kommt, dann in array packen
             const challenges = Array.isArray(data) ? data : [data];
 
-            challenges.forEach(challenge => {
+            if (challenges.length === 0) {
+                container.innerHTML = '<p>keine herausforderungen vorhanden</p>'
+                return;
+            }
+
+            challenges.forEach(challenge => {//baut dynamische challenge karte für webseite
                 const cardHTML = `
                             <div class="challenge-card">
+                                <img class="challenge-image" src="${challenge.imagePath}" alt="${challenge.challengeName}">
                                 <div class="challenge-content">
                                     <h2>${challenge.challengeName}</h2>
                                     <p class="description">${challenge.challengeDescription}</p>
-                                    <p class="challenge-info">Ziel: ${challenge.ziel}</p>
                                     <p class="challenge-date">${challenge.challengeStartDate} bis ${challenge.challengeEndDate}</p>
                                     <p class="participants">👤 Status: ${challenge.status}</p>
-                                    <button class="action-btn">An Herausforderung teilnehmen</button>
+                                    <button id="${buttonID}" class="action-btn">An Herausforderung teilnehmen</button>
                                 </div>
                             </div>
                         `;
-                        container.insertAdjacentHTML('beforeend', cardHTML);
+                        container.insertAdjacentHTML('beforeend', cardHTML);//fügt das neu erzeugte karten-html am ende in die seite ein
+                        const buttonElement = document.getElementById(buttonID);
+
+                        buttonElement.addEventListener('click', () => {
+                            fetch('http://localhost:8000/api/join-challenge', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ challengeID: challengeID})
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Server-Fehler: " + response.status)
+                                }
+                                return response.json();//wandelt der Antwort in json um
+
+                                //Wandle die Antwort im .then() in JSON um
+
+
+                                
+                            })
+
+                        });
                     });
                 })
-        .catch(err => {
+        .catch(err => {//fehlermeldung, falls etwas schief geht
             console.error("fehler: ", err);
             document.getElementById('challenges-container').innerHTML = '<p>Fehler beim Laden der Herausforderungen.</p>';
         });
     }
 
-    window.addEventListener('DOMContentLoaded', getDatenAusDBToUpload());
+    window.addEventListener('DOMContentLoaded', uploadChallenges()); //wartet bis die grundstruktur der html-seite geladen ist und dann ruft funktion auf
+
+    function pruefeObTeilnehmer(challengeID, buttonElemnt) {
+        fetch('http://localhost:8000/api/check-participation?challengeID=' + challengeID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Server-Fehler: " + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data === true) {
+                buttonElemnt.innerText = "Bereits dabei";
+                buttonElemnt.disabled = true;
+            } else {
+                buttonElemnt.innerText = "An Herausforderung teilnehmen";
+            }
+        })
+        .catch(err => {//fehlermeldung, falls etwas schief geht
+            console.error("Fehler beim Prüfen der Teilnahme: ", err);
+            buttonElemnt.innerText = "Fehler beim Laden";
+        });
+    }
+
 </script>
 </body>
 </html>

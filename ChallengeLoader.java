@@ -4,9 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.Authenticator.Result;
 
 
 public class ChallengeLoader {
@@ -14,7 +16,7 @@ public class ChallengeLoader {
 
     public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db und gibt als json zurück
         List<ChallengeData> liste = new ArrayList<>();
-        String sqlAbfrage = "SELECT challengeName, challengeDescription, challengeStartDate, challengeEndDate, ziel, status FROM challenges";
+        String sqlAbfrage = "SELECT challengeName, challengeDescription, challengeStartDate, challengeEndDate, ziel, status, bild FROM challenges";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -28,12 +30,32 @@ public class ChallengeLoader {
                         rs.getString("challengeStartDate"), 
                         rs.getString("challengeEndDate"), 
                         rs.getInt("status"), 
-                        rs.getInt("ziel")
+                        rs.getInt("ziel"),
+                        rs.getString("bild")
                     ));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         return liste;
+    }
+
+    public static boolean challengePrüfer(int challengeID) {
+        String sqlAbfrage = "SELECT status FROM challenges WHERE challengeID = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
+
+                pstmt.setInt(1, challengeID);
+                
+                ResultSet rs = pstmt.executeQuery();               
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; //true, wenn eintrag existiert
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
     }
 }

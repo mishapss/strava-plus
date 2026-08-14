@@ -2,13 +2,15 @@
 import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
 //import java.io.*;
 
-
+import java.io.File;
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.io.InputStream; // um die saten vom Client zu lesen
 import com.fasterxml.jackson.databind.ObjectMapper; 
 
@@ -84,18 +86,63 @@ public class SimplePostServer{
         server.createContext("/api/challenges", exchange -> { //exchange = wenn jemand die adresse aufruft, wird dieser teil ausgeführt
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) { //prüft, ob der client get anfrage sendet(daten aufruft)
 
-                ChallengeData data = ChallengeLoader.getDatenAusDBToUpload();
+                List<ChallengeData> data = ChallengeLoader.getDatenAusDBToUpload();
 
                 ObjectMapper mapper = new ObjectMapper();
                 String jsonResponse = mapper.writeValueAsString(data); //baut aus meinen daten ein json-string
 
                 exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8"); //sagt dem browser, dass die daten kommen in json, utf-8
 
-                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8); //umwandelt die daten in bytes, damit in interner übertragen werden können
+                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8); //umwandelt die daten in bytes, damit in die internet übertragen werden können
                 exchange.sendResponseHeaders(200, responseBytes.length); //sagt dem browser, wie viele bytes er erwarten kann
 
                 try (OutputStream os = exchange.getResponseBody()) { //schließt os nach dem senden
                     os.write(responseBytes); //schiebt die daten-bytes direkt zum browser
+                }
+            }
+        });
+
+        server.createContext("/challenges", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                Path path = Paths.get("challenges.html"); // verweist auf die datei in ordner
+
+                if (Files.exists(path)) { //prüft ob die datei existiert 
+                    byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array ein
+                    exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, htmlBytes.length);
+                    
+                    try (OutputStream os = exchange.getResponseBody()) { //schließt os nach dem senden
+                        os.write(htmlBytes); //schiebt die daten-bytes direkt zum browser
+                    } 
+                } else {
+                        exchange.sendResponseHeaders(404, -1);
+                }
+            }
+        });
+
+        server.createContext("/bilds", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) { // prüft ob der user den server anspricht
+                String requestPath = exchange.getRequestURI().getPath(); //holt die genaue aufgerufene URL
+
+                Path filePath = Paths.get("." + requestPath); //wandelt die url in dateipfad um
+
+                if (Files.exists(filePath) && !Files.isDirectory(filePath)) {//prüft ob das bild existiert und ob es kein ordner ist
+                    String contentType = Files.probeContentType(filePath);//erkennt bildtyp
+
+                    if (contentType == null) {//notfalltyp fürs bild, wenn nciht erkannt wurde
+                        contentType = "application/octet-stream";
+                    }
+
+                    byte[] imageBytes = Files.readAllBytes(filePath); //list den inhalt der bild datei als byte-array ein 
+
+                    exchange.getResponseHeaders().set("Content-Type", contentType);
+                    exchange.sendResponseHeaders(200, imageBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(imageBytes);
+                    }
+                } else {
+                    exchange.sendResponseHeaders(404, -1);
                 }
             }
         });
@@ -128,6 +175,30 @@ public class SimplePostServer{
                 exchange.sendResponseHeaders(405, -1);
             }
         });
+
+        server.createContext("/api/check-participation", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                String query = exchange.getRequestURI().getQuery();
+                
+                int challengeID = 0;
+                if (query != null && query.contains("=")) {
+                    challengeID = Integer.parseInt(query.split("=")[1]);
+                }
+
+                boolean userTeilnimmt = ChallengeLoader.challengePrüfer(challengeID);
+
+                String jsonResponse = "{\"userTeilnimmt\": " + userTeilnimmt + "}";
+
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+
+                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, responseBytes.length);
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+            }
+        }); 
 
         
         server.start();
