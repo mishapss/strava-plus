@@ -7,6 +7,7 @@ public class ChallengeData {
     public int status;
     public int ziel;
     public String imagePath;
+    public String imagePathReward;
 
     public ChallengeData(
                 int challengeID,
@@ -16,7 +17,8 @@ public class ChallengeData {
                 String challengeEndDate, 
                 int status,
                 int ziel,
-                String imagePath
+                String imagePath,
+                String imagePathReward
                 ) {
                     
         this.challengeID = challengeID;                  
@@ -27,6 +29,7 @@ public class ChallengeData {
         this.status = status;
         this.ziel = ziel;
         this.imagePath = imagePath;
+        this.imagePathReward = imagePathReward;
     }
 
     public String getImagePath() {

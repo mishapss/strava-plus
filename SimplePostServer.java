@@ -82,7 +82,44 @@ public class SimplePostServer{
                 exchange.sendResponseHeaders(405, -1);
             }
         });
-        
+
+        server.createContext("/api/rewards", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                List<ChallengeData> data = ChallengeLoader.getDatenAusDBToUpload();
+
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonResponse = mapper.writeValueAsString(data); //aus daten ein json-string 
+
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, responseBytes.length);
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+            }
+        });
+
+        server.createContext("/rewards", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                
+                Path path = Paths.get("abzeichnungen.html"); // verweist auf die datei in ordner
+
+                if (Files.exists(path)) { //prüft ob die datei existiert 
+                    byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array ein
+                    exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8"); 
+                    exchange.sendResponseHeaders(200, htmlBytes.length);
+
+                
+                    try (OutputStream os = exchange.getResponseBody()) { //schließt os nach dem senden
+                        os.write(htmlBytes); //schiebt die daten-bytes direkt zum browser
+                    }
+                } else {
+                    exchange.sendResponseHeaders(404, -1);
+                }
+            }
+        });
+
         server.createContext("/api/challenges", exchange -> { //exchange = wenn jemand die adresse aufruft, wird dieser teil ausgeführt
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) { //prüft, ob der client get anfrage sendet(daten aufruft)
 

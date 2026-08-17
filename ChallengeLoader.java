@@ -16,7 +16,7 @@ public class ChallengeLoader {
 
     public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db für upload auf der webseite und gibt als json zurück
         List<ChallengeData> liste = new ArrayList<>();
-        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, ziel, status, bild FROM challenges";
+        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, ziel, status, bild, picture_reward FROM challenges";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -32,7 +32,8 @@ public class ChallengeLoader {
                         rs.getString("challengeEndDate"), 
                         rs.getInt("status"), 
                         rs.getInt("ziel"),
-                        rs.getString("bild")
+                        rs.getString("bild"),
+                        rs.getString("picture_reward")
                     ));
                 }
             } catch (SQLException e) {
@@ -41,7 +42,7 @@ public class ChallengeLoader {
         return liste;
     }
 
-    public static boolean challengePruefer(int challengeID) {
+    public static boolean challengePruefer(int challengeID) { //prüft ob benutzer beim challenge teilnimmt
         String sqlAbfrage = "SELECT status FROM challenges WHERE challengeID = ?";
 
         try (var conn = DriverManager.getConnection(url);
@@ -60,7 +61,7 @@ public class ChallengeLoader {
             return false;
     }
 
-    public static boolean saveParticipationInDB(int challengeID) {
+    public static boolean saveParticipationInDB(int challengeID) { //speichert 1 in db, wenn benutzer auf button "an herausforderung teilnehmen" clickt
         String sqlAbfrage = "UPDATE challenges SET status = 1 WHERE challengeID = ?";
 
         try (var conn = DriverManager.getConnection(url);

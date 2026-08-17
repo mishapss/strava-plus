@@ -20,6 +20,44 @@
             background-color: #f4f5f7;
             color: #333;
         }
+        h1 {
+            margin-top: 60px;
+            margin-left: 10px;
+        }
+
+        h2, p {
+            margin: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f7f7fa;
+            top: 0;
+            width: 100%;
+        }
+
+        ul li {
+            float: left;
+        }
+
+        ul li a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        ul li a:hover:not(.active) {
+            background-color: #e34402;
+        }
+
+        ul li a.active {
+            background-color: #f7f7fa;
+        }
 
         /* Главный контейнер на две колонки (Таблица + Карта) */
         .dashboard-container {
@@ -141,6 +179,12 @@
     </style>
 </head>
 <body>
+    <ul>
+        <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
+        <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
+        <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
+        <li><a href="#about">About</a></li>
+    </ul>
 
   <div class="dashboard-container">
     

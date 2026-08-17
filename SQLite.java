@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 //import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLite {
     public static int trainingLoad;
@@ -330,37 +332,61 @@ public class SQLite {
         //1. challenge prüfen, ob er gemacht wird
         String sqlAbfrageKilometer = "SELECT ziel, fortschrittwert, challengeID, challengeProgress FROM challenges WHERE status = '1' AND zielDatentyp = 'km'";
 
+        class ChallengeData {
+        int id;
+        double fortschrittwert;
+        double ziel;
+
+        ChallengeData(int id, double fortschrittwert, double ziel) {
+            this.id = id;
+            this.fortschrittwert = fortschrittwert;
+            this.ziel = ziel;
+        }
+    }
+
+    List<ChallengeData> activeChallenges = new ArrayList<>();
+
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrageKilometer)) {
 
-                ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
+            ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
 
-                //2. die daten ausrechnen
-                while (rs.next()) {
-                    double alteDistanz = rs.getDouble("fortschrittwert");
-                    double ziel = rs.getInt("ziel");
-                    int challengeID = rs.getInt("challengeID");
-                    System.out.println("gettrainingID: " + getTrainingID(distanceBetweenPointsGerundet, dateString));
-                    if (checkTrainingGueltigeBereich(dateString, challengeID) && (getTrainingID(distanceBetweenPointsGerundet, dateString) == -1)) {
-                        
-                        double newDistanz = distanceBetweenPointsGerundet + alteDistanz;
+            //2. die daten ausrechnen
+            while (rs.next()) {
+                activeChallenges.add(new ChallengeData(
+                    rs.getInt("challengeID"),
+                    rs.getDouble("fortschrittwert"),
+                    rs.getInt("ziel")
+                ));
+            }
+        } catch (SQLException e ){
+            e.printStackTrace(); 
+            return;
+        }
 
-                        double newChallengeProgress = newDistanz / ziel;
+        int trainingID = getTrainingID(distanceBetweenPointsGerundet, dateString);
 
-                        //3. die daten speichern
-                        String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
-                        
-                        try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
+        for (ChallengeData challenge : activeChallenges) {
+            if (checkTrainingGueltigeBereich(dateString, challenge.id) && trainingID == -1) { 
+            
+            double newDistanz = distanceBetweenPointsGerundet + challenge.fortschrittwert;
+            double newChallengeProgress = newDistanz / challenge.ziel;
 
-                            update.setDouble(1, newDistanz);
-                            update.setDouble(2, newChallengeProgress);
-                            update.setInt(3, challengeID);
-                            update.executeUpdate();
-                        }
-                    }                  
-                }
+            //3. die daten speichern
+            String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
+
+            try (var conn = DriverManager.getConnection(url); 
+                PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
+                    update.setDouble(1, newDistanz);
+                    update.setDouble(2, newChallengeProgress);
+                    update.setInt(3, challenge.id);
+                    update.executeUpdate();
+
+                    checkChallengeStatus(challenge.id);
             } catch (SQLException e ){
-            e.printStackTrace();
+                e.printStackTrace(); 
+            }
+        } 
         }
     }
 
@@ -520,7 +546,6 @@ public class SQLite {
                     String challengeStartDate = rs.getString("challengeStartDate");
                     String challengeEndDate = rs.getString("challengeEndDate");
 
-
                     LocalDate datumTraining = LocalDate.parse(dateString); //parse von 08-08-2026
                     LocalDate datumStart = LocalDate.parse(challengeStartDate); //parse von challengeStartDate
                     LocalDate datumEnd = LocalDate.parse(challengeEndDate); //parse von challengeEndDate
@@ -562,10 +587,51 @@ public class SQLite {
             }
     }    
 
-    public static void main(String[] args) {
-        //File xmlFile = new File(fileName);
-        //ArrayList<TrkPt> points = XmlReader.loadGpx(fileName);
-        
-        //connect();
+    public static void checkChallengeStatus(int challengeID) {//prüft ob der user das ziel der herausforderung geschafft hat
+        String sqlQueryToCatch = "SELECT challengeProgress, challengeName, status FROM challenges WHERE challengeID = ? AND status = 1";
+
+            double challengeProgress = 0.0;
+            String challengeName = "";
+            int status = 0;
+            boolean found = false;
+
+            try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryToCatch)) {
+
+                pstmt.setInt(1, challengeID);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        challengeProgress = rs.getDouble("challengeProgress");
+                        challengeName = rs.getString("challengeName");
+                        status = rs.getInt("status");
+                        found = true;
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return;
+            } 
+
+            if (found && challengeProgress >= 1.0) {
+               System.out.println("Hurra, du hast den Challenge " + challengeName + " erfolgreich abgeschlossen");
+
+                String sqlQuery = "UPDATE challenges SET status = 2 WHERE challengeID = ?";
+
+                try (var conn = DriverManager.getConnection(url);
+                    PreparedStatement pStatement = conn.prepareStatement(sqlQuery)) {
+                    
+                    pStatement.setInt(1, challengeID);
+                    pStatement.executeUpdate(); // Jetzt läuft das Update, wenn keine Lese-Locks mehr aktiv sind
+                    
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } 
+            }
+    }
+
+    public static void giveReward() { //gibt dem user seiner abzeichnung
+        String konsoleString = "Hurra, du hast den Challenge erfolgreich abgeschollesen";
+        System.out.println(konsoleString);
     }
 }

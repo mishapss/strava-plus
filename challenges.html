@@ -17,6 +17,44 @@
             background-color: #f4f5f7;
             color: #333;
         }
+        h1 {
+            margin-top: 60px;
+            margin-left: 10px;
+        }
+
+        h2, p {
+            margin: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f7f7fa;
+            top: 0;
+            width: 100%;
+        }
+
+        ul li {
+            float: left;
+        }
+
+        ul li a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        ul li a:hover:not(.active) {
+            background-color: #e34402;
+        }
+
+        ul li a.active {
+            background-color: #f7f7fa;
+        }
 
         .challenges-container {
         display: grid;
@@ -102,6 +140,13 @@
     </style>
 </head>
 <body>
+    <ul>
+        <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
+        <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
+        <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
+        <li><a href="#about">About</a></li>
+    </ul>
+
 	<div id="challenges-container" class="challenges-container">
         <p>Lade Herausforderungen</p>
     </div>    
@@ -130,10 +175,20 @@
             challenges.forEach(challenge => {//baut dynamische challenge karte für webseite
                 const challengeID = challenge.challengeID;
                 const buttonID = `join-btn-${challengeID}`;
+                const rewardImgID = `reward-image-${challengeID}` //dynamische bildID
 
-                const idParticipating = challenge.status === 1;
+                const idParticipating = challenge.status === 1 || challenge.status === 2;
                 const buttonText = idParticipating ? "Bereits badei" : "An Herausforderung teilnehmen";
                 const buttonDisabled = idParticipating ? "disabled" : "";
+
+                const showRewardStyle = (challenge.status === 2 && challenge.imagePathReward) ? 'block' : 'none';
+                const rewardSrc = challenge.imagePathReward || '';
+
+                console.log("cahllengeDaten: ", challenge);
+                console.log("Status:", challenge.status, "Typ:", typeof challenge.status);
+                console.log("BildpfadPictureReward:", challenge.imagePathReward || challenge.imagePathReward);
+                console.log("BildpfadBild:", challenge.bild || challenge.bild);
+                console.log("BildpfadImagepath:", challenge.imagePath || challenge.imagePath);
 
                 const cardHTML = `
                             <div class="challenge-card">
@@ -144,7 +199,8 @@
                                     <p class="challenge-date">${challenge.challengeStartDate} bis ${challenge.challengeEndDate}</p>
                                     <p class="participants">👤 Status: ${challenge.status}</p>
                                     <button id="${buttonID}" class="action-btn" ${buttonDisabled}>${buttonText}</button>
-                                </div>
+                                    <img id="${rewardImgID}" src="${challenge.imagePathReward}" alt="Badge" style="display: ${showRewardStyle}; width: 320px; margin-top: 10px;">
+                                </div>                                    
                             </div>
                         `;
                         container.insertAdjacentHTML('beforeend', cardHTML);//fügt das neu erzeugte karten-html am ende in die seite ein
@@ -164,8 +220,8 @@
                                 }
                                 return response.json();//wandelt der Antwort in json um                              
                             })
-                            .then(data => {
-                                if (data === true || data.success === true) {
+                            .then(result => {
+                                if (result === true || result.success === true) {
                                     buttonElement.innerText = "Bereits dabei";
                                     buttonElement.disabled = true;
                                 }
@@ -183,7 +239,22 @@
         });
     }
 
-    window.addEventListener('DOMContentLoaded', uploadChallenges()); //wartet bis die grundstruktur der html-seite geladen ist und dann ruft funktion auf
+    window.addEventListener('DOMContentLoaded', uploadChallenges); //wartet bis die grundstruktur der html-seite geladen ist und dann ruft funktion auf
+
+    /*
+    function showTheReward() {
+        fetch(`/api/challenges/${challengeID}`)
+        .then(response => response.json)
+        .then(data => {
+            if (data.status === 2 && data.picture_reward) {
+                const badgeImg = document.getElementById('reward-badge');
+
+                badgeImg.src = data.picture_reward;
+                badgeImg.style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Fehler beim Laden', error));
+    }*/
 
     function pruefeObTeilnehmer(challengeID, buttonElemnt) {
         fetch('http://localhost:8000/api/check-participation?challengeID=' + challengeID)
