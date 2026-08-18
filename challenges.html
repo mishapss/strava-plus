@@ -144,8 +144,7 @@
         <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
         <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
         <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
-        <li><a href="#about">About</a></li>
-    </ul>
+        <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li>     </ul>
 
 	<div id="challenges-container" class="challenges-container">
         <p>Lade Herausforderungen</p>
@@ -184,6 +183,14 @@
                 const showRewardStyle = (challenge.status === 2 && challenge.imagePathReward) ? 'block' : 'none';
                 const rewardSrc = challenge.imagePathReward || '';
 
+                let statusDescription = "Nicht teilgenommen";
+
+                if (challenge.status === 1) {
+                    statusDescription = "Du nimmst teil";
+                } else if (challenge.status === 2) {
+                    statusDescription = "Erfogreich abgeschlossen, siehe die Abzeichnung auf der Auszeichnung-Seite";
+                }
+
                 console.log("cahllengeDaten: ", challenge);
                 console.log("Status:", challenge.status, "Typ:", typeof challenge.status);
                 console.log("BildpfadPictureReward:", challenge.imagePathReward || challenge.imagePathReward);
@@ -197,9 +204,8 @@
                                     <h2>${challenge.challengeName}</h2>
                                     <p class="description">${challenge.challengeDescription}</p>
                                     <p class="challenge-date">${challenge.challengeStartDate} bis ${challenge.challengeEndDate}</p>
-                                    <p class="participants">👤 Status: ${challenge.status}</p>
+                                    <p class="participants">Status: ${statusDescription}</p>
                                     <button id="${buttonID}" class="action-btn" ${buttonDisabled}>${buttonText}</button>
-                                    <img id="${rewardImgID}" src="${challenge.imagePathReward}" alt="Badge" style="display: ${showRewardStyle}; width: 320px; margin-top: 10px;">
                                 </div>                                    
                             </div>
                         `;

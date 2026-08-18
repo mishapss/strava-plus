@@ -67,6 +67,13 @@
         max-width: 1200px;
         margin: 0 auto;
     }
+    .reward-card img {
+    width: 300px;         /* Feste Breite */
+    height: 300px;        /* Feste Höhe */
+    object-fit: contain;  /* Bild wird passend skaliert, ohne zu verzerren */
+    display: block;
+    margin: 10px auto;    /* Zentriert das Bild in der Karte */
+}
 
     .challenge-card {
         background: white;
@@ -76,6 +83,43 @@
 
         display: flex;
         flex-direction: column;
+    }
+    /* Container: Raster mit 4 gleich breiten Spalten */
+    .rewards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Genau 4 Spalten */
+        gap: 20px;                             /* Abstand zwischen den Karten */
+        padding: 20px;
+    }
+
+    /* Einzelne Medaillen-Karte */
+    .reward-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Feste Bildgröße & saubere Skalierung */
+    .reward-card img {
+        width: 300px;
+        height: 300px;
+        object-fit: contain; /* Verhindert Verzerrung */
+        margin-bottom: 10px;
+    }
+
+    /* Optional: Mobilfreundlich (auf kleinen Bildschirmen responsive machen) */
+    @media (max-width: 900px) {
+        .rewards-grid {
+            grid-template-columns: repeat(2, 1fr); /* 2 Spalten auf Tablets */
+        }
+    }
+    @media (max-width: 500px) {
+        .rewards-grid {
+            grid-template-columns: 1fr;            /* 1 Spalte auf Handys */
+        }
     }
 
     .challenge-image {
@@ -144,10 +188,12 @@
         <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
         <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
         <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
-        <li><a href="#about">About</a></li>
+        <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li> 
     </ul>
 
-	<div id="rewards-container" class="rewards-container">
+    <!--TODO: schreib about-seite (dokumentation)-->
+	
+    <div id="rewards-container" class="rewards-grid">
         <p>Lade Abzeichnungen</p>
     </div>    
 
@@ -172,14 +218,16 @@
                 return;
             }
 
-            const imgPath = completed.imagePathReward;
-            console.log(imgPath);
+            //const imgPath = completed.imagePathReward;
+            //console.log(imgPath);
 
             completed.forEach(challenge => {//baut dynamische challenge karte für webseite
+                let imgPath = (challenge.imagePathReward || challenge.picture_reward || '');
+
                 const card = document.createElement('div');
                 card.className = 'reward-card';
                 card.innerHTML = `
-                    <img id="${rewardImgID}" src="${imgPath}" alt="Badge" style="display: ${showRewardStyle}; width: 320px; margin-top: 10px;">
+                    <img src="${imgPath}" alt="${challenge.challengeName}">  
                     <p class="description">${challenge.challengeName}</p>
                 `;
                 container.appendChild(card);

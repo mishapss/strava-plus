@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Strava-Plus - Dokumentation</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <style>
+        :root {
+            --primary-color: #fc4c02; /* Strava Orange */
+            --bg-color: #f4f5f7;
+            --text-main: #333333;
+            --text-light: #555555;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+        }
+        /* Typography */
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #222;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f7f7fa;
+            top: 0;
+            width: 100%;
+        }
+
+        ul li {
+            float: left;
+        }
+
+        ul li a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        ul li a:hover:not(.active) {
+            background-color: #e34402;
+        }
+
+        ul li a.active {
+            background-color: #f7f7fa;
+        }   
+        /* Daten-Begriffe am Ende */
+        .data-dictionary {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .data-dictionary li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .data-dictionary p {
+            margin: 0;
+        }
+
+        dfn {
+            font-weight: 700;
+            font-style: normal;
+            color: #111;
+            font-size: 1.1rem;
+        }
+       
+    </style>
+</head>
+<body>
+    <nav>
+        <ul class="nav-list">
+            <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
+            <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
+            <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
+            <li><a href="http://localhost:8000/about" class="active">Über Strava-Plus</a></li> 
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h1>Strava-Plus</h1>
+        <p style="text-align: center; font-size: 1.1rem; color: #777;">Dokumentation zur Webanwendung</p>
+            
+        <p>Das Projekt "Strava-Plus" wurde als eine kostenlose Version der weltbekannten App "Strava" gedacht. Das Projekt ist nur für die private Nutzung konzipiert.</p>
+        <p>Die Anwendung enthält eine große Menge an Funktionen, die nicht nur bei der Original-Anwendung abgeschaut wurden, sondern auch aus anderen Gesundheitsapps, wie zum Beispiel "Coros", stammen.</p>
+        <p>Der Zweck der Anwendung ist die kostenlose Analyse der Fahrradeinheiten und die Nutzung von kostenpflichtigen Funktionen von Strava. Zur Analyse der Trainingseinheit gehört die Ermittlung der maximalen Geschwindigkeit und Herzfrequenz, zurückgelegte Distanz, durchschnittliche Herzfrequenz, Geschwindigkeit und vieles mehr.</p>
+
+        <h2>Wie benutzt man Strava-Plus?</h2>
+        <ol class="content-list">
+            <li>Training hochladen</li>
+            <li>Herausforderungen und Abzeichnungen</li>
+            <li>Was bedeuten die Daten</li>
+        </ol>
+
+        <h2>Training hochladen</h2>
+        <p>Um die Analyse der Trainingseinheit durchzuführen, musst du das Training hochladen. Dies geschieht über den Upload einer GPX-Datei. Auf der Training-Seite siehst du den Knopf "GPX Datei auswählen". Mit Hilfe dieses Knopfes kann man die GPX-Datei des Trainings auswählen.</p>
+        <p>Nach der Auswahl musst du auf den Knopf "An den Server schicken" klicken. Danach wird die gesamte Analyse durchgeführt und die Daten werden auf der Webseite angezeigt.</p>
+        <p>Ganz links siehst du die gesamte Analyse des Trainings und anhand der Daten kannst du feststellen, ob das Training erfolgreich war oder nicht. Die Daten der Analyse werden gespeichert, damit die Anwendung sie bei der Berechnung des Fortschritts von Herausforderungen nutzen kann.</p>
+
+        <h2>Herausforderungen und Abzeichnungen</h2>
+        <p>Auf der Seite mit Herausforderungen kannst du an Challenges für einen bestimmten Zeitraum teilnehmen. Es steht immer eine unterschiedliche Anzahl von Herausforderungen zur Verfügung.</p>
+        
+        <p><strong>Wie funktioniert die Herausforderung?</strong></p>
+        <p>In der Herausforderung gibt es ein Ziel, einen Zeitraum, in dem die Herausforderung abgeschlossen werden kann, und die Belohnung. Das Ziel der Herausforderung ist immer eine Anforderung, die du erfüllen musst. Es kann eine Anzahl von zurückgelegten Kilometern, Höhenmetern, Minuten oder Tagen, an denen man aktiv war, sein. Die Voraussetzung wird immer auf der Karte der Challenge angezeigt.</p>
+        
+        <p>Beim Klick auf den Knopf "An der Herausforderung teilnehmen" nimmst du an der Challenge teil und ab diesem Punkt werden die benötigten Daten zum Abschluss der Herausforderung gezählt.</p>
+        
+        <p style="background-color: #fff3cd; border-left: 4px solid #ffecb5; padding: 10px 15px; color: #856404; border-radius: 4px;">
+            <strong>Wichtig:</strong> Die Daten werden erst ab dem Punkt gezählt, an dem der Benutzer auf den Knopf gedrückt hat!
+        </p>
+        
+        <p>Wenn der Benutzer die Challenge abgeschlossen hat, bekommt er eine Belohnung: eine digitale Abzeichnung.</p>
+
+        <h2>Was bedeuten die Daten?</h2>
+        <!--TODO: Definitionen der folgenden Begriffe ergänzen-->
+        <ol class="data-dictionary">
+            <li><p><dfn>Maximale Herzfrequenz</dfn></p></li>
+            <li><p><dfn>Durchschnittliche Herzfrequenz</dfn></p></li>
+            <li><p><dfn>Anstieg</dfn></p></li>
+            <li><p><dfn>0. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>1. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>2. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>3. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>4. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>5. Herzfrequenzzone</dfn></p></li>
+            <li><p><dfn>Trainingsbelastung</dfn></p></li>
+            <li><p><dfn>Kalorien</dfn></p></li>
+            <li><p><dfn>Aerober Trainingseffekt</dfn></p></li>
+            <li><p><dfn>Anaerober Trainingseffekt</dfn></p></li>
+        </ol>
+    </main>
+</body>
+</html>
+
+

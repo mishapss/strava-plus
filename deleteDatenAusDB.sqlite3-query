@@ -1,0 +1,8 @@
+-- database: c:\Users\MikhailLeshchenko\strava_plus\db\test.db
+
+UPDATE challenges 
+SET challengeProgress = 0, fortschrittwert = 0, status = 0 
+WHERE challengeID IN (1, 2, 7, 8);
+
+DELETE FROM heart_zone WHERE training_id IN (86,87);
+DELETE FROM training WHERE trainingID IN (86,87);
