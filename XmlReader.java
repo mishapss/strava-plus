@@ -329,7 +329,7 @@ public class XmlReader {
             
 
             ObjectNode properties = mapper.createObjectNode();
-            properties.put("color", "#a03a3a");
+            properties.put("color", "#004aad");
             properties.put("date", dateString);
             properties.put("distanceBetweenPointsGerundet", distanceBetweenPointsGerundet); // kommt alles aus loadGpx
             properties.put("time", time);
@@ -353,7 +353,7 @@ public class XmlReader {
             properties.put("comment", "test");
             feature.set("properties", properties);
 
-            ArrayNode features = mapper.createArrayNode();
+            ArrayNode features = mapper.createArrayNode(); 
             features.add(feature);
 
             ObjectNode featureCollection = mapper.createObjectNode();          

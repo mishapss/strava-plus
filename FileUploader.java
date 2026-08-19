@@ -41,7 +41,7 @@ public class FileUploader {
             // Debug-Ausgaben
             System.out.println("DEBUG OUTPUT");
             System.out.println("Status code: " + statusCode);
-            System.out.println("Response headers: " + response.headers());
+            System.out.println("Response headers: " + response.headers());//
             System.out.println("Response body: '" + response.body() + "'");
             
             if (statusCode >= 200 && statusCode < 300) {

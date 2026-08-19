@@ -52,7 +52,7 @@
         }
 
         ul li a:hover:not(.active) {
-            background-color: #e34402;
+            background-color: #004aad;
         }
 
         ul li a.active {
@@ -95,7 +95,7 @@
             margin-top: 0;
             color: #222;
             font-size: 1.4rem;
-            border-bottom: 2px solid #FC4C02; /* Оранжевый акцент Strava */
+            border-bottom: 2px solid #004aad; /* Оранжевый акцент Strava */
             padding-bottom: 8px;
         }
 
@@ -105,7 +105,7 @@
             text-align: center;
             padding: 12px;
             cursor: pointer;
-            background-color: #FC4C02;
+            background-color: #004aad;
             color: white;
             border-radius: 6px;
             font-weight: bold;
@@ -114,7 +114,7 @@
         }
 
         .custom-file-upload:hover {
-            background-color: #e34402;
+            background-color: #06489e;
         }
 
         input[type="file"] {
@@ -172,10 +172,7 @@
             font-variant-numeric: tabular-nums; /* Чтобы цифры не прыгали */
         }
 
-        /* Выделение важных показателей цветом */
-        .highlight {
-            color: #FC4C02 !important;
-        }
+        
     </style>
 </head>
 <body>
@@ -199,16 +196,16 @@
 
         <h2>fahrt info</h2>
 
-        <p id="server-comment" style="color: #FC4C02;font-weight: bold; margin-bottom: 15px;"></p> 
+        <p id="server-comment" style="color: #004aad;font-weight: bold; margin-bottom: 15px;"></p> 
 
         <table class="stats-table">
             <tr>
                 <td class="label">Datum</td>
-                <td id="stat-datum" class="value highlight">--</td>
+                <td id="stat-datum" class="value">--</td>
             </tr>
             <tr>
                 <td class="label">distanz</td>
-                <td id="stat-distance" class="value highlight">-- km</td>
+                <td id="stat-distance" class="value">-- km</td>
             </tr>
             <tr>
                 <td class="label">zeit</td>
@@ -228,7 +225,7 @@
             </tr>
             <tr>
                 <td class="label">anstieg</td>
-                <td id="stat-elevation" class="value highlight">-- m</td>
+                <td id="stat-elevation" class="value">-- m</td>
             </tr>
             <tr>
                 <td class="label">max hr</td>
@@ -343,7 +340,7 @@
                 type: 'line',
                 source: 'route',
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': '#FC4C02', 'line-width': 7 }
+                paint: { 'line-color': '#004aad', 'line-width': 7 }
               });
           }
 

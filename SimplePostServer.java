@@ -73,13 +73,31 @@ public class SimplePostServer{
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(response.getBytes("UTF-8"));
                     }
-                } catch (Exception e) {
+                } catch (Exception e) { 
                     System.out.println("Ошибка при парсинге GPX: " + e.getMessage());
                     e.printStackTrace();
                     exchange.sendResponseHeaders(500, -1);
                 }
             } else {
                 exchange.sendResponseHeaders(405, -1);
+            }
+        });
+
+        server.createContext("/about", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                Path path = Paths.get("about.html");
+
+                if (Files.exists(path)) {
+                    byte[] htmlBytes = Files.readAllBytes(path);
+                    exchange.getResponseHeaders().set("Content-type", "text/html; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, htmlBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(htmlBytes);
+                    }
+                } else {
+                    exchange.sendResponseHeaders(404, -1);
+                }
             }
         });
 

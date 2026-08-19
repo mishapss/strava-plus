@@ -7,7 +7,7 @@
     
     <style>
         :root {
-            --primary-color: #fc4c02; /* Strava Orange */
+            --primary-color: #004aad; /* Strava Orange */
             --bg-color: #f4f5f7;
             --text-main: #333333;
             --text-light: #555555;
@@ -19,7 +19,7 @@
         }
         
         body { 
-            margin: 0; 
+            margin: 0px; 
             padding: 0; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f4f5f7;
@@ -29,6 +29,7 @@
         h1 {
             color: var(--primary-color);
             font-size: 2.5rem;
+            /*margin-left: -35px;*/
             margin-top: 0;
             margin-bottom: 10px;
             text-align: center;
@@ -71,7 +72,7 @@
         }
 
         ul li a:hover:not(.active) {
-            background-color: #e34402;
+            background-color: #004aad;
         }
 
         ul li a.active {
@@ -101,6 +102,15 @@
             color: #111;
             font-size: 1.1rem;
         }
+        
+        .container{
+            margin-left: 35px;
+        }
+        .flex { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+        }
        
     </style>
 </head>
@@ -110,12 +120,17 @@
             <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
             <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
             <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
-            <li><a href="http://localhost:8000/about" class="active">Über Strava-Plus</a></li> 
+            <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li>
+
+            <li></li>
         </ul>
     </nav>
 
-    <main class="container">
-        <h1>Strava-Plus</h1>
+    <main class="container" >
+        <div class="flex">
+            <img src="/bilds/strava-plus-logo.png" alt="strava-plus-logo" width="250">
+        </div>
+        
         <p style="text-align: center; font-size: 1.1rem; color: #777;">Dokumentation zur Webanwendung</p>
             
         <p>Das Projekt "Strava-Plus" wurde als eine kostenlose Version der weltbekannten App "Strava" gedacht. Das Projekt ist nur für die private Nutzung konzipiert.</p>
@@ -151,19 +166,117 @@
         <h2>Was bedeuten die Daten?</h2>
         <!--TODO: Definitionen der folgenden Begriffe ergänzen-->
         <ol class="data-dictionary">
-            <li><p><dfn>Maximale Herzfrequenz</dfn></p></li>
-            <li><p><dfn>Durchschnittliche Herzfrequenz</dfn></p></li>
-            <li><p><dfn>Anstieg</dfn></p></li>
-            <li><p><dfn>0. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>1. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>2. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>3. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>4. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>5. Herzfrequenzzone</dfn></p></li>
-            <li><p><dfn>Trainingsbelastung</dfn></p></li>
-            <li><p><dfn>Kalorien</dfn></p></li>
-            <li><p><dfn>Aerober Trainingseffekt</dfn></p></li>
-            <li><p><dfn>Anaerober Trainingseffekt</dfn></p></li>
+            <li>
+                <p>
+                    <dfn>Maximale Herzfrequenz</dfn> <br>                  
+                    Unter der maximalen HF wird jene HF verstanden, die von einem Sportler bei voller subjektiver Ausbelastung erreicht wird. 
+                    Dabei stellt die Ausbelastung einen Zustand der willensmäßigen Mobilisierung aller Leistungsreserven dar, unter Einsatz größerer 
+                    Muskelgruppen mit höchstmöglicher Intensität. Die maximale HF kennzeichnet einen Momentzustand des Herz-Kreislauf-Systems und hat keinen 
+                    Bezug zur Leistungsfähigkeit des Sportlers.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>Durchschnittliche Herzfrequenz</dfn> <br>
+                    Die durchschnittliche Herzfrequenz stellt den Mittelwert in einer Trainingseinheit, einem Trainingsabschnitt oder einer 
+                    akuten Belastungs- beziehungsweise Nachbelastungsphase (akive Erholung) über einen spezifischen Messzeitraum dar.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>0. Herzfrequenzzone</dfn> <br>
+                    Nullte Pulszone entspricht einer sehr geringen Trainingsintensität. Er eignet sich für aktive Erholung. <br>
+                    Diese Intesität kann über mehrere Tage aufrehterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>1. Herzfrequenzzone</dfn> <br>
+                    Erste Pulszone ermöglicht es, Gespräche bequem zu führen. Er eignet sich für das grundlegende kasrdiovaskuläre Training, 
+                    das hauptsächlich auf aerobe Kapazität abzielt. <br>
+                    Diese Intensität kann über mehrere Stunden aufrechterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>2. Herzfrequenzzone</dfn> <br>
+                    Zweite Pulszone führt zu einem plötzlichen Anstieg der Atemfrequenz und es fällt schwerer, Gespräche zu führen. Er eignet 
+                    sich zur Verbesserung der Lauftechnik und -form sowie zur Schulung von Atmung und Kadenz. <br>
+                    Diese Intensität kann für 1–3 Stunden aufrechterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>3. Herzfrequenzzone</dfn> <br>
+                    Dritte Pulszone ist genau dein Schwellenbereich. Die Anstrengung ist kaum nachhaltig und eher unangenehm. Das Training 
+                    in dieser Zone verbessert deine Fähigkeit, härtere Anstrengungen länger aufrechtzuerhalten. <br>
+                    Diese Intensität kann für 45–60 Minuten aufrechterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>4. Herzfrequenzzone</dfn> <br>
+                    Vierte Pulszone, Hier hast du deinen Schwellenbereich überschritten – und es wird eher unangenehm und nicht mehr nachhaltig. 
+                    Obwohl es noch nicht dem maximalen Aufwand entspricht, gilt dieser Bereich für hochintensives Training, um hauptsächlich die 
+                    VO2max-Fähigkeit zu verbessern. <br>
+                    Diese Intensität kann für 3–7 Minuten aufrechterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>5. Herzfrequenzzone</dfn> <br>
+                    Fünfte Pulszone entspricht dem maximalen Einsatz, bei dem dein Körper dich zum Stoppen zwingen wird, bevor du die maximale 
+                    Kapazität deines Systems erreichst. Er eignet sich zur Verbesserung der neuromuskulären Kapazität und schnelleren Bewegungen. <br>
+                    Diese Intensität kann weniger als 3 Minuten aufrechterhalten werden.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>Trainingsbelastung</dfn> <br>
+                    Die Trainingsbelastung ist die Menge an physischem Stress, dem dein Körper durch ein Training ausgesetzt ist.
+                    Sie berechnet sich aus zwei Hauptfaktoren: <br>
+                    Trainingsvolumen: Die erbrachte Trainingszeit und zurückgelegte Distanz. <br>
+                    Trainingsintensität: Der Einsatz während des Trainings, gemessen z. B. über die Herzfrequenz oder die Geschwindigkeit.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>Aerober Trainingseffekt</dfn> <br>
+                    Misset die Auswirkung des Trainings auf dein aerobes System (Ausdauer & Cardio-Aktivitäten). <br>
+                    Entsteht durch eine niedrigere Belastung pro Minute unterhalb deiner Laktatschwelle. <br>
+                    Ziel: Verbessert deine allgemeine aerobe Ausdauerfitness.
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>Anaerober Trainingseffekt</dfn> <br>
+                    Misst die Auswirkung des Trainings auf dein anaerobes System (hochintensive, explosive Belastungen). <br>
+                    Entsteht durch eine höhere Belastung pro Minute oberhalb deiner Laktatschwelle (z. B. durch hochintensives Intervalltraining).<br>
+                    Ziel: Verbessert deine anaerobe Fitness (z. B. Tempohärte, Sprintkraft und Laktattoleranz).
+                </p>
+            </li>
+
+            <li>
+                <p>
+                    <dfn>Bewertungsskala für anaerober und aerober Trainingseffekt</dfn> <br>
+                    0.0 – 0.9 (Ineffizient): Minimaler Effekt auf die Fitness.<br>
+                    1.0 – 1.9 (Erholend): Gut zur Regeneration, bringt aber kaum Fitnessverbesserung.<br>
+                    2.0 – 2.9 (Erhaltend): Hält das aktuelle Fitnesslevel aufrecht.<br>
+                    3.0 – 3.9 (Verbessernd): Verbessert die Fitness (ideal bei 2–4 Wiederholungen pro Woche).<br>
+                    4.0 – 4.9 (Optimiert): Verbessert die Fitness sehr effizient (ideal bei 1–2 Wiederholungen pro Woche).<br>
+                    5.0 – 5.9 (Überanstrengend): Sehr starke Steigerung der Fitness, erfordert aber ausreichend Erholung – andernfalls droht Überanstrengung.<br>
+                </p>
+            </li>
         </ol>
     </main>
 </body>
