@@ -113,8 +113,8 @@ public class XmlReader {
             WorkoutResult result = analyzer.analyzeWorkout(trackPoints);
             int[] zones = result.timeInZone;
             
-            trainingLoad = (int)analyzer.getTrainingLoad(trackPoints, 200, 49);
-            aerobicTrainingLoad = (int)analyzer.getAerobicTrainingEffect(trackPoints, 200, 49);
+            trainingLoad = (int)analyzer.getTrainingLoad(trackPoints);
+            aerobicTrainingLoad = (int)analyzer.getAerobicTrainingEffect(trackPoints);
 
             timeIn0HrZone = reader.stringFormatZoneTime(zones[0]);
             timeIn1HrZone = reader.stringFormatZoneTime(zones[1]);
@@ -139,13 +139,13 @@ public class XmlReader {
             averageSpeedGerundet = Math.round(averageSpeed * 100.0) / 100.0;
 
             //ausrechnung der Kalorien
-            double kalorien = analyzer.getKalorienVerbrauch(trackPoints, 200, 19);//ausrechnung der kalorien
+            double kalorien = analyzer.getKalorienVerbrauch(trackPoints);//ausrechnung der kalorien
             XmlReader.kalorien = kalorien;
 
-            double aerobicTrainingEffect = analyzer.getAerobicTrainingEffect(trackPoints, 200, 47);
+            double aerobicTrainingEffect = analyzer.getAerobicTrainingEffect(trackPoints);
             XmlReader.aerobicTrainingEffect = aerobicTrainingEffect;
 
-            double anaerobicTrainingEffect = analyzer.getAnaerobicTrainingEffect(trackPoints, 200, 47);
+            double anaerobicTrainingEffect = analyzer.getAnaerobicTrainingEffect(trackPoints);
             XmlReader.anaerobicTrainingEffect = anaerobicTrainingEffect;
 
             //ausrechnung der max geschwindigkeit

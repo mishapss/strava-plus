@@ -2,6 +2,10 @@ import java.util.List;
 //import java.io.File;                                                        //datei öfnen
 //import java.io.IOException;
 import java.time.Instant;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 
@@ -27,7 +31,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
 
-            int zoneIndex = determineZone(currentHeartRate, maxHR);
+            int zoneIndex = determineZone(currentHeartRate);
             heartZones.get(zoneIndex).add(currentHeartRate); // einfügt in die entsprechende zone den hr wert
         }        
 
@@ -39,7 +43,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             TrkPt current = points.get(i);
             TrkPt next = points.get(i + 1);
 
-            int zoneIndex = determineZone(current.getHeartRate(), maxHR);
+            int zoneIndex = determineZone(current.getHeartRate());
 
             long seconds = calculateTimeDifferenceInSeconds(current.time, next.time);
 
@@ -62,7 +66,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return duration.getSeconds();
     }
 
-    public int determineZone(int heartRate, int maxHr) { // berechnet die herzfrequenzzone basierend auf der aktuellen herzfrequenz und der maximalen herzfrequenz
+    public int determineZone(int heartRate) { // berechnet die herzfrequenzzone basierend auf der aktuellen herzfrequenz und der maximalen herzfrequenz
         List<List<Integer>> heartZones = new ArrayList<>();       
         
         for (int i = 0; i < 6; i ++) {
@@ -121,11 +125,17 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return maxHeartRate;
     }
 
-    public double getTrainingLoad(List<TrkPt> points, int maxHR, int ruheHR) { //methode um die trainingsbelastung zu berechnen
+    public double getTrainingLoad(List<TrkPt> points) { //methode um die trainingsbelastung zu berechnen
         double e = Math.E;
         double trainingLoad = 0.0;
         double relativeHR = 0.0;    
         double intensityFaktor = 0.0;
+
+        int[] hr = SQLite.getHRDaten();
+
+        int maxHR = hr[0];
+        int ruheHR = hr[1];
+
         
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
@@ -143,10 +153,10 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return 0.0; 
     }
 
-    public double getAerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
+    public double getAerobicTrainingEffect(List<TrkPt> points) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
         double e = Math.E;
 
-        double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
+        double trainingLoad = getTrainingLoad(points); //bekommen trainingsbelsatung
         WorkoutResult result = analyzeWorkout(points);
         int[] zones = result.timeInZone;
 
@@ -170,10 +180,10 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return Math.round(aerobicTE * 10.0) / 10.0;
     }
     
-    public double getAnaerobicTrainingEffect(List<TrkPt> points, int maxHR, int ruheHR) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
+    public double getAnaerobicTrainingEffect(List<TrkPt> points) { //methode zur berechnung des aeroben trainingseffekt, anhand mehreren daten
         double e = Math.E;
 
-        double trainingLoad = getTrainingLoad(points, maxHR, ruheHR); //bekommen trainingsbelsatung
+        double trainingLoad = getTrainingLoad(points); //bekommen trainingsbelsatung
         WorkoutResult result = analyzeWorkout(points);
         int[] zones = result.timeInZone;
 
@@ -202,11 +212,31 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         return Math.round(anaerobicTE * 10.0) / 10.0;
     }
 
-    public double getKalorienVerbrauch(List<TrkPt> points, int gewicht, int alter) { //methode zur berechnung des Kalorienverbrauchs anhand der Herzfrequenzdaten und des Gewichts
+    public double getKalorienVerbrauch(List<TrkPt> points) { //methode zur berechnung des Kalorienverbrauchs anhand der Herzfrequenzdaten und des Gewichts
         double kcalGesamt = 0.0;
+        int weight = 0;
+        int age = 0;
+        
+        String sqlQuery = "SELECT weight, age FROM users WHERE userID = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                pstmt.setInt(1, 1);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    weight = rs.getInt("weight");
+                    age = rs.getInt("age");
+                };
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
         for (TrkPt point: points)   {
             int currentHeartRate = point.getHeartRate();
-            double kcalInMin = (-55.0969 + 0.6309 * currentHeartRate + 0.1988 * gewicht + 0.2017 * alter) / 8; //berechnung der Kalorien pro Minute
+            double kcalInMin = (-55.0969 + 0.6309 * currentHeartRate + 0.1988 * weight + 0.2017 * age) / 8; //berechnung der Kalorien pro Minute
 
             kcalGesamt += kcalInMin / 60; //gesamtkalorienverbrauch
         }

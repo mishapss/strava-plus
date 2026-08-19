@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Init SQLite DB",
+      "type": "shell",
+      "command": "sqlite3 strava.db < schema.sql",
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ]
+}

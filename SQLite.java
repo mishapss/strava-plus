@@ -14,7 +14,8 @@ import java.util.List;
 public class SQLite {
     public static int trainingLoad;
 
-    public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
+    
 
     private static void setParameters(PreparedStatement ptsmt, Object... values) throws SQLException{ //kann so viele werten übergeben, wie ich will
 
@@ -474,8 +475,7 @@ public class SQLite {
             e.printStackTrace();
         }
     } 
-    
-     
+      
     public static void updateChallengeProgressHoehenmeter(String dateString, double hoehenmeter, double distanceBetweenPointsGerundet) { //methode für die ausrechnung des neuen höhenmeters für challenge
         String sqlAbfrageHoehenmeter = "SELECT ziel, fortschrittwert, challengeID FROM challenges WHERE status = 1 AND zielDatentyp = 'höhenmeter'";
 

@@ -8,6 +8,12 @@
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-core-2.17.0.jar",
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\stax2-api-4.2.1.jar",
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-dataformat-xml-2.17.0.jar",
-        "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-annotations-2.17.0.jar"
+        "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-annotations-2.17.0.jar",
+        "lib/jackson-annotations-2.17.0.jar",
+        "lib/jackson-core-2.17.0.jar",
+        "lib/jackson-databind-2.17.0.jar",
+        "lib/jackson-dataformat-xml-2.17.0.jar",
+        "lib/sqlite-jdbc-3.53.2.1.jar",
+        "lib/stax2-api-4.2.1.jar"
     ]
 }

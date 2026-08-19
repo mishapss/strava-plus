@@ -12,7 +12,7 @@ import java.util.List;
 
 
 public class ChallengeLoader {
-    public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
 
     public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db für upload auf der webseite und gibt als json zurück
         List<ChallengeData> liste = new ArrayList<>();
