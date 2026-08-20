@@ -5,12 +5,14 @@ import java.time.Instant;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 
 public class WorkoutAnalyzer { //klasse für die analyze des trainings
-    public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    //public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
     
     public WorkoutResult analyzeWorkout(List<TrkPt> points) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
@@ -242,5 +244,126 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         }
         return Math.round(kcalGesamt * 100.0) / 100.0; 
         
+    }
+
+    public void checkNewMaxSpeed(List<TrkPt> points) {
+        double maxGeschwindigkeit = 0.0;
+
+        for (int i = 0; i < points.size(); i++) {
+            double jetzigeGeschwindigkeit = points.get(i).geschwindigkeitMps; 
+
+            if (jetzigeGeschwindigkeit > maxGeschwindigkeit) {
+                maxGeschwindigkeit = jetzigeGeschwindigkeit; 
+            }
+        }
+        double maxGeschwindigkeitKmh = Math.round(maxGeschwindigkeit * 3.6 * 100) / 100.0;
+
+        String sqlQuery = "SELECT maxSpeed FROM users WHERE userID = ?";
+
+        double maxSpeed = 0.0;
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                
+                pstmt.setInt(1,1);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    maxSpeed = rs.getDouble("maxSpeed");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return;
+            }
+
+        if (maxSpeed < maxGeschwindigkeitKmh) {
+
+            String sqlQueryInsert = "UPDATE users SET maxSpeed = ? WHERE userID = ?";
+
+            try (var conn = DriverManager.getConnection(url); 
+                PreparedStatement update = conn.prepareStatement(sqlQueryInsert)) {
+
+                    update.setDouble(1, maxGeschwindigkeitKmh);
+                    update.setInt(2, 1);
+                    update.executeUpdate();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void chenkNewMaxDistance(List<TrkPt> points) {
+        double currentDistance = XmlReader.distanceBetweenPointsGerundet;
+
+        String sqlQueryGetDistance = "SELECT maxDistance FROM users WHERE userID = ?";
+        double maxDistance = 0.0;
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
+                pstmt.setInt(1,1);
+                
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    maxDistance = rs.getDouble("maxDistance");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        
+            if (currentDistance > maxDistance) {
+
+                String sqlQuerySaveNewDistance = "UPDATE users SET maxDistance = ? WHERE userID = ?";
+
+                try (var conn = DriverManager.getConnection(url);
+                    PreparedStatement pstmt = conn.prepareStatement(sqlQuerySaveNewDistance)) {
+                    
+                    pstmt.setDouble(1, currentDistance);
+                    pstmt.setInt(2, 1);
+                    pstmt.executeUpdate();                    
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+    }
+
+
+    public void checkNewElevationGain(List<TrkPt> points) {
+        double currentElevation = XmlReader.hoeheSummeGerundet;
+
+        String sqlQueryGetElevation = "SELECT maxElevationGain FROM users WHERE userID = ?";
+
+        double maxElevationGain = 0.0;
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetElevation)) {
+            
+            pstmt.setInt(1,1);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                maxElevationGain = rs.getDouble("maxElevationGain");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (currentElevation > maxElevationGain) {
+            String sqlQuerySaveNewElevation = "UPDATE users SET maxElevationGain = ? WHERE userID = ?";
+
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmt = conn.prepareStatement(sqlQuerySaveNewElevation)) {
+
+                pstmt.setDouble(1, currentElevation);
+                pstmt.setInt(2,1);
+                pstmt.executeUpdate();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

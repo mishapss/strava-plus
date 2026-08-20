@@ -85,7 +85,7 @@ public class SimplePostServer{
 
         server.createContext("/about", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                Path path = Paths.get("about.html");
+                Path path = Paths.get("html/about.html");
 
                 if (Files.exists(path)) {
                     byte[] htmlBytes = Files.readAllBytes(path);
@@ -99,6 +99,78 @@ public class SimplePostServer{
                     exchange.sendResponseHeaders(404, -1);
                 }
             }
+        });
+
+        server.createContext("/profile", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                Path path = Paths.get("html/profile.html");
+
+                if (Files.exists(path)) {
+                    byte[] htmlBytes = Files.readAllBytes(path);
+                    exchange.getResponseHeaders().set("Content-type", "text/html; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, htmlBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(htmlBytes);
+                    }
+                } else {
+                    exchange.sendResponseHeaders(404, -1);
+                }
+            }
+        });
+
+        server.createContext("/api/profile", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                List<ProfileData> data = ProfileLoader.getProfileDataFromDB();
+
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonResponse = mapper.writeValueAsString(data);
+
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, responseBytes.length);
+
+                try (OutputStream os = exchange.getResponseBody()){
+                    os.write(responseBytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500,-1);
+                }
+            } else {
+                exchange.sendResponseHeaders(405,-1);
+            }
+        });
+
+        server.createContext("/api/upload-avatar", exchange -> {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                try {
+                    
+                    InputStream is = exchange.getRequestBody();
+                    byte[] data = is.readAllBytes();
+
+                    Path uploadDir = Paths.get("images");
+                    if (!Files.exists(uploadDir)) {
+                        Files.createDirectories(uploadDir);
+                    }
+
+                    Path filePath = uploadDir.resolve("user_1.png");
+                    Files.write(filePath, data);
+
+                    String imagePathForDB = "/images/user_1.png";
+                    ProfileLoader.saveAvatarPathToDB(1, imagePathForDB);
+
+                    String responseText = "alles lief gut";
+                    byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
+
+                    exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, responseBytes.length);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                }
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            } 
         });
 
         server.createContext("/api/rewards", exchange -> {
@@ -121,7 +193,7 @@ public class SimplePostServer{
         server.createContext("/rewards", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 
-                Path path = Paths.get("abzeichnungen.html"); // verweist auf die datei in ordner
+                Path path = Paths.get("html/abzeichnungen.html"); // verweist auf die datei in ordner
 
                 if (Files.exists(path)) { //prüft ob die datei existiert 
                     byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array ein
@@ -161,7 +233,7 @@ public class SimplePostServer{
 
         server.createContext("/challenges", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                Path path = Paths.get("challenges.html"); // verweist auf die datei in ordner
+                Path path = Paths.get("html/challenges.html"); // verweist auf die datei in ordner
 
                 if (Files.exists(path)) { //prüft ob die datei existiert 
                     byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array ein

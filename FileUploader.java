@@ -17,7 +17,7 @@ public class FileUploader {
 
 
     public static void main(String[] args) {
-        String fileName = "world_map_with_tables.html";                                             // definiren die datei, dei hochgeladen werden soll (Variable)
+        String fileName = "html/world_map_with_tables.html";                                             // definiren die datei, dei hochgeladen werden soll (Variable)
         Path filePath = Paths.get(fileName);                                                        //pfad zu datei als pfad objekt
         HttpClient client = HttpClient.newHttpClient();                                             // erstellt HttpClient, der die anfrage sendet
 
@@ -59,6 +59,6 @@ public class FileUploader {
 
 
 
-    
+
 
 

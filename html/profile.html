@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dein Profile</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <style>
+        :root {
+            --primary-color: #004aad; /* Strava Orange */
+            --bg-color: #f4f5f7;
+            --text-main: #333333;
+            --text-light: #555555;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            margin: 0px; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+        }
+        /* Typography */
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            /*margin-left: -35px;*/
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #222;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f7f7fa;
+            top: 0;
+            width: 100%;
+        }
+
+        ul li {
+            float: left;
+        }
+
+        ul li a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        ul li a:hover:not(.active) {
+            background-color: #004aad;
+        }
+
+        ul li a.active {
+            background-color: #f7f7fa;
+        }   
+        /* Daten-Begriffe am Ende */
+        .data-dictionary {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .data-dictionary li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .data-dictionary p {
+            margin: 0;
+        }
+
+        dfn {
+            font-weight: 700;
+            font-style: normal;
+            color: #111;
+            font-size: 1.1rem;
+        }
+        
+        .profile-container{
+            margin-left: 35px;
+        }
+        .flex { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        .profile-image {
+            border-radius: 20px;
+        }
+
+        .avatar-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%; /* Macht das Element kreisrund */
+            background-color: #e4e6eb;
+            border: 3px solid #004aad;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden; /* Schneidet das Foto außerhalb des Kreises ab */
+            position: relative;
+            font-family: sans-serif;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* Sorgt dafür, dass das Foto den Kreis perfekt ausfüllt ohne zu verzerren */
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+
+        .avatar-circle:hover {
+            opacity: 0.9;
+        }
+       
+    </style>
+</head>
+<body>
+    <nav>
+        <ul class="nav-list">
+            <li><a href="http://localhost:8000/upload-html">Training hochladen</a></li>
+            <li><a href="http://localhost:8000/challenges">Herausforderungen</a></li>
+            <li><a href="http://localhost:8000/rewards">Abzeichnungen</a></li>
+            <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li>
+            <li><a href="http://localhost:8000/profile">Profile</a></li>
+
+            <li></li>
+        </ul>
+    </nav>
+
+    <script>
+        function uploadProfileData() {
+            fetch('http://localhost:8000/api/profile')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Server-Fehler: " + response.status);
+                }
+               return response.json();
+            })
+            .then(dataList => {
+                const container = document.getElementById('profile-container'); //in den klammern muss div-element sein
+                container.innerHTML = ''; //platzhalter "lade.. " entfernen
+
+                if (!dataList || dataList.length === 0) {
+                    container.innerHTML = '<p>keine profil daten</p>'
+                    return;
+                }
+
+                const user = dataList[0];
+                container.innerHTML = `
+                    <div class="profile-card">
+                        
+                        <label for="avatarInput" class="avatar-circle">
+                            <span id="uploadText">+ Bild wählen</span>
+                            <img id="avatarImage" src="" alt="ProfilBild" style="display: none;">
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+
+                        <h2>${user.name} ${user.secondName}</h2>
+                        <p><strong>Alter:</strong> ${user.age} Jahre | <strong>Gewicht:</strong> ${user.weight} kg</p>
+                        <p><strong>Max. Speed:</strong> ${user.maxSpeed} km/h</p>
+                        <p><strong>Max. HF:</strong> ${user.maxHr} bpm</p>
+                    </div>
+                `;
+
+                document.getElementById('avatarInput').addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+
+                    if (file) {
+                        const avatarImage = document.getElementById('avatarImage');
+                        console.log("image from user: ", avatarImage);
+                        const uploadText = document.getElementById('uploadText');
+
+                        avatarImage.src = URL.createObjectURL(file);
+
+                        avatarImage.style.display = 'block';
+                        uploadText.style.display = 'none';
+                    }
+                })
+
+                
+            })
+            .catch(err => console.error("Fehler beim Laden:", err))
+        }   
+
+        window.addEventListener('DOMContentLoaded', uploadProfileData);
+    </script>
+
+    <div id="profile-container">
+        <p>test</p>
+    </div>
+</body>
+</html>
+
+

@@ -37,6 +37,11 @@ public class XmlReader {
     public static double aerobicTrainingEffect;
     public static double anaerobicTrainingEffect;
 
+    public double getdistanceBetweenPointsGerundet() {
+        return distanceBetweenPointsGerundet;
+    }
+
+
 
     public static void loadGpx(String fileName) throws Exception { //lesen gpx
         File xmlFile = new File(fileName);                       //datei-objekt erstellen, öffnen                                   
@@ -210,24 +215,7 @@ public class XmlReader {
             //einfügt die daten om training in datenbank
             int training_id = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
-                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());
-
-            
-
-
-            
-            //bekommt die jahresdistanz aus db
-            //double jahresDistanz = SQLite.getDistanzJahrAusDB(2026);
-
-            
-            //bekommt monatsdistanz aus db
-            //String monatString = String.format("%02d", month); // aus 7 -> 07 für monatausgabe
-            //int monatInt = Integer.parseInt(monatString); //str -> int
-            //double monatDistanz = SQLite.getDistanzMonatAusDB(2026, monatInt);
-
-            //bekommt wochendistanz aus db
-            //double wochenDistanz = SQLite.getDistanzWoche("2026-08-03", "2026-08-09");
-            
+                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());            
             
             //aktualisiert distanz im jahr
             SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
@@ -235,6 +223,12 @@ public class XmlReader {
 
             //hr daten vom training in db einfügen
             SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
+
+            analyzer.checkNewMaxSpeed(trackPoints);
+
+            analyzer.chenkNewMaxDistance(trackPoints);
+
+            analyzer.checkNewElevationGain(trackPoints);
             
         
         } catch (IOException e) {
