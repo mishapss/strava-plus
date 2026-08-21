@@ -6,12 +6,15 @@ public class ProfileData {
     public String sex;
     public double weight;
     public double height;
-    public int maxHr;
-    public int ruheHr;
+    public int maxHR;
+    public int ruheHR;
     public double gesamteDistanzProjahr;
-    public double maxDistanse;
+    public double maxDistance;
     public double maxSpeed;
     public double maxElevationGain;
+    public String profilePhoto;
+
+    public ProfileData() {}
 
     public ProfileData(
         int userID,
@@ -21,12 +24,13 @@ public class ProfileData {
         String sex,
         double weight,
         double height,
-        int maxHr,
-        int ruheHr,
+        int maxHR,
+        int ruheHR,
         double gesamteDistanzProjahr,
-        double maxDistanse,
+        double maxDistance,
         double maxSpeed,
-        double maxElevationGain
+        double maxElevationGain,
+        String profilePhoto
     ) {
         this.userID = userID;
         this.name = name;
@@ -35,11 +39,12 @@ public class ProfileData {
         this.sex = sex;
         this.weight = weight;
         this.height = height;
-        this.maxHr = maxHr;
-        this.ruheHr = ruheHr;
+        this.maxHR = maxHR;
+        this.ruheHR = ruheHR;
         this.gesamteDistanzProjahr = gesamteDistanzProjahr;
-        this.maxDistanse = maxDistanse;
+        this.maxDistance = maxDistance;
         this.maxSpeed = maxSpeed;
         this.maxElevationGain = maxElevationGain;
+        this.profilePhoto = profilePhoto;
     }
 }

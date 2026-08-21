@@ -8,16 +8,24 @@ import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.io.InputStream; // um die saten vom Client zu lesen
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper; 
 
 public class SimplePostServer{
     private static String savedGeoJson = "";
     private static String savedHtml = "";
     public static String savedContent = "";
+    
 
     public static void main(String[] args) throws IOException, Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000),0);  // erstellt einen http-server auf port 8000; localhost (standard)
@@ -145,22 +153,27 @@ public class SimplePostServer{
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 try {
                     
-                    InputStream is = exchange.getRequestBody();
+                    InputStream is = exchange.getRequestBody(); //liest die eingabe-stream
                     byte[] data = is.readAllBytes();
+                    System.out.println("1");
 
-                    Path uploadDir = Paths.get("images");
+                    Path uploadDir = Paths.get("images"); //definiert zielpfad
+                    System.out.println("2");
                     if (!Files.exists(uploadDir)) {
                         Files.createDirectories(uploadDir);
                     }
 
-                    Path filePath = uploadDir.resolve("user_1.png");
+                    Path filePath = uploadDir.resolve("user_1.png"); //relative pfad-angabe für die datei
                     Files.write(filePath, data);
+                    System.out.println("3");
 
                     String imagePathForDB = "/images/user_1.png";
-                    ProfileLoader.saveAvatarPathToDB(1, imagePathForDB);
+                    ProfileLoader.saveAvatarPathToDB(1, imagePathForDB); //speichert pfad in db
+                    System.out.println("imagePath: " + imagePathForDB);
 
-                    String responseText = "alles lief gut";
+                    String responseText = "alles lief gut"; //schickt antwort
                     byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
+                    System.out.println("4");
 
                     exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                     exchange.sendResponseHeaders(200, responseBytes.length);
@@ -171,6 +184,56 @@ public class SimplePostServer{
             } else {
                 exchange.sendResponseHeaders(405, -1);
             } 
+        });
+
+        server.createContext("/api/update-profil", exchange -> {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())){ //schritt 1
+
+                InputStream is = exchange.getRequestBody(); // schritt 2
+                byte[] bytes = is.readAllBytes(); //liest die eingabe als bytes
+
+                String stringBytes = new String(bytes, "UTF-8"); //erstellt ein string aus bytes
+                
+                //schritt 3
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode jsonNode = mapper.readTree(stringBytes);
+
+                String field = jsonNode.get("field").asText();
+                String value = jsonNode.get("value").asText();
+
+                String sqlQueryToChangeData = "UPDATE users SET ? = ? WHERE userID = ?";
+
+                try (var conn = DriverManager.getConnection(url); 
+                    PreparedStatement pstmt = conn.prepareStatement(sqlQueryToChangeData)) {
+
+                    }
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        });
+
+        server.createContext("/images", exchange -> {
+            try {
+                String requestPath = exchange.getRequestURI().getPath();
+                Path filePath = Paths.get("." + requestPath);
+
+                if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
+                    byte[] bytes = Files.readAllBytes(filePath);
+
+                    exchange.getResponseHeaders().set("Content-Type", "image/png");
+                    exchange.sendResponseHeaders(200, bytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(bytes);
+                    }
+                } else {
+                    exchange.sendResponseHeaders(404, -1);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            }
+            
         });
 
         server.createContext("/api/rewards", exchange -> {

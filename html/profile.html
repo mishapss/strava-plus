@@ -143,8 +143,80 @@
         .avatar-circle:hover {
             opacity: 0.9;
         }
-       
+    
+        .profil-information-table {
+            width: 15%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .profil-information-table tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        .profil-information-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .profil-information-table td {
+            padding: 12px 15px;
+            font-size: 0.95rem;
+        }
+
+        /* Левая ячейка (название метрики) */
+        .profil-information-table td.label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Правая ячейка (значение метрики) */
+        .profil-information-table td.value {
+            min-width: 120px;
+            font-weight: bold;
+            color: #111;
+            font-variant-numeric: tabular-nums; /* Чтобы цифры не прыгали */
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            justify-content: space-between; /* Verteilt Elemente über die gesamte Breite */
+            padding-left: 35px;             /* Abstand von der linken Kante */
+            padding-right: 35px;            /* Abstand von der rechten Kante */
+            align-items: flex-start;        /* Oben bündig ausrichten */
+        }
+
+        .profil-dashboard-container {
+            width: 350px;                   /* Feste/Begrenzte Breite für sauberes Layout */
+        }
+
+        /* Drückt das rechte Element ganz an die rechte Kante */
+        .profil-dashboard-container.rechts {
+            margin-left: auto;
+        }        
+        .edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 2px 5px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .edit-btn:hover {
+            opacity: 1.0;
+        }
+
+        /* Styling für das Eingabefeld beim Bearbeiten */
+        .edit-input {
+            width: 80px;
+            padding: 2px 4px;
+            font-size: 0.9rem;
+            border: 1px solid #004aad;
+            border-radius: 3px;
+        }
     </style>
+
 </head>
 <body>
     <nav>
@@ -159,7 +231,104 @@
         </ul>
     </nav>
 
+    <div class="profile-container" id="profile-container"></div>
+
+    <div class="dashboard-wrapper">
+        <div class="profil-dashboard-container left">
+            <h3>Persönliche Information</h3>
+
+            <table class="profil-information-table">
+                <tr>
+                    <td class="label">Alter</td>
+                    <td id="stat-age" class="value"></td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-age', 'age')">✏️</button></td>
+                </tr>
+                <tr>
+                    <td class="label">Geschlecht</td>
+                    <td id="stat-sex" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="label">Gewicht</td>
+                    <td id="stat-weight" class="value"> </td>
+                </tr>
+                <tr>
+                    <td class="label">Größe</td>
+                    <td id="stat-height" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="label">max. HR</td>
+                    <td id="stat-max-hr" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="label">ruhe HR</td>
+                    <td id="stat-resting-hr" class="value"></td>
+                </tr>
+            </table>            
+        </div>
+
+        <div class="profil-dashboard-container right">
+            <h3>Bestleistungen</h3>    
+
+            <table class="profil-information-table">
+                <tr>
+                    <td  class="label">max. Distanz</td>
+                    <td id="stat-max-distance" class="value"></td>
+                </tr>
+                <tr>
+                    <td  class="label">max. Geschwindikeit</td>
+                    <td id="stat-max-speed" class="value"></td>
+                </tr>
+                <tr>
+                    <td  class="label">max. Höhenmeter</td>
+                    <td id="stat-max-elevation-gain" class="value"></td>
+                </tr>
+            </table>
+        </div>            
+    </div>
+
+
     <script>
+        function makeEditable(elementID, fieldName) {
+            const cell = document.getElementById(elementID);
+            const currentValue = cell.innerText;
+
+            cell.innerHTML = `
+                <input type="text" class="edit-input" id="input-${elementId}" value="${currentValue}">
+                <button class="edit-btn" onclick="saveField('${elementId}', '${fieldName}')">💾</button>
+            `;
+        }
+
+        function saveField(elementID, fieldName) {
+            //schritt 1
+            const inputElement = document.getElementById("input-" + elementID); //holt den element mit bestmmten ID
+            const newValue = inputElement.value; //liest neuen wert aus
+
+            //schritt 2
+            const tabelleCell = document.getElementById(elementID);
+            tabelleCell.innerText = newValue; //ersetzt innere html inhalt der zelle durch reinen text 
+
+            //schritt 3
+            const payload = {
+                field: fieldName,
+                value: newValue
+            };
+
+            //schritt 4
+            fetch('/api/update-profile', { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}, //setzen headers auf 'Content-Type': 'application/json'
+                body: JSON.stringify(payload) //wandelt den objekt in json um
+            })
+            //schritt 5
+            .then(response => {
+                if (response.ok) {
+                    console.log("erfolgreich gespeichert");
+                }
+            })
+            .catch(err => console.error("Fehler beim Speichern:", err))
+        }
+
+
         function uploadProfileData() {
             fetch('http://localhost:8000/api/profile')
             .then(response => {
@@ -178,48 +347,69 @@
                 }
 
                 const user = dataList[0];
+                const hasPhoto = user.profilePhoto && user.profilePhoto.trim() !== ""; //prüft, ob in der db pfad da ist
+                const avatarSrc = hasPhoto ? user.profilePhoto : "";
+                const imageDisplay = hasPhoto ? "block" : "none";
+                const textDisplay = hasPhoto ? "none" : "block";
                 container.innerHTML = `
                     <div class="profile-card">
                         
                         <label for="avatarInput" class="avatar-circle">
-                            <span id="uploadText">+ Bild wählen</span>
-                            <img id="avatarImage" src="" alt="ProfilBild" style="display: none;">
+                            <span id="uploadText" style="display: ${textDisplay};">+ Bild wählen</span>
+                            <img id="avatarImage" src="${avatarSrc}" alt="ProfilBild" style="display: ${imageDisplay};">
                         </label>
                         <input type="file" id="avatarInput" accept="image/*" style="display: none;">
 
                         <h2>${user.name} ${user.secondName}</h2>
-                        <p><strong>Alter:</strong> ${user.age} Jahre | <strong>Gewicht:</strong> ${user.weight} kg</p>
-                        <p><strong>Max. Speed:</strong> ${user.maxSpeed} km/h</p>
-                        <p><strong>Max. HF:</strong> ${user.maxHr} bpm</p>
+
                     </div>
                 `;
+                //befüllen die tabelle mit daten
+                document.getElementById('stat-age').innerText = user.age;
+                document.getElementById('stat-sex').innerText = user.sex;
+                document.getElementById('stat-weight').innerText = user.weight + " kg";
+                document.getElementById('stat-height').innerText = user.height + " cm";
+                document.getElementById('stat-max-hr').innerText = user.maxHR + " bpm";
+                document.getElementById('stat-resting-hr').innerText = user.ruheHR + " bpm";
+                document.getElementById('stat-max-distance').innerText = user.maxDistance + " km";
+                document.getElementById('stat-max-speed').innerText = user.maxSpeed + " km/h";
+                document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain + " m";
 
+                const avatarInput = document.getElementById('avatarInput');
                 document.getElementById('avatarInput').addEventListener('change', function(event) {
                     const file = event.target.files[0];
+                    if (!file) return;                           
+        
+                    const avatarImage = document.getElementById('avatarImage');
+                    
+                    //debug
+                    console.log("image from user: ", avatarImage); 
 
-                    if (file) {
-                        const avatarImage = document.getElementById('avatarImage');
-                        console.log("image from user: ", avatarImage);
-                        const uploadText = document.getElementById('uploadText');
+                    const uploadText = document.getElementById('uploadText');
+                    avatarImage.src = URL.createObjectURL(file);
+                    avatarImage.style.display = 'block';
+                    uploadText.style.display = 'none';
 
-                        avatarImage.src = URL.createObjectURL(file);
-
-                        avatarImage.style.display = 'block';
-                        uploadText.style.display = 'none';
-                    }
-                })
-
-                
-            })
-            .catch(err => console.error("Fehler beim Laden:", err))
-        }   
-
+                    fetch('/api/upload-avatar', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/octet-stream'},
+                        body: file //sendet bild als binärdaten
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("bild wurd an db gesendet");
+                        } else {
+                            console.log("fehler");
+                        }
+                    })
+                    .catch(err => console.error("Fehler beim Laden:", err))
+                            
+                });  
+            }) 
+        }
         window.addEventListener('DOMContentLoaded', uploadProfileData);
     </script>
 
-    <div id="profile-container">
-        <p>test</p>
-    </div>
 </body>
 </html>
 
