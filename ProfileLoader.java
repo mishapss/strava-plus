@@ -35,8 +35,8 @@ public class ProfileLoader {
                         rs.getDouble("gesamteDistanzProJahr"),
                         rs.getDouble("maxDistance"),
                         rs.getDouble("maxSpeed"),
-                        rs.getDouble("maxElevationGain")
-
+                        rs.getDouble("maxElevationGain"),
+                        rs.getString("profilePhoto")
                     ));
                 }
             }catch (SQLException e) {

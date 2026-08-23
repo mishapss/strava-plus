@@ -25,6 +25,9 @@ public class SimplePostServer{
     private static String savedGeoJson = "";
     private static String savedHtml = "";
     public static String savedContent = "";
+
+    //public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
     
 
     public static void main(String[] args) throws IOException, Exception {
@@ -186,29 +189,51 @@ public class SimplePostServer{
             } 
         });
 
-        server.createContext("/api/update-profil", exchange -> {
-            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())){ //schritt 1
+        server.createContext("/api/update-profile", exchange -> { 
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())){ // Schritt 1
 
-                InputStream is = exchange.getRequestBody(); // schritt 2
-                byte[] bytes = is.readAllBytes(); //liest die eingabe als bytes
+                try {
+                    InputStream is = exchange.getRequestBody(); // Schritt 2
+                    byte[] bytes = is.readAllBytes(); 
+                    String stringBytes = new String(bytes, "UTF-8"); 
+                    
+                    // Schritt 3: JSON parsen
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode jsonNode = mapper.readTree(stringBytes);
 
-                String stringBytes = new String(bytes, "UTF-8"); //erstellt ein string aus bytes
-                
-                //schritt 3
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode jsonNode = mapper.readTree(stringBytes);
+                    String field = jsonNode.get("field").asText();
+                    String value = jsonNode.get("value").asText();
 
-                String field = jsonNode.get("field").asText();
-                String value = jsonNode.get("value").asText();
-
-                String sqlQueryToChangeData = "UPDATE users SET ? = ? WHERE userID = ?";
-
-                try (var conn = DriverManager.getConnection(url); 
-                    PreparedStatement pstmt = conn.prepareStatement(sqlQueryToChangeData)) {
-
+                    List<String> allowedFields = List.of("name", "secondName", "age", "sex", "weight", "height");
+                    if (!allowedFields.contains(field)) {
+                        exchange.sendResponseHeaders(400, -1); // Bad Request bei ungültigem Spaltennamen
+                        return;
                     }
+                    
+                    String sqlQueryToChangeData = "UPDATE users SET " + field + " = ? WHERE userID = ?";
+
+                    try (var conn = DriverManager.getConnection(url); 
+                        PreparedStatement pstmt = conn.prepareStatement(sqlQueryToChangeData)) {
+
+                        pstmt.setString(1, value); 
+                        pstmt.setInt(2, 1);        
+
+                        pstmt.executeUpdate();
+                    }
+
+                    exchange.sendResponseHeaders(200, -1);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close(); 
+                }
+                
             } else {
-                exchange.sendResponseHeaders(405, -1);
+                exchange.sendResponseHeaders(405, -1); 
+                exchange.close();
             }
         });
 
