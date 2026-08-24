@@ -13,6 +13,8 @@ public class ProfileData {
     public double maxSpeed;
     public double maxElevationGain;
     public String profilePhoto;
+    public double maxCalorieBurn;
+    public int maxTrainingLoad;
 
     public ProfileData() {}
 
@@ -30,7 +32,9 @@ public class ProfileData {
         double maxDistance,
         double maxSpeed,
         double maxElevationGain,
-        String profilePhoto
+        String profilePhoto,
+        double maxCalorieBurn,
+        int maxTrainingLoad
     ) {
         this.userID = userID;
         this.name = name;
@@ -46,5 +50,7 @@ public class ProfileData {
         this.maxSpeed = maxSpeed;
         this.maxElevationGain = maxElevationGain;
         this.profilePhoto = profilePhoto;
+        this.maxCalorieBurn = maxCalorieBurn;
+        this.maxTrainingLoad = maxTrainingLoad;
     }
 }

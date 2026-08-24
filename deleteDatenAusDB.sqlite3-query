@@ -8,3 +8,5 @@ DELETE FROM heart_zone WHERE training_id IN (86,87);
 DELETE FROM training WHERE trainingID IN (86,87);
 
 ALTER TABLE users ADD maxElevationGain REAL;
+
+ALTER TABLE users ADD trainingLoad INTEGER

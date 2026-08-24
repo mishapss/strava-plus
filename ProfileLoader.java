@@ -21,7 +21,7 @@ public class ProfileLoader {
 
                 ResultSet rs = pstmt.executeQuery();
 
-                while (rs.next()) {
+                while (rs.next()) { //felder aus db
                     list.add(new ProfileData(
                         rs.getInt("userID"),
                         rs.getString("name"),
@@ -36,13 +36,71 @@ public class ProfileLoader {
                         rs.getDouble("maxDistance"),
                         rs.getDouble("maxSpeed"),
                         rs.getDouble("maxElevationGain"),
-                        rs.getString("profilePhoto")
+                        rs.getString("profilePhoto"),
+                        rs.getDouble("calorieBurn"),
+                        rs.getInt("trainingLoad")
                     ));
                 }
             }catch (SQLException e) {
                 e.printStackTrace();
             }
         return list;
+    }
+
+    public static List<TrainingEntry> getDistanceInMonthforChart() { //bekommt Distanz für jedes Monat aus DB
+        String sqlQueryGetDistance = """
+        SELECT strftime('%Y-%m', datum) AS monat, 
+        SUM(distanz) AS gesamt_distanz FROM
+        training GROUP BY strftime('%Y-%m', datum) 
+        ORDER BY monat ASC
+        """;              
+                
+        List<TrainingEntry> listMonths = new ArrayList<>();
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
+                
+                ResultSet rs = pstmt.executeQuery();
+
+                while(rs.next()) {
+                    listMonths.add(new TrainingEntry(
+                        rs.getString("monat"),
+                        rs.getDouble("gesamt_distanz")
+                    ));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        System.out.print(listMonths);
+        return listMonths;
+    }
+
+    public static List<TrainingEntry> getDistanceForLastMonthFromDBForChart() { //bekommt Distanz des letzten Monat aus DB
+        String sqlQueryGetDistance = """
+        SELECT datum, distanz FROM training 
+        WHERE strftime('%Y-%m', datum) = 
+        strftime('%Y-%m', 'now')
+        ORDER BY datum ASC
+        """;
+                
+        List<TrainingEntry> listLastMonth = new ArrayList<>();
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
+                
+                ResultSet rs = pstmt.executeQuery();
+
+                while(rs.next()) {
+                    listLastMonth.add(new TrainingEntry(
+                        rs.getString("datum"),
+                        rs.getDouble("distanz")
+                    ));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        System.out.print(listLastMonth);
+        return listLastMonth;
     }
 
     public static void saveAvatarPathToDB(int userID, String imagePath) {

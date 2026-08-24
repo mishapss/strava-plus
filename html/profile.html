@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<title>Dein Profile</title>
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <style>
         :root {
-            --primary-color: #004aad; /* Strava Orange */
+            --primary-color: #004aad; 
             --bg-color: #f4f5f7;
             --text-main: #333333;
             --text-light: #555555;
@@ -233,6 +234,7 @@
 
     <div class="profile-container" id="profile-container"></div>
 
+    <!-- persönliche daten tabelle -->
     <div class="dashboard-wrapper">
         <div class="profil-dashboard-container left">
             <h3>Persönliche Information</h3>
@@ -246,26 +248,44 @@
                 <tr>
                     <td class="label">Geschlecht</td>
                     <td id="stat-sex" class="value"></td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-sex', 'sex')">✏️</button></td>
                 </tr>
                 <tr>
                     <td class="label">Gewicht</td>
                     <td id="stat-weight" class="value"> </td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-weight', 'weight')">✏️</button></td>
                 </tr>
                 <tr>
                     <td class="label">Größe</td>
                     <td id="stat-height" class="value"></td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-height', 'height')">✏️</button></td>                    
                 </tr>
                 <tr>
                     <td class="label">max. HR</td>
                     <td id="stat-max-hr" class="value"></td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-max-hr', 'maxHR')">✏️</button></td>
                 </tr>
                 <tr>
                     <td class="label">ruhe HR</td>
                     <td id="stat-resting-hr" class="value"></td>
+                    <td><button class="edit-btn" onclick="makeEditable('stat-resting-hr', 'ruheHR')">✏️</button></td>
                 </tr>
             </table>            
         </div>
 
+        <!-- Container für das erste Diagramm: Alle Monate -->
+        <div style="position: relative; width: 90%; max-width: 700px; margin: 20px auto;">
+            <h3>Gesamtdistanz pro Monat</h3>
+            <canvas id="allMonthsChart"></canvas>
+        </div>
+
+        <!-- Container für das zweite Diagramm: Aktueller/Letzter Monat -->
+        <div style="position: relative; width: 90%; max-width: 700px; margin: 20px auto;">
+            <h3>Einzeltrainings (Aktueller Monat)</h3>
+            <canvas id="lastMonthChart"></canvas>
+        </div>
+        
+        <!-- bestleistungen tabelle -->
         <div class="profil-dashboard-container right">
             <h3>Bestleistungen</h3>    
 
@@ -282,19 +302,27 @@
                     <td  class="label">max. Höhenmeter</td>
                     <td id="stat-max-elevation-gain" class="value"></td>
                 </tr>
+                <tr>
+                    <td class="label">max. Kalorienverbrauch</td>
+                    <td id="stat-max-calorie-burn" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="label">höchste Trainingsbelastung</td>
+                    <td id="stat-max-trainingload" class="value"></td>
+                </tr>
             </table>
-        </div>            
+        </div>                
     </div>
 
 
     <script>
         function makeEditable(elementID, fieldName) {
             const cell = document.getElementById(elementID);
-            const currentValue = cell.innerText;
+            const currentValue = parseInt(cell.innerText) || ""; //geändert
 
             cell.innerHTML = `
-                <input type="text" class="edit-input" id="input-${elementId}" value="${currentValue}">
-                <button class="edit-btn" onclick="saveField('${elementId}', '${fieldName}')">💾</button>
+                <input type="text" class="edit-input" id="input-${elementID}" value="${currentValue}">
+                <button class="edit-btn" onclick="saveField('${elementID}', '${fieldName}')">Speichern</button>
             `;
         }
 
@@ -303,9 +331,14 @@
             const inputElement = document.getElementById("input-" + elementID); //holt den element mit bestmmten ID
             const newValue = inputElement.value; //liest neuen wert aus
 
+            if (!checkNewValue(newValue, elementID)) {//gültigkeitsprüfunf fürs feld
+                alert("Ungültige Angabe!");
+                return;
+            }
+
             //schritt 2
             const tabelleCell = document.getElementById(elementID);
-            tabelleCell.innerText = newValue; //ersetzt innere html inhalt der zelle durch reinen text 
+            tabelleCell.innerText = newValue + getUnit(elementID); //ersetzt innere html inhalt der zelle durch reinen text 
 
             //schritt 3
             const payload = {
@@ -328,6 +361,102 @@
             .catch(err => console.error("Fehler beim Speichern:", err))
         }
 
+        function checkNewValue(newValue, elementID) { //prüft ob der wert für das feld gültig
+            if (elementID === "stat-age" || elementID === "stat-weight" || elementID === "stat-height" || elementID === "stat-max-hr"
+                || elementID === "stat-resting-hr") {
+               
+               if (isNaN(newValue) || newValue.trim() === "" || Number(newValue) <= 0) {
+                console.log("Die Eingabe muss eine Zahl sein und sie muss größer 0 sein!");
+                return false;
+               }
+            }
+
+            if (elementID === "stat-sex") {
+                if (!(newValue === "männlich" || newValue === "weiblich")) {
+                    console.log("Der Geschlecht muss 'männlich' oder 'weiblich' sein");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function getUnit(elementID) { //fügt die einheiten nach der änderung der daten zu
+            if (elementID === "stat-age" || elementID === "stat-sex") {
+                return "";
+            } else if (elementID === "stat-weight") {
+                return " kg";
+            } else if (elementID === "stat-height") {
+                return " cm";
+            } else if (elementID === "stat-max-hr" || elementID === "stat-resting-hr") {
+                return " bpm";
+            }
+
+            return "";
+        }
+
+        function loadTrainingChart() {
+            fetch('http://localhost:8000/api/training-history')
+            .then(response => response.json()) //server-antwort in json umwandeln
+            .then(data => {
+
+                //diagramm für alle monate
+                const allMonthsDates = data.allTime.map(e => e.date);
+                const allMonthsDistances = data.allTime.map(e => Number(e.distance.toFixed(1)));
+
+                const ctxAllMonths = document.getElementById('allMonthsChart').getContext('2d');
+
+                new Chart(ctxAllMonths, {
+                    type: 'bar', //art von diagramm
+                    data: {     //daten, dei angezeigt werden müssen
+                        labels: allMonthsDates, //x-achse
+                        datasets: [{
+                            label: 'Distanz (km)',
+                            data: allMonthsDistances, //y-achse
+                            backgroundColor: '#004aad',
+                            borderColor: '#004aad',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    } 
+                });
+
+                //diagramm für letztes monat
+                const thisMonthDates = data.thisMonth.map(e => e.date);
+                const thisMonthDistances = data.thisMonth.map(e => Number(e.distance.toFixed(1)));
+
+                const ctxThisMonth = document.getElementById('lastMonthChart').getContext('2d');
+
+                new Chart(ctxThisMonth, {
+                    type: 'bar', //art von diagramm
+                    data: {     //daten, dei angezeigt werden müssen
+                        labels: thisMonthDates, //x-achse
+                        datasets: [{
+                            label: 'Distanz (km)',
+                            data: thisMonthDistances, //y-achse
+                            backgroundColor: '#004aad',
+                            borderColor: '#004aad',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    } 
+                });
+            })
+            .catch(err => console.error("Fehler beim Laden der Charts:", err));
+        }
 
         function uploadProfileData() {
             fetch('http://localhost:8000/api/profile')
@@ -342,6 +471,7 @@
                 container.innerHTML = ''; //platzhalter "lade.. " entfernen
 
                 if (!dataList || dataList.length === 0) {
+                    console.log(dataList)
                     container.innerHTML = '<p>keine profil daten</p>'
                     return;
                 }
@@ -374,6 +504,8 @@
                 document.getElementById('stat-max-distance').innerText = user.maxDistance + " km";
                 document.getElementById('stat-max-speed').innerText = user.maxSpeed + " km/h";
                 document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain + " m";
+                document.getElementById('stat-max-calorie-burn').innerText = user.maxCalorieBurn + " kcal";
+                document.getElementById('stat-max-trainingload').innerText = user.maxTrainingLoad;
 
                 const avatarInput = document.getElementById('avatarInput');
                 document.getElementById('avatarInput').addEventListener('change', function(event) {
@@ -408,6 +540,7 @@
             }) 
         }
         window.addEventListener('DOMContentLoaded', uploadProfileData);
+        window.addEventListener('DOMContentLoaded', loadTrainingChart);
     </script>
 
 </body>

@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+//import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -329,6 +329,83 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
             }
     }
 
+    public void checkNewMaxCalorieBurn(List<TrkPt> points) { //checkt ob es beim Training neue Kalorienverbraucht-Rekord gibt
+        double currentCalorieBurn = XmlReader.kalorien; //kalorien von training
+
+        String sqlQueryGetCalorie = "SELECT calorieBurn FROM users WHERE userID = ?";
+
+        double maxCalorieBurn = 0.0;
+
+        //alte daten bekommen
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetCalorie)) {
+
+                pstmt.setInt(1,1);
+                
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    maxCalorieBurn = rs.getDouble("calorieBurn");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        //vergleichen und speichern    
+        if (currentCalorieBurn > maxCalorieBurn) {
+            String sqlQueryUpdateCalorie = "UPDATE users SET calorieBurn = ? WHERE userID = ?";
+
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmtUpdate = conn.prepareStatement(sqlQueryUpdateCalorie)) {
+
+                    pstmtUpdate.setDouble(1, currentCalorieBurn);
+                    pstmtUpdate.setInt(2, 1); //1 = userId, bis jetzt nur 1 User
+
+                    pstmtUpdate.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
+
+    public void checkNewMaxTrainingLoad(List<TrkPt> points) {
+        int currentTrainingLoad = XmlReader.trainingLoad;
+
+        String sqlQueryGetTraningLoad = "SELECT trainingLoad FROM users WHERE userID = ?";
+
+        int maxTrainingLoad = 0;
+
+        //daten aus db bekommen
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmtGet = conn.prepareStatement(sqlQueryGetTraningLoad)) {
+
+                pstmtGet.setInt(1, 1);
+                
+                ResultSet rs = pstmtGet.executeQuery();
+
+                if (rs.next()) {
+                    maxTrainingLoad = rs.getInt("trainingLoad");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        //vergleichen und speichern
+        if (currentTrainingLoad > maxTrainingLoad) {
+            String sqlQuerySaveNewTrainingLoad = "UPDATE users SET trainingLoad = ? WHERE userID = ?";
+
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmtUpdate = conn.prepareStatement(sqlQuerySaveNewTrainingLoad)) {
+
+                    pstmtUpdate.setInt(1, currentTrainingLoad);
+                    pstmtUpdate.setInt(2,1);
+                    
+                    pstmtUpdate.executeUpdate();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void checkNewElevationGain(List<TrkPt> points) {
         double currentElevation = XmlReader.hoeheSummeGerundet;

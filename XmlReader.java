@@ -229,6 +229,9 @@ public class XmlReader {
             analyzer.chenkNewMaxDistance(trackPoints);
 
             analyzer.checkNewElevationGain(trackPoints);
+
+            analyzer.checkNewMaxCalorieBurn(trackPoints);
+            analyzer.checkNewMaxTrainingLoad(trackPoints);
             
         
         } catch (IOException e) {

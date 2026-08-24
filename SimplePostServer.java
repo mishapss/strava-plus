@@ -8,15 +8,17 @@ import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.io.File;
+//import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.io.InputStream; // um die saten vom Client zu lesen
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+//import java.sql.DriverManager;
+//import java.sql.PreparedStatement;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper; 
@@ -130,6 +132,36 @@ public class SimplePostServer{
             }
         });
 
+        server.createContext("/api/training-history", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                List<TrainingEntry> trainingEntries = ProfileLoader.getDistanceInMonthforChart(); //liste mit trainings für Monate
+                List<TrainingEntry> distanceLastMonth = ProfileLoader.getDistanceForLastMonthFromDBForChart(); //liste mit trainings für letztes Monat
+
+                Map<String, List<TrainingEntry>> responseMap = new HashMap<>();
+                responseMap.put("allTime", trainingEntries); //für alle monate
+                responseMap.put("thisMonth", distanceLastMonth); //füt letztes monat
+                
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonString = mapper.writeValueAsString(responseMap); //wandelt die daten in json-string um
+
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                byte[]  responceBytes = jsonString.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, responceBytes.length);
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responceBytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
         server.createContext("/api/profile", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 List<ProfileData> data = ProfileLoader.getProfileDataFromDB();
@@ -204,7 +236,7 @@ public class SimplePostServer{
                     String field = jsonNode.get("field").asText();
                     String value = jsonNode.get("value").asText();
 
-                    List<String> allowedFields = List.of("name", "secondName", "age", "sex", "weight", "height");
+                    List<String> allowedFields = List.of("name", "secondName", "age", "sex", "weight", "height", "maxHR", "ruheHR");
                     if (!allowedFields.contains(field)) {
                         exchange.sendResponseHeaders(400, -1); // Bad Request bei ungültigem Spaltennamen
                         return;
@@ -317,8 +349,6 @@ public class SimplePostServer{
             }
         });
 
-        server.createContext("/api/join-challenge", new JoinChallengeHandler());
-
         server.createContext("/challenges", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 Path path = Paths.get("html/challenges.html"); // verweist auf die datei in ordner
@@ -363,7 +393,6 @@ public class SimplePostServer{
                 }
             }
         });
-
 
         server.createContext("/upload-html", exchange -> {
             String method = exchange.getRequestMethod();

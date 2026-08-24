@@ -666,7 +666,7 @@ public class SQLite {
 
             double challengeProgress = 0.0;
             String challengeName = "";
-            int status = 0;
+            //int status = 0;
             boolean found = false;
 
             try (var conn = DriverManager.getConnection(url);
@@ -678,7 +678,7 @@ public class SQLite {
                     if (rs.next()) {
                         challengeProgress = rs.getDouble("challengeProgress");
                         challengeName = rs.getString("challengeName");
-                        status = rs.getInt("status");
+                        //status = rs.getInt("status");
                         found = true;
                     }
                 }
