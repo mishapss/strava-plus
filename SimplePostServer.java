@@ -236,7 +236,7 @@ public class SimplePostServer{
                     String field = jsonNode.get("field").asText();
                     String value = jsonNode.get("value").asText();
 
-                    List<String> allowedFields = List.of("name", "secondName", "age", "sex", "weight", "height", "maxHR", "ruheHR");
+                    List<String> allowedFields = List.of("name", "secondName", "age", "sex", "weight", "height", "maxHR", "restingHR");
                     if (!allowedFields.contains(field)) {
                         exchange.sendResponseHeaders(400, -1); // Bad Request bei ungültigem Spaltennamen
                         return;
@@ -348,6 +348,8 @@ public class SimplePostServer{
                 }
             }
         });
+
+        server.createContext("/api/join-challenge", new JoinChallengeHandler());
 
         server.createContext("/challenges", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {

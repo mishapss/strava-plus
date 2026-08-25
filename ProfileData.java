@@ -7,7 +7,7 @@ public class ProfileData {
     public double weight;
     public double height;
     public int maxHR;
-    public int ruheHR;
+    public int restingHR;
     public double gesamteDistanzProjahr;
     public double maxDistance;
     public double maxSpeed;
@@ -27,7 +27,7 @@ public class ProfileData {
         double weight,
         double height,
         int maxHR,
-        int ruheHR,
+        int restingHR,
         double gesamteDistanzProjahr,
         double maxDistance,
         double maxSpeed,
@@ -44,7 +44,7 @@ public class ProfileData {
         this.weight = weight;
         this.height = height;
         this.maxHR = maxHR;
-        this.ruheHR = ruheHR;
+        this.restingHR = restingHR;
         this.gesamteDistanzProjahr = gesamteDistanzProjahr;
         this.maxDistance = maxDistance;
         this.maxSpeed = maxSpeed;

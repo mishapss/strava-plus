@@ -26,7 +26,7 @@ public class SQLite {
     }    
 
     public static int[] getHRDaten(){
-        String sqlAbfrage = "SELECT maxHR, ruheHR FROM users WHERE userID = ?";
+        String sqlAbfrage = "SELECT maxHR, restingHR FROM users WHERE userID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -36,8 +36,8 @@ public class SQLite {
 
                 if (rs.next()) {
                     int maxHR = rs.getInt("maxHR");
-                    int ruheHR = rs.getInt("ruheHR");
-                    int[] hr = {maxHR, ruheHR};
+                    int restingHR = rs.getInt("restingHR");
+                    int[] hr = {maxHR, restingHR};
 
                     return hr;
                 };
@@ -49,7 +49,7 @@ public class SQLite {
     }
 
     public static int getTrainingID(double distanceBetweenPointsGerundet, String dateString) {
-        String sqlAbfrage = "SELECT trainingID FROM training WHERE distanz = ? AND datum = ?";
+        String sqlAbfrage = "SELECT trainingID FROM training WHERE distance = ? AND date = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement ptsmt = conn.prepareStatement(sqlAbfrage)) {
@@ -69,13 +69,13 @@ public class SQLite {
             return -1;
     }
 
-    public static boolean checkTrainingID(int training_id) {
-        String sqlAbfrage = "SELECT training_id FROM heart_zone WHERE training_id = ?";
+    public static boolean checkTrainingID(int trainingID) {
+        String sqlAbfrage = "SELECT trainingID FROM heart_zone WHERE trainingID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement ptsmt = conn.prepareStatement(sqlAbfrage)) {
 
-                ptsmt.setInt(1, training_id);
+                ptsmt.setInt(1, trainingID);
 
                 ResultSet rs = ptsmt.executeQuery();
 
@@ -100,37 +100,37 @@ public class SQLite {
         int trainingLoad, 
         double aerobicTrainingEffect, 
         double anaerobicTrainingEffect,
-        double kalorien,
-        String dateiName
+        double calories,
+        String fileName
         ) {
 
-        int training_id = -1;
+        int trainingID = -1;
 
         boolean trainingVorhanden = checkTraining(distanceBetweenPointsGerundet, dateString);
 
         if (trainingVorhanden) {
-            training_id = getTrainingID(distanceBetweenPointsGerundet, dateString);
-            return training_id;
+            trainingID = getTrainingID(distanceBetweenPointsGerundet, dateString);
+            return trainingID;
         }
 
         try (var conn = DriverManager.getConnection(url); //verbindung zum DB
             PreparedStatement pstmt = conn.prepareStatement(
             """
             INSERT INTO training (
-                datum, 
-                distanz, 
-                dauer,
+                date, 
+                distance, 
+                duration,
                 activeTime,
-                durchschnittlicheGeschwindigkeit,
-                maxGeschwindigkeit, 
-                hoehemeter,
-                durchschnittPuls,
-                maxPuls,
-                trainingsbelastung,
+                averageSpeed,
+                maxSpeed, 
+                elevationGain,
+                averageHR,
+                maxHR,
+                trainingload,
                 aerobicTrainingsEffekt,  
                 anaeobicTrainingsEffekt,
-                kalorien,
-                dateiName
+                calories,
+                fileName
             )
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
@@ -151,8 +151,8 @@ public class SQLite {
                 trainingLoad,
                 aerobicTrainingEffect,
                 anaerobicTrainingEffect,
-                kalorien,
-                dateiName
+                calories,
+                fileName
             ); 
 
             pstmt.executeUpdate();
@@ -160,18 +160,18 @@ public class SQLite {
             ResultSet rs = pstmt.getGeneratedKeys();
 
             if (rs.next()) {
-                training_id = rs.getInt(1);
+                trainingID = rs.getInt(1);
             }
 
             System.out.println("Verbindung zum DB hergestellt + Daten gespeichert");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return training_id;
+        return trainingID;
     }
 
     public static void addHRDatenToDB(
-        int training_id,
+        int trainingID,
         String timeIn0HrZone, 
         String timeIn1HrZone, 
         String timeIn2HrZone, 
@@ -181,7 +181,7 @@ public class SQLite {
         int averageHR,
         int maxHeartRate) {
 
-        boolean trainingIDVorhanden = checkTrainingID(training_id);
+        boolean trainingIDVorhanden = checkTrainingID(trainingID);
 
         if (trainingIDVorhanden) {
             return;
@@ -189,15 +189,15 @@ public class SQLite {
 
         String sql = """
             INSERT INTO heart_zone (
-                training_id,
+                trainingID,
                 zone0,
                 zone1,
                 zone2,
                 zone3,
                 zone4,
                 zone5,
-                durchschnittPuls,
-                maxPuls
+                averageHR,
+                maxHR
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
@@ -207,7 +207,7 @@ public class SQLite {
 
             setParameters(
                 pstmt,
-                training_id,
+                trainingID,
                 timeIn0HrZone,
                 timeIn1HrZone,
                 timeIn2HrZone,
@@ -228,7 +228,7 @@ public class SQLite {
 
     public static boolean checkTraining(double distanceBetweenPointsGerundet, String dateString) {
         //abfrage zur tabelle, ob das training schon hochgeladen wurde
-        String sqlAbfrage = "SELECT * FROM training WHERE distanz = ? and DATUM = ?";
+        String sqlAbfrage = "SELECT * FROM training WHERE distance = ? and date = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -248,7 +248,7 @@ public class SQLite {
     }
 
     public static double getDistanzJahrAusDB(int jahr) { //methode, die das distanz in dem monat zurückgibt
-        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
+        String sqlAbfrage = "SELECT SUM(distance) FROM training WHERE date >= ? AND date < ?";
 
         String start = jahr + "-01-01";
         String end = (jahr + 1) + "-01-01";
@@ -276,7 +276,7 @@ public class SQLite {
     }
 
     public static double getDistanzMonatAusDB(int year, int gegebenerMonat) { //methode, die das distanz in dem monat zurückgibt
-        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
+        String sqlAbfrage = "SELECT SUM(distance) FROM training WHERE date >= ? AND date < ?";
 
         YearMonth monat = YearMonth.of(year, gegebenerMonat);
         
@@ -306,7 +306,7 @@ public class SQLite {
     }
 
     public static double getDistanzWoche(String startWoche, String endWoche) { //methode, die das distanz in der woche zurückgibt
-        String sqlAbfrage = "SELECT SUM(distanz) FROM training WHERE datum >= ? AND datum < ?";
+        String sqlAbfrage = "SELECT SUM(distance) FROM training WHERE date >= ? AND date < ?";
 
         System.out.println("startwoche: " + startWoche + " endwoche: " + endWoche);
 
@@ -332,17 +332,17 @@ public class SQLite {
 
     public static void updateChallengeProgressKilometer(String dateString, double distanceBetweenPointsGerundet) { //Methode für die ausrechnung des neuen progress
         //1. challenge prüfen, ob er gemacht wird
-        String sqlAbfrageKilometer = "SELECT ziel, fortschrittwert, challengeID, challengeProgress FROM challenges WHERE status = '1' AND zielDatentyp = 'km'";
+        String sqlAbfrageKilometer = "SELECT goal, progressValue, challengeID, challengeProgress FROM challenges WHERE status = '1' AND goalDataType = 'km'";
 
         class ChallengeData {
         int id;
-        double fortschrittwert;
-        double ziel;
+        double progressValue;
+        double goal;
 
-        ChallengeData(int id, double fortschrittwert, double ziel) {
+        ChallengeData(int id, double progressValue, double goal) {
             this.id = id;
-            this.fortschrittwert = fortschrittwert;
-            this.ziel = ziel;
+            this.progressValue = progressValue;
+            this.goal = goal;
         }
     }
 
@@ -357,8 +357,8 @@ public class SQLite {
             while (rs.next()) {
                 activeChallenges.add(new ChallengeData(
                     rs.getInt("challengeID"),
-                    rs.getDouble("fortschrittwert"),
-                    rs.getInt("ziel")
+                    rs.getDouble("progressValue"),
+                    rs.getInt("goal")
                 ));
             }
         } catch (SQLException e ){
@@ -371,11 +371,11 @@ public class SQLite {
         for (ChallengeData challenge : activeChallenges) {
             if (checkTrainingGueltigeBereich(dateString, challenge.id) && trainingID == -1) { 
             
-            double newDistanz = distanceBetweenPointsGerundet + challenge.fortschrittwert;
-            double newChallengeProgress = newDistanz / challenge.ziel;
+            double newDistanz = distanceBetweenPointsGerundet + challenge.progressValue;
+            double newChallengeProgress = newDistanz / challenge.goal;
 
             //3. die daten speichern
-            String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
+            String sqlAbfrageSpeichern = "UPDATE challenges SET progressValue = ?, challengeProgress = ? WHERE challengeID = ?";
 
             try (var conn = DriverManager.getConnection(url); 
                 PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
@@ -412,17 +412,17 @@ public class SQLite {
     }
 
     public static void updateChallengeProgressMinutes(String time, String dateString, double distanceBetweenPointsGerundet) { //methode für die ausrechnung des neuen zeitlichen progress 
-        String sqlAbfrageMinuten = "SELECT ziel, fortschrittwert, challengeID, challengeProgress FROM challenges WHERE status = 1 AND zielDatentyp = 'minuten'";
+        String sqlAbfrageMinuten = "SELECT goal, progressValue, challengeID, challengeProgress FROM challenges WHERE status = 1 AND goalDataType = 'minuten'";
 
         class ChallengeData {
             int id;
-            double fortschrittwert;
-            int ziel;
+            double progressValue;
+            int goal;
 
-            ChallengeData (int id, double fortschrittwert, int ziel){
+            ChallengeData (int id, double progressValue, int goal){
                 this.id = id;
-                this.fortschrittwert = fortschrittwert;
-                this.ziel = ziel;
+                this.progressValue = progressValue;
+                this.goal = goal;
             }
         }
 
@@ -436,8 +436,8 @@ public class SQLite {
             while (rs.next()) {
                 activeChallenges.add(new ChallengeData(
                     rs.getInt("challengeID"),
-                    rs.getDouble("fortschrittwert"),
-                    rs.getInt("ziel")
+                    rs.getDouble("progressValue"),
+                    rs.getInt("goal")
                 ));
             }
                 
@@ -448,13 +448,13 @@ public class SQLite {
 
                     double newMinuten = timeFormatted / 60.0;
 
-                    double newZeit = challenge.fortschrittwert + newMinuten;
+                    double newZeit = challenge.progressValue + newMinuten;
 
-                    double newChallengeProgress = newZeit / challenge.ziel;
+                    double newChallengeProgress = newZeit / challenge.goal;
 
                     System.out.print("neue challengezeitprograss: " + newChallengeProgress);
 
-                    String sqlAbfrageSpeichern = "UPDATE challenges SET fortschrittwert = ?, challengeProgress = ? WHERE challengeID = ?";
+                    String sqlAbfrageSpeichern = "UPDATE challenges SET progressValue = ?, challengeProgress = ? WHERE challengeID = ?";
 
                     try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
 
@@ -478,17 +478,17 @@ public class SQLite {
     } 
       
     public static void updateChallengeProgressHoehenmeter(String dateString, double hoehenmeter, double distanceBetweenPointsGerundet) { //methode für die ausrechnung des neuen höhenmeters für challenge
-        String sqlAbfrageHoehenmeter = "SELECT ziel, fortschrittwert, challengeID FROM challenges WHERE status = 1 AND zielDatentyp = 'höhenmeter'";
+        String sqlAbfrageHoehenmeter = "SELECT goal, progressValue, challengeID FROM challenges WHERE status = 1 AND goalDataType = 'höhenmeter'";
 
         class ChallengeData {
             int id;
-            double fortschrittwert;
-            int ziel;
+            double progressValue;
+            int goal;
         
-            ChallengeData (int id, double fortschrittwert, int ziel) {
+            ChallengeData (int id, double progressValue, int goal) {
                 this.id = id;
-                this.fortschrittwert = fortschrittwert;
-                this.ziel = ziel;
+                this.progressValue = progressValue;
+                this.goal = goal;
             }
         }
 
@@ -502,18 +502,18 @@ public class SQLite {
             while (rs.next()) {
                 activeChallenges.add(new ChallengeData(
                 rs.getInt("challengeID"),
-                rs.getDouble("fortschrittwert"),
-                rs.getInt("ziel")
+                rs.getDouble("progressValue"),
+                rs.getInt("goal")
                 ));
             }    
             
             for (ChallengeData challenge : activeChallenges) {
             
                 if (checkTrainingGueltigeBereich(dateString, challenge.id) && (getTrainingID(distanceBetweenPointsGerundet, dateString) == -1)) {
-                    double neuFortschrittwert = hoehenmeter + challenge.fortschrittwert;
-                    double neuChallengeProgress = neuFortschrittwert / challenge.ziel;
+                    double neuFortschrittwert = hoehenmeter + challenge.progressValue;
+                    double neuChallengeProgress = neuFortschrittwert / challenge.goal;
 
-                    String sqlAbfrageSpeichern = "UPDATE challenges SET challengeProgress = ?, fortschrittwert = ? WHERE challengeID = ?";
+                    String sqlAbfrageSpeichern = "UPDATE challenges SET challengeProgress = ?, progressValue = ? WHERE challengeID = ?";
 
                     try (PreparedStatement update = conn.prepareStatement(sqlAbfrageSpeichern)) {
                         update.setDouble(1, neuChallengeProgress);
@@ -533,19 +533,19 @@ public class SQLite {
         }
     }
 
-    public static void updateChallengeProgressTage(String dateString, double distanz, double distanceBetweenPointsGerundet) {
-        String sqlAbfrageTage = "SELECT ziel, fortschrittwert, challengeProgress, challengeID FROM challenges WHERE status = 1 AND zielDatentyp = 'tage'";
+    public static void updateChallengeProgressTage(String dateString, double distance, double distanceBetweenPointsGerundet) {
+        String sqlAbfrageTage = "SELECT goal, progressValue, challengeProgress, challengeID FROM challenges WHERE status = 1 AND goalDataType = 'tage'";
 
         class ChallengeData {
         int id;
-        double fortschrittwert;
-        double ziel;
+        double progressValue;
+        double goal;
         double progress;
 
-        ChallengeData(int id, double fortschrittwert, double ziel, double progress) {
+        ChallengeData(int id, double progressValue, double goal, double progress) {
             this.id = id;
-            this.fortschrittwert = fortschrittwert;
-            this.ziel = ziel;
+            this.progressValue = progressValue;
+            this.goal = goal;
             this.progress = progress;
         }
     }
@@ -560,8 +560,8 @@ public class SQLite {
             while (rs.next()) {
                 activeChallenges.add(new ChallengeData(
                 rs.getInt("challengeID"),
-                rs.getDouble("fortschrittwert"),
-                rs.getInt("ziel"),
+                rs.getDouble("progressValue"),
+                rs.getInt("goal"),
                 rs.getDouble("challengeProgress")
             ));
         }
@@ -572,20 +572,20 @@ public class SQLite {
         for (ChallengeData challenge : activeChallenges) {
 
             if (checkTrainingGueltigeBereich(dateString, challenge.id) && (getTrainingID(distanceBetweenPointsGerundet, dateString) == -1)) { //wenn true, dann ausführen
-                int trainingId = getTrainingID(distanz, dateString); //trainingID = -1 -> training wurde noch nicht hinzugefügt
+                int trainingId = getTrainingID(distance, dateString); //trainingID = -1 -> training wurde noch nicht hinzugefügt
             
                 double newFortschrittwert;
                 double newChallengeProgress;
 
                 if (trainingId == -1){
-                    newFortschrittwert = challenge.fortschrittwert + 1;
-                    newChallengeProgress = newFortschrittwert / challenge.ziel;
+                    newFortschrittwert = challenge.progressValue + 1;
+                    newChallengeProgress = newFortschrittwert / challenge.goal;
                 } else {
-                    newFortschrittwert = challenge.fortschrittwert;
+                    newFortschrittwert = challenge.progressValue;
                     newChallengeProgress = challenge.progress;
                 }
 
-                String sqlAbfageSpeichern = "UPDATE challenges SET challengeProgress = ?, fortschrittwert = ? WHERE challengeID = ?";
+                String sqlAbfageSpeichern = "UPDATE challenges SET challengeProgress = ?, progressValue = ? WHERE challengeID = ?";
 
                 //checkTrainingGueltigeBereich(dateString, challengeID)
 
@@ -641,7 +641,7 @@ public class SQLite {
 
         double newDistanzProJahr = fruehereDistanz + distanceBetweenPointsGerundet;
 
-        String sqlAbfrage = "UPDATE users SET gesamteDistanzProJahr = ? WHERE name = ?";
+        String sqlAbfrage = "UPDATE users SET totalDistancePerYear = ? WHERE name = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {

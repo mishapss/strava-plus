@@ -21,10 +21,10 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         int[] hr = SQLite.getHRDaten();
 
         int maxHR = hr[0];
-        int ruheHR = hr[1];
+        int restingHR = hr[1];
 
         //debug
-        System.out.println("maxHr: " + maxHR + "ruheHr: " + ruheHR);
+        System.out.println("maxHr: " + maxHR + "ruheHr: " + restingHR);
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -136,13 +136,13 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         int[] hr = SQLite.getHRDaten();
 
         int maxHR = hr[0];
-        int ruheHR = hr[1];
+        int restingHR = hr[1];
 
         
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
 
-            relativeHR = (currentHeartRate - ruheHR) / (double)(maxHR - ruheHR); //relative Herzfrequenz berechnen
+            relativeHR = (currentHeartRate - restingHR) / (double)(maxHR - restingHR); //relative Herzfrequenz berechnen
 
             intensityFaktor = 0.64 * Math.pow(e, (1.92 * relativeHR))/53;
             
@@ -330,7 +330,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
     }
 
     public void checkNewMaxCalorieBurn(List<TrkPt> points) { //checkt ob es beim Training neue Kalorienverbraucht-Rekord gibt
-        double currentCalorieBurn = XmlReader.kalorien; //kalorien von training
+        double currentCalorieBurn = XmlReader.calories; //kalorien von training
 
         String sqlQueryGetCalorie = "SELECT calorieBurn FROM users WHERE userID = ?";
 

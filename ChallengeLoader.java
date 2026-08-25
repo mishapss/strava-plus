@@ -12,7 +12,7 @@ public class ChallengeLoader {
 
     public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db für upload auf der webseite und gibt als json zurück
         List<ChallengeData> liste = new ArrayList<>();
-        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, ziel, status, bild, picture_reward FROM challenges";
+        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, status, goal, pictureChallenge, picture_reward FROM challenges";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -27,8 +27,8 @@ public class ChallengeLoader {
                         rs.getString("challengeStartDate"), 
                         rs.getString("challengeEndDate"), 
                         rs.getInt("status"), 
-                        rs.getInt("ziel"),
-                        rs.getString("bild"),
+                        rs.getInt("goal"),
+                        rs.getString("pictureChallenge"),
                         rs.getString("picture_reward")
                     ));
                 }

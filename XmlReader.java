@@ -33,7 +33,7 @@ public class XmlReader {
     public static double averageSpeedGerundet;
     public static int trainingLoad;
     public static int aerobicTrainingLoad;  
-    public static double kalorien;
+    public static double calories;
     public static double aerobicTrainingEffect;
     public static double anaerobicTrainingEffect;
 
@@ -49,6 +49,7 @@ public class XmlReader {
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
         
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
+        createTrainingsList creater = new createTrainingsList();
         //SQLite dbconnecter = new SQLite();
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
@@ -144,8 +145,8 @@ public class XmlReader {
             averageSpeedGerundet = Math.round(averageSpeed * 100.0) / 100.0;
 
             //ausrechnung der Kalorien
-            double kalorien = analyzer.getKalorienVerbrauch(trackPoints);//ausrechnung der kalorien
-            XmlReader.kalorien = kalorien;
+            double calories = analyzer.getKalorienVerbrauch(trackPoints);//ausrechnung der kalorien
+            XmlReader.calories = calories;
 
             double aerobicTrainingEffect = analyzer.getAerobicTrainingEffect(trackPoints);
             XmlReader.aerobicTrainingEffect = aerobicTrainingEffect;
@@ -194,7 +195,7 @@ public class XmlReader {
             System.out.print(" average Speed: " + averageSpeedGerundet + " trainingsbelsatung: " + trainingLoad +
             " distance: " + distanceBetweenPointsGerundet + " time: " + time + " maxHR: " + maxHeartRate
             + " Anstieg: " + hoeheSummeGerundet + " max speed: " + maxGeschwindigkeitKmh + " activeTimeFormatted: " + activeTimeFormatted +
-            " average HR: " + averageHR + " kalorien: " + kalorien + "\n" );
+            " average HR: " + averageHR + " calories: " + calories + "\n" );
             
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
@@ -213,16 +214,16 @@ public class XmlReader {
 
 
             //einfügt die daten om training in datenbank
-            int training_id = SQLite.addTrainingDatenToDB(
+            int trainingID = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
-                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, kalorien, xmlFile.toString());            
+                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, calories, xmlFile.toString());            
             
             //aktualisiert distanz im jahr
             SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
 
 
             //hr daten vom training in db einfügen
-            SQLite.addHRDatenToDB(training_id, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
+            SQLite.addHRDatenToDB(trainingID, timeIn0HrZone, timeIn1HrZone, timeIn2HrZone, timeIn3HrZone, timeIn4HrZone, timeIn5HrZone, averageHR, maxHeartRate);
 
             analyzer.checkNewMaxSpeed(trackPoints);
 
@@ -232,6 +233,8 @@ public class XmlReader {
 
             analyzer.checkNewMaxCalorieBurn(trackPoints);
             analyzer.checkNewMaxTrainingLoad(trackPoints);
+            
+
             
         
         } catch (IOException e) {
@@ -343,7 +346,7 @@ public class XmlReader {
             properties.put("timeIn4HrZone", timeIn4HrZone);
             properties.put("timeIn5HrZone", timeIn5HrZone);
             properties.put("trainingLoad", trainingLoad);
-            properties.put("kalorien", kalorien);
+            properties.put("calories", calories);
             properties.put("aerobicTrainingEffect", aerobicTrainingEffect);
             properties.put("anaerobicTrainingEffect", anaerobicTrainingEffect);
 

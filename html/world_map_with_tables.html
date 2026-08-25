@@ -204,7 +204,7 @@
         <table class="stats-table">
             <tr>
                 <td class="label">Datum</td>
-                <td id="stat-datum" class="value">--</td>
+                <td id="stat-date" class="value">--</td>
             </tr>
             <tr>
                 <td class="label">distanz</td>
@@ -268,7 +268,7 @@
             </tr>
             <tr>
                 <td class="label">Kalorien</td>
-                <td id="stat-kalorien" class="value">--</td>
+                <td id="stat-calories" class="value">--</td>
             </tr>
             <tr>
                 <td class="label">Aerobik Trainingseffekt</td>
@@ -359,7 +359,7 @@
           // Обновляем таблицу слева данными из Java ObjectNode properties
           if (routeProperties) {
               console.log("Успешно нашли свойства маршрута:", routeProperties);
-              document.getElementById('stat-datum').innerText = routeProperties.date;
+              document.getElementById('stat-date').innerText = routeProperties.date;
               document.getElementById('stat-distance').innerText = routeProperties.distanceBetweenPointsGerundet + " km";
               document.getElementById('stat-time').innerText = routeProperties.time;
               document.getElementById('stat-active-time').innerText = routeProperties.activeTimeFormatted;
@@ -375,7 +375,7 @@
               document.getElementById('stat-time-in-4-hr-zone').innerText = routeProperties.timeIn4HrZone;
               document.getElementById('stat-time-in-5-hr-zone').innerText = routeProperties.timeIn5HrZone;
               document.getElementById('stat-training-load').innerText = routeProperties.trainingLoad;
-              document.getElementById('stat-kalorien').innerText = routeProperties.kalorien;
+              document.getElementById('stat-calories').innerText = routeProperties.calories;
               document.getElementById('stat-aerobic-training-effect').innerText = routeProperties.aerobicTrainingEffect;
               document.getElementById('stat-anaerobic-training-effect').innerText = routeProperties.anaerobicTrainingEffect;
               

@@ -178,9 +178,10 @@
                 const challengeID = challenge.challengeID;
                 const buttonID = `join-btn-${challengeID}`;
                 const rewardImgID = `reward-image-${challengeID}` //dynamische bildID
+                const statusTextID = `status-text-${challengeID}`;
 
                 const idParticipating = challenge.status === 1 || challenge.status === 2;
-                const buttonText = idParticipating ? "Bereits badei" : "An Herausforderung teilnehmen";
+                const buttonText = idParticipating ? "Bereits dabei" : "An Herausforderung teilnehmen";
                 const buttonDisabled = idParticipating ? "disabled" : "";
 
                 const showRewardStyle = (challenge.status === 2 && challenge.imagePathReward) ? 'block' : 'none';
@@ -197,7 +198,7 @@
                 console.log("cahllengeDaten: ", challenge);
                 console.log("Status:", challenge.status, "Typ:", typeof challenge.status);
                 console.log("BildpfadPictureReward:", challenge.imagePathReward || challenge.imagePathReward);
-                console.log("BildpfadBild:", challenge.bild || challenge.bild);
+                console.log("BildpfadBild:", challenge.pictureChallenge || challenge.pictureChallenge);
                 console.log("BildpfadImagepath:", challenge.imagePath || challenge.imagePath);
 
                 const cardHTML = `
@@ -207,15 +208,25 @@
                                     <h2>${challenge.challengeName}</h2>
                                     <p class="description">${challenge.challengeDescription}</p>
                                     <p class="challenge-date">${challenge.challengeStartDate} bis ${challenge.challengeEndDate}</p>
-                                    <p class="participants">Status: ${statusDescription}</p>
+                                    <p class="participants" id="${statusTextID}">Status: ${statusDescription}</p>
                                     <button id="${buttonID}" class="action-btn" ${buttonDisabled}>${buttonText}</button>
                                 </div>                                    
                             </div>
                         `;
                         container.insertAdjacentHTML('beforeend', cardHTML);//fügt das neu erzeugte karten-html am ende in die seite ein
                         const buttonElement = document.getElementById(buttonID);
+                        const statusElement = document.getElementById(statusTextID);
 
-                        buttonElement.addEventListener('click', () => {                          
+                        buttonElement.addEventListener('click', () => {         
+                            const originalButtonText = buttonElement.innerText;
+                            const originalDisabled = buttonElement.disabled;
+                            const originalStatusText = statusElement.innerText;
+                            
+                            buttonElement.innerText = "Bereits dabei";
+                            buttonElement.disabled = true;
+                            statusElement.innerText = "Status: Du nimmst teil";
+                            
+
                             fetch('http://localhost:8000/api/join-challenge', {
                                 method: 'POST',
                                 headers: {
@@ -231,14 +242,19 @@
                             })
                             .then(result => {
                                 if (result === true || result.success === true) {
-                                    buttonElement.innerText = "Bereits dabei";
-                                    buttonElement.disabled = true;
+                                    console.log("erfolgreich gespeichert");
+                                } else {
+                                    throw new Error("Beitreten serverseitig fehlgeschlagen");
                                 }
                             })
                             .catch(err => {
                                 console.error("Fehler beim Beitreten: ", err);
                                 alert("Fehler beim Beitreten zum Challenge");
-                            })
+
+                                buttonElement.innerText = originalButtonText;
+                                buttonElement.disabled = originalDisabled;
+                                statusElement.innerText = originalStatusText;
+                            });
                         });
                     });
                 })

@@ -31,8 +31,8 @@ public class ProfileLoader {
                         rs.getDouble("weight"),
                         rs.getDouble("height"),
                         rs.getInt("maxHR"),
-                        rs.getInt("ruheHR"),
-                        rs.getDouble("gesamteDistanzProJahr"),
+                        rs.getInt("restingHR"),
+                        rs.getDouble("totalDistancePerYear"),
                         rs.getDouble("maxDistance"),
                         rs.getDouble("maxSpeed"),
                         rs.getDouble("maxElevationGain"),
@@ -49,9 +49,9 @@ public class ProfileLoader {
 
     public static List<TrainingEntry> getDistanceInMonthforChart() { //bekommt Distanz für jedes Monat aus DB
         String sqlQueryGetDistance = """
-        SELECT strftime('%Y-%m', datum) AS monat, 
-        SUM(distanz) AS gesamt_distanz FROM
-        training GROUP BY strftime('%Y-%m', datum) 
+        SELECT strftime('%Y-%m', date) AS monat, 
+        SUM(distance) AS totalDistance FROM
+        training GROUP BY strftime('%Y-%m', date) 
         ORDER BY monat ASC
         """;              
                 
@@ -65,7 +65,7 @@ public class ProfileLoader {
                 while(rs.next()) {
                     listMonths.add(new TrainingEntry(
                         rs.getString("monat"),
-                        rs.getDouble("gesamt_distanz")
+                        rs.getDouble("totalDistance")
                     ));
                 }
             } catch (SQLException e) {
@@ -77,10 +77,10 @@ public class ProfileLoader {
 
     public static List<TrainingEntry> getDistanceForLastMonthFromDBForChart() { //bekommt Distanz des letzten Monat aus DB
         String sqlQueryGetDistance = """
-        SELECT datum, distanz FROM training 
-        WHERE strftime('%Y-%m', datum) = 
+        SELECT date, distance FROM training 
+        WHERE strftime('%Y-%m', date) = 
         strftime('%Y-%m', 'now')
-        ORDER BY datum ASC
+        ORDER BY date ASC
         """;
                 
         List<TrainingEntry> listLastMonth = new ArrayList<>();
@@ -92,8 +92,8 @@ public class ProfileLoader {
 
                 while(rs.next()) {
                     listLastMonth.add(new TrainingEntry(
-                        rs.getString("datum"),
-                        rs.getDouble("distanz")
+                        rs.getString("date"),
+                        rs.getDouble("distance")
                     ));
                 }
             } catch (SQLException e) {

@@ -1,11 +1,11 @@
 -- database: c:\Users\MikhailLeshchenko\strava_plus\db\test.db
 
 UPDATE challenges 
-SET challengeProgress = 0, fortschrittwert = 0, status = 0 
-WHERE challengeID IN (1, 2, 7, 8);
+SET challengeProgress = 0, progressValue = 0, status = 0 
+WHERE challengeID IN (1, 2, 7, 8,3,4,5,6,9,10);
 
-DELETE FROM heart_zone WHERE training_id IN (86,87);
-DELETE FROM training WHERE trainingID IN (86,87);
+DELETE FROM heart_zone;
+DELETE FROM training;
 
 ALTER TABLE users ADD maxElevationGain REAL;
 
