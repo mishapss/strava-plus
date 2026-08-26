@@ -28,7 +28,7 @@ public class SimplePostServer{
     private static String savedHtml = "";
     public static String savedContent = "";
 
-    //public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db";
+    //public static final String url = "jdbc:sqlite:C:/Users/MikhailLeshchenko/strava_plus/db/test.db"; 
     public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
     
 

@@ -163,12 +163,12 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         int[] zones = result.timeInZone;
 
         //faktoren benötigte zur berechnung        
-        double faktor0 = 0.539;
-        double faktor1 = 0.315;
-        double faktor2 = 0.799;
-        double faktor3 = 0.2;
-        double faktor4 = 0.1;
-        double faktor5 = 0.05;
+        double faktor0 = 0.4206;
+        double faktor1 = 0.4206;
+        double faktor2 = 0.7713;
+        double faktor3 = 0.7713;
+        double faktor4 = 0.7713;
+        double faktor5 = 0.7713;
         
         double aerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
         zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen
@@ -191,11 +191,11 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
         //faktoren benötigte zur berechnung        
         double faktor0 = 0.0;
-        double faktor1 = 0.005;
-        double faktor2 = 0.06;
-        double faktor3 = 0.2;
-        double faktor4 = 0.45;
-        double faktor5 = 0.6;
+        double faktor1 = 0.0;
+        double faktor2 = 0.0;
+        double faktor3 = 3.6264;
+        double faktor4 = 3.7257;
+        double faktor5 = 3.8252;
         
         double anaerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
         zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen

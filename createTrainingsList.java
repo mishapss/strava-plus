@@ -1,17 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class createTrainingsList {
+public class CreateTrainingsList {
     public static int trainingLoad;
     public static int aerobicTrainingLoad;
     public static int totalTime;
- //18-1
-    double[] corosWerte = {
-        3.7, 2.3, 2.2, 3.0, 2.4,
-        2.5, 3.9, 4.3, 2.8, 2.2,
-        1.8, 3.6, 3.1, 3.9, 2.8,
-        2.3, 2.8, 2.2
-    };
+    public static double totalTimeMinuts;
+   
     
     public static List<TrainingData> createTrainingList(ArrayList<Training> trainings, double[] corosWerte) {
 
@@ -20,22 +15,30 @@ public class createTrainingsList {
 
         for (int i = 0; i < trainings.size(); i++) {
             Training t = trainings.get(i);
-            List<TrkPt> points = t.getPoints(); //holt die trackpunkte
-            WorkoutResult result = analyzer.analyzeWorkout(points); //auswertung der punkte
+            List<TrkPt> points = t.getTrackPoints(); //holt die trackpunkte
+
+            if (points == null) { //sicherung vorm fehler
+                System.err.print("training an index " + i + " hat keine Punkte");
+                continue;
+            }
+
+            WorkoutResult result = analyzer.analyzeWorkout(points); //auswertung der punkte, bekommen die hr-zonen
             int[] zones = result.timeInZone; //zonen-array speichern
 
-            double[] zonesDouble = new double[6];
+            double[] zonesInMinutes = new double[6]; //die zeit in jeder zone bekommen
+            double totalTimeMinuts = 0.0;
 
-            for (int z = 0; z < zonesDouble.length; z++) {
-                zonesDouble[z] = zones[z];
-                totalTime += zonesDouble[z];
+            for (int z = 0; z < 6; z++) {
+                zonesInMinutes[z] = zones[z] /60.0; //sekunden in minuten
+                totalTimeMinuts += zonesInMinutes[z]; //gesamte trainingszeit
+
             }
             
             double trainingLoad = analyzer.getTrainingLoad(points); //bekommen trainingsbelastung
             
-            double corosAE = corosWerte[i];
+            double corosAE = corosWerte[i]; //bekommen die werte von coros
 
-            TrainingData data = new TrainingData(zonesDouble, totalTime, trainingLoad, corosAE); //
+            TrainingData data = new TrainingData(zonesInMinutes, totalTimeMinuts, trainingLoad, corosAE); //
             
             resuList.add(data);
         }

@@ -239,91 +239,114 @@
         <div class="profil-dashboard-container left">
             <h3>Persönliche Information</h3>
 
-            <table class="profil-information-table">
+            <table class="profil-information-register-table">
+                <tr>
+                    <td class="label">Vorname</td>
+                    <td><input type="text" id="firstName" name="firstName" placeholder="Geben Sie Ihren Vornamen ein" required></td>
+                    <td><input type="submit" value="Absenden"></td>
+                </tr>
+                <tr>
+                    <td class="label">Nachname</td>
+                    <td><input type="text" id="secondName" name="secondName" placeholder="Geben Sie Ihren Nachnamen ein" required></td>
+                    <td><input type="submit" value="Absenden"></td>
+                </tr>
                 <tr>
                     <td class="label">Alter</td>
-                    <td id="stat-age" class="value"></td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-age', 'age')">✏️</button></td>
+                    <td><input type="number" id="age" name="age" placeholder="Wie alt sind Sie?" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Geschlecht</td>
-                    <td id="stat-sex" class="value"></td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-sex', 'sex')">✏️</button></td>
+                    <td><input type="text" id="sex" name="sex" placeholder="Weblich/männlich/divers" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Gewicht</td>
-                    <td id="stat-weight" class="value"> </td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-weight', 'weight')">✏️</button></td>
+                    <td><input type="number" id="weight" name="weight" placeholder="Gewicht (kg)" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Größe</td>
-                    <td id="stat-height" class="value"></td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-height', 'height')">✏️</button></td>                    
+                    <td><input type="number" id="height" name="height" placeholder="Größe (cm)" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">max. HR</td>
-                    <td id="stat-max-hr" class="value"></td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-max-hr', 'maxHR')">✏️</button></td>
+                    <td><input type="number" id="maxHR" name="maxHR" placeholder="Maximale Herzfrequenz" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">ruhe HR</td>
-                    <td id="stat-resting-hr" class="value"></td>
-                    <td><button class="edit-btn" onclick="makeEditable('stat-resting-hr', 'restingHR')">✏️</button></td>
+                    <td><input type="number" id="restingHR" name="restingHR" placeholder="Ruhe Herzfrequenz" required></td>
+                    <td><input type="submit" value="Absenden"></td>
                 </tr>
             </table>            
-        </div>
-
-        <!-- Container für das erste Diagramm: Alle Monate -->
-        <div style="position: relative; width: 90%; max-width: 700px; margin: 20px auto;">
-            <h3>Gesamtdistanz pro Monat</h3>
-            <canvas id="allMonthsChart"></canvas>
-        </div>
-
-        <!-- Container für das zweite Diagramm: Aktueller/Letzter Monat -->
-        <div style="position: relative; width: 90%; max-width: 700px; margin: 20px auto;">
-            <h3>Einzeltrainings (Aktueller Monat)</h3>
-            <canvas id="lastMonthChart"></canvas>
-        </div>
-        
-        <!-- bestleistungen tabelle -->
-        <div class="profil-dashboard-container right">
-            <h3>Bestleistungen</h3>    
-
-            <table class="profil-information-table">
-                <tr>
-                    <td  class="label">max. Distanz</td>
-                    <td id="stat-max-distance" class="value"></td>
-                </tr>
-                <tr>
-                    <td  class="label">max. Geschwindikeit</td>
-                    <td id="stat-max-speed" class="value"></td>
-                </tr>
-                <tr>
-                    <td  class="label">max. Höhenmeter</td>
-                    <td id="stat-max-elevation-gain" class="value"></td>
-                </tr>
-                <tr>
-                    <td class="label">max. Kalorienverbrauch</td>
-                    <td id="stat-max-calorie-burn" class="value"></td>
-                </tr>
-                <tr>
-                    <td class="label">höchste Trainingsbelastung</td>
-                    <td id="stat-max-trainingload" class="value"></td>
-                </tr>
-            </table>
-        </div>                
+        </div>                     
     </div>
 
 
     <script>
-        function makeEditable(elementID, fieldName) {
-            const cell = document.getElementById(elementID);
-            const currentValue = parseInt(cell.innerText) || ""; //geändert
+        function getUserInput(elementID, fieldName) {
+            const inputElement = document.getElementById(elementID);
+            const userInput = inputElement.value; //bekommt wert von der user eingabe aus input feld 
 
-            cell.innerHTML = `
-                <input type="text" class="edit-input" id="input-${elementID}" value="${currentValue}">
-                <button class="edit-btn" onclick="saveField('${elementID}', '${fieldName}')">Speichern</button>
-            `;
+            checkUserInput(elementID, userInput);
+        }
+
+        function checkUserInput(elementID, userInput) {
+            if ((elementID === "age") && (userInput <= 7 || userInput > 122)) { //prüft welcher element die eingabe ist
+                alert("Alter muss im Bereich 7-122 sein"); //prüft ob die alter eingabe gültig ist
+                return false;
+            }
+
+            if (elementID === "firstName" || elementID === "secondName") {
+                const containsNumber = /\d/.test(userInput); //prüft, ob die eingabe ziffern enthält
+
+                if (containsNumber) {
+                    alert("Der Vor- Nachname darf keine Ziffern enthalten");
+                    return false;
+                }                
+            }
+
+            if (elementID === "sex") {
+                const validGenders = ["männlich", "weiblich", "divers"];
+                if (!validGenders.includes(input.toLowerCase())) {
+                    alert("Das Geschlecht muss 'männlich', 'weiblich' oder 'divers' sein.");
+                    return false;
+                }
+            }
+            const numericFields = ["age", "weight", "height", "maxHR", "minHR"];
+            if (numericFields.includes(elementID)) { //wenn einer der obengennante felder eingegeben wurde, dann...
+                const num = Number(input); //wandelt string in zahl um
+                if (input === "" || isNaN(num)) { //wenn keine zahl ist
+                    alert("Bitte gib einen gültigen Zahlenwert ein.");
+                    return false;
+                }
+
+                if (elementID === "age" && (num < 7 || num > 122)) {
+                    alert("Alter muss im Bereich 7 - 122 Jahre sein.");
+                    return false;
+                }
+
+                if ((elementID === "weight") && (num < 5 || num > 150)) {
+                    alert("Das Gewicht muss im Bereich 5 - 150kg sein");
+                    return false;                
+                } 
+
+                if ((elementID === "height") && (num < 60 || num > 250)) {
+                    alert("Die Größe muss im Bereich 60 - 250 cm sein");
+                    return false;
+                }
+
+                if ((elementID === "maxHR") && (num < 150 || num > 210)) {
+                    alert("Max HR muss im Bereich 150 - 210 sein");
+                    return false;
+                }
+
+                if ((elementID === "minHR") && (num < 26 || num > 90)) {
+                    alert("Min HR muss im Bereich 26 - 90 sein");
+                    return false;
+                }  
         }
 
         function saveField(elementID, fieldName) {
@@ -372,8 +395,8 @@
             }
 
             if (elementID === "stat-sex") {
-                if (!(newValue === "männlich" || newValue === "weiblich")) {
-                    console.log("Der Geschlecht muss 'männlich' oder 'weiblich' sein");
+                if (!(newValue === "männlich" || newValue === "weiblich" || newValue === "divers")) {
+                    console.log("Der Geschlecht muss 'männlich' oder 'weiblich' oder 'divers' sein");
                     return false;
                 }
             }

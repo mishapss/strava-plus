@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 import java.time.ZoneId;
 
 public class XmlReader {
@@ -43,18 +44,17 @@ public class XmlReader {
 
 
 
-    public static void loadGpx(String fileName) throws Exception { //lesen gpx
+    public static Training loadGpx(String fileName) throws Exception { //lesen gpx
         File xmlFile = new File(fileName);                       //datei-objekt erstellen, öffnen                                   
         XmlReader reader = new XmlReader();
         ArrayList<TrkPt> trackPoints = new ArrayList<>();       //liste für alle gps punkte 
         
         WorkoutAnalyzer analyzer = new WorkoutAnalyzer();         //objekt für die analyse der daten
-        createTrainingsList creater = new createTrainingsList();
-        //SQLite dbconnecter = new SQLite();
+
 
         if (!xmlFile.exists()) {                                //überprüfung, ob die datei überhauprt existiert
             System.out.println("XML File existiert nicht");
-            return;
+            return null;
         }
 
         XmlMapper xmlMapper = new XmlMapper();                  //tool um aus xml in java zu gehen
@@ -76,8 +76,6 @@ public class XmlReader {
                 TrkPt punkt = new TrkPt(lat, lon, ele, time, geschwindigkeitMps, hr);    //jeder punkt als objekt gespeichert 
                 trackPoints.add(punkt);                                                  //jeder punkt zur liste hinzugefügt             
             }
-
-            
 
             //ausrechnung der Zeit
             TrkPt startTime = trackPoints.get(0);
@@ -232,16 +230,16 @@ public class XmlReader {
             analyzer.checkNewElevationGain(trackPoints);
 
             analyzer.checkNewMaxCalorieBurn(trackPoints);
-            analyzer.checkNewMaxTrainingLoad(trackPoints);
+            analyzer.checkNewMaxTrainingLoad(trackPoints);  
             
-
-            
+            return new Training(trackPoints);
         
-        } catch (IOException e) {
-            System.err.println("Fehler beim Einlesen: " + e.getMessage());
-            e.printStackTrace();
-        }
+        } catch (IOException e ){
+            System.err.println("Fehler beim Einlesen: " +e.getMessage());
+            return null;
+        }    
     }
+    
 
     public String stringFormatZoneTime(int totalSeconds) {
         int hours = totalSeconds / 3600;
@@ -258,7 +256,100 @@ public class XmlReader {
     }
 
     public static void main(String[] args) throws Exception {
-        //loadGpx("ride.gpx");
+        System.out.print("test");
+        String[] gpxFiles = {
+                "datenauswertung/radtraining/25.gpx",
+                "datenauswertung/radtraining/24.gpx",
+                "datenauswertung/radtraining/23.gpx",
+                "datenauswertung/radtraining/22.gpx",
+                "datenauswertung/radtraining/21.gpx",
+                "datenauswertung/radtraining/20.gpx",
+                "datenauswertung/radtraining/19.gpx",
+                "datenauswertung/radtraining/18.gpx", 
+                "datenauswertung/radtraining/17.gpx", 
+                "datenauswertung/radtraining/16.gpx", 
+                "datenauswertung/radtraining/15.gpx",
+                "datenauswertung/radtraining/14.gpx", 
+                "datenauswertung/radtraining/13.gpx", 
+                "datenauswertung/radtraining/12.gpx", 
+                "datenauswertung/radtraining/11.gpx", 
+                "datenauswertung/radtraining/10.gpx", 
+                "datenauswertung/radtraining/9.gpx", 
+                "datenauswertung/radtraining/8.gpx", 
+                "datenauswertung/radtraining/7.gpx", 
+                "datenauswertung/radtraining/6.gpx",  
+                "datenauswertung/radtraining/5.gpx",  
+                "datenauswertung/radtraining/4.gpx", 
+                "datenauswertung/radtraining/3.gpx", 
+                "datenauswertung/radtraining/2.gpx", 
+                "datenauswertung/radtraining/1.gpx"
+            };
+
+            //System.out.print(gpxFiles);
+
+            //18-1
+            double[] corosWerte = {
+                3.3, 1.2, 3.4, 4.0, 2.4, 
+                2.6, 3.0, 3.7, 2.3, 2.2, 
+                3.0, 2.4, 2.5, 3.9, 4.3, 2.8, 2.2,
+                1.8, 3.6, 3.1, 3.9, 2.8,
+                2.3, 2.8, 2.2
+            };
+
+            double[] corosWerteAnaerob = {
+                0.2, 0.0, 0.2, 0.0, 0.0, 
+                0.0, 0.0, 0.0/*18 - 22.08 */, 0.2, 0.0, 
+                0.0, 0.6, 0.4, 0.0, 0.1, 0.3, 0.1,
+                0.0, 0.0, 0.0, 1.2, 0.0,
+                0.0, 0.0, 0.0
+            };
+
+            ArrayList<Training> meineTrainings = new ArrayList<>();
+
+            for(String file : gpxFiles) {
+                Training t = loadGpx(file);
+                if (t != null && t.getTrackPoints() != null && !t.getTrackPoints().isEmpty()) {
+                    meineTrainings.add(t);
+                } else {
+                    System.err.print("Warnung: die datei ungültig oder keine punkte gefunden in: " + file);
+                }
+            }
+
+            //List<TrainingData> dataset = CreateTrainingsList.createTrainingList(meineTrainings, corosWerte);
+            List<TrainingData> datasetAnaerob = CreateTrainingsList.createTrainingList(meineTrainings, corosWerteAnaerob);
+
+            int iterationen = 9000000;
+            double[] optimaleFactors = FaktorSucher.optimizeFactorsAnaerob(datasetAnaerob, iterationen);
+
+            System.out.println("\n--- Gefundene optimale Gewichtungsfaktoren ---");
+            for (int i = 0; i < optimaleFactors.length; i++) {
+                System.out.printf("Faktor f%d (Zone %d): %.4f%n", i, i, optimaleFactors[i]);
+            }
+
+            System.out.println("\nvergleich tatsächlich und ausherechnete");
+            double totalDifferenz = 0.0;
+            for (int i = 0; i < datasetAnaerob.size(); i++) {
+                TrainingData data = datasetAnaerob.get(i);
+
+                double aerobicWert = 0.0;
+                for (int z = 0; z < 6; z++) {
+                    aerobicWert += data.zones[z] * optimaleFactors[z];
+                }
+
+                double aerobicFraction = aerobicWert / data.totalTimeMinuts;
+                double aerobicTrainingEffect = data.trainingLoad * aerobicFraction;
+                double calculatedAE = 5.0 * (1.0 - Math.pow(Math.E, (-aerobicTrainingEffect / 60.0)));
+
+                double differenz = calculatedAE - data.corosAE;
+                totalDifferenz += differenz;
+
+                
+                System.out.printf("Training %2d | COROS Ist: %.1f | Modell: %.1f | Differenz: %+.2f%n", 
+                                    (i + 1), data.corosAE, calculatedAE, differenz);
+                                                    
+                System.out.println("totalDifferenz: " + totalDifferenz);
+                System.out.println(totalDifferenz > -2.0999624073871628);
+            }
     }
  
     public static double distance(TrkPt a, TrkPt b) { //distanz ausrechnen mit Haversine-Formel 
@@ -307,7 +398,6 @@ public class XmlReader {
 
         System.out.println(formattedJson);
     }
-
 
     public static String buildGeoJsonForMap(ArrayList<TrkPt> trackPoints) throws Exception {
         ObjectMapper mapper = new ObjectMapper();                              //tool um json zu bauen, lesen, erstellen, formatieren
