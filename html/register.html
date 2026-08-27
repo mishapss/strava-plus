@@ -187,7 +187,7 @@
         }
 
         .profil-dashboard-container {
-            width: 350px;                   /* Feste/Begrenzte Breite für sauberes Layout */
+            width: 800px;                   /* Feste/Begrenzte Breite für sauberes Layout */
         }
 
         /* Drückt das rechte Element ganz an die rechte Kante */
@@ -243,54 +243,121 @@
                 <tr>
                     <td class="label">Vorname</td>
                     <td><input type="text" id="firstName" name="firstName" placeholder="Geben Sie Ihren Vornamen ein" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Nachname</td>
                     <td><input type="text" id="secondName" name="secondName" placeholder="Geben Sie Ihren Nachnamen ein" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Alter</td>
                     <td><input type="number" id="age" name="age" placeholder="Wie alt sind Sie?" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Geschlecht</td>
                     <td><input type="text" id="sex" name="sex" placeholder="Weblich/männlich/divers" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Gewicht</td>
                     <td><input type="number" id="weight" name="weight" placeholder="Gewicht (kg)" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">Größe</td>
                     <td><input type="number" id="height" name="height" placeholder="Größe (cm)" required></td>
-                    <td><input type="submit" value="Absenden"></td>
                 </tr>
                 <tr>
                     <td class="label">max. HR</td>
                     <td><input type="number" id="maxHR" name="maxHR" placeholder="Maximale Herzfrequenz" required></td>
-                    <td><input type="submit" value="Absenden"></td>
+                    <td>Wenn Sie es nicht wissen, schreiben Sie "0" hin</td>
                 </tr>
                 <tr>
                     <td class="label">ruhe HR</td>
                     <td><input type="number" id="restingHR" name="restingHR" placeholder="Ruhe Herzfrequenz" required></td>
-                    <td><input type="submit" value="Absenden"></td>
+                    <td>Wenn Sie es nicht wissen, gucken Sie die Anweisungen unten an</td>
+                </tr>    
+
+                <tr>
+                    <td class="label">username</td>
+                    <td><input type="text" id="username" name="username" autocomplete="username" required></td>
                 </tr>
-            </table>            
+
+                <tr>
+                    <td class="label">passwort</td>
+                    <td><input type="password" id="password" name="password" placeholder="current-password" required></td>
+                </tr>
+                <tr>
+                    <td><input type="button" value="Absenden" onclick="submitRegistration()"></td>
+                </tr>
+            </table> 
+
+            <table class="profil-login-information-table">
+                
+            </table>
+            
+            <h5>Anweisungen, wie man die Ruhe Herzfrequenz misst:<h5>
+            <p>
+                Setzen Sie sich hin und versuchen Sie sich zu beruhigen. So sitzen bleiben für paar Minuten, damit der Herzfraquenz
+                konstant bleibt. Legen Sie den Finger auf Handgelenk (Speichenarterie) oder Hals (Halsschlagader) hin. Die Schläge zählen
+                1 Minute oder 30 Sekunden und mit 2 multiplizieren.
+            </p>
         </div>                     
     </div>
 
 
     <script>
-        function getUserInput(elementID, fieldName) {
-            const inputElement = document.getElementById(elementID);
-            const userInput = inputElement.value; //bekommt wert von der user eingabe aus input feld 
+        async function submitRegistration() {
+            if (!validateForm()) {
+                return;
+            }
 
-            checkUserInput(elementID, userInput);
+            firstName = document.getElementById("firstName").value;
+            secondName = document.getElementById("secondName").value;
+            age = document.getElementById("age").value;
+            sex = document.getElementById("sex").value;
+            weight = document.getElementById("weight").value;
+            height = document.getElementById("height").value;
+            maxHR = document.getElementById("maxHR").value;
+            restingHR = document.getElementById("restingHR").value;
+            username = document.getElementById("username").value;
+            password = document.getElementById("password").value
+
+            const isTaken = await checkUsernameInDB(username);
+            if (isTaken) {
+                alert("Username ist besetzt");
+                return;
+            }
+
+            sendData(firstName, secondName, age, sex, weight, height, maxHR, restingHR, username, password);            
+        }
+
+        function sendData(firstName, secondName, age, sex, weight, height, maxHR, restingHR, username, password) {
+            const userData = {
+                firstName: firstName,
+                secondName: secondName,
+                age: Number(age),
+                sex: sex,
+                weight: Number(weight),
+                height: Number(height),
+                maxHR: Number(maxHR),
+                restingHR: Number(restingHR),
+                username: username,
+                password: password
+            };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Registrierung abgeschlossen");
+                } else {
+                    alert("Fehler bei der Registrierung auf dem Server");
+                }
+            })
+            .catch(err => {
+                console.error("Netzwerkfehler: " + err);
+            });
         }
 
         function checkUserInput(elementID, userInput) {
@@ -310,15 +377,33 @@
 
             if (elementID === "sex") {
                 const validGenders = ["männlich", "weiblich", "divers"];
-                if (!validGenders.includes(input.toLowerCase())) {
+                if (!validGenders.includes(userInput.toLowerCase())) {
                     alert("Das Geschlecht muss 'männlich', 'weiblich' oder 'divers' sein.");
                     return false;
                 }
             }
-            const numericFields = ["age", "weight", "height", "maxHR", "minHR"];
+
+            if (elementID === "username") {
+                console.log("1");
+                if (userInput.trim() === "" || isTaken) {
+                    console.log("1");
+                    alert("Username darf nicht leer sein oder ist schon besetzt.");
+                    return false;
+                }
+            }
+
+            if (elementID === "password") {
+                const passIsOk = checkPassword(userInput);
+                if (userInput.trim() === "" || !passIsOk) {
+                    alert("Passwort darf nicht leer sein und muss den Standards entsprechen.");
+                    return false;
+                }
+            }
+
+            const numericFields = ["age", "weight", "height", "maxHR", "restingHR"];
             if (numericFields.includes(elementID)) { //wenn einer der obengennante felder eingegeben wurde, dann...
-                const num = Number(input); //wandelt string in zahl um
-                if (input === "" || isNaN(num)) { //wenn keine zahl ist
+                const num = Number(userInput); //wandelt string in zahl um
+                if (userInput === "" || isNaN(num)) { //wenn keine zahl ist
                     alert("Bitte gib einen gültigen Zahlenwert ein.");
                     return false;
                 }
@@ -338,234 +423,73 @@
                     return false;
                 }
 
-                if ((elementID === "maxHR") && (num < 150 || num > 210)) {
+                if ((elementID === "maxHR") && (num < 150 || num > 210) && (num !== 0)) {
                     alert("Max HR muss im Bereich 150 - 210 sein");
                     return false;
                 }
+                
 
-                if ((elementID === "minHR") && (num < 26 || num > 90)) {
+                if ((elementID === "restingHR") && (num < 26 || num > 90)) {
                     alert("Min HR muss im Bereich 26 - 90 sein");
                     return false;
                 }  
-        }
-
-        function saveField(elementID, fieldName) {
-            //schritt 1
-            const inputElement = document.getElementById("input-" + elementID); //holt den element mit bestmmten ID
-            const newValue = inputElement.value; //liest neuen wert aus
-
-            if (!checkNewValue(newValue, elementID)) {//gültigkeitsprüfunf fürs feld
-                alert("Ungültige Angabe!");
-                return;
             }
 
-            //schritt 2
-            const tabelleCell = document.getElementById(elementID);
-            tabelleCell.innerText = newValue + getUnit(elementID); //ersetzt innere html inhalt der zelle durch reinen text 
+            
 
-            //schritt 3
-            const payload = {
-                field: fieldName,
-                value: newValue
-            };
-
-            //schritt 4
-            fetch('/api/update-profile', { 
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'}, //setzen headers auf 'Content-Type': 'application/json'
-                body: JSON.stringify(payload) //wandelt den objekt in json um
-            })
-            //schritt 5
-            .then(response => {
-                if (response.ok) {
-                    console.log("erfolgreich gespeichert");
-                }
-            })
-            .catch(err => console.error("Fehler beim Speichern:", err))
-        }
-
-        function checkNewValue(newValue, elementID) { //prüft ob der wert für das feld gültig
-            if (elementID === "stat-age" || elementID === "stat-weight" || elementID === "stat-height" || elementID === "stat-max-hr"
-                || elementID === "stat-resting-hr") {
-               
-               if (isNaN(newValue) || newValue.trim() === "" || Number(newValue) <= 0) {
-                console.log("Die Eingabe muss eine Zahl sein und sie muss größer 0 sein!");
-                return false;
-               }
-            }
-
-            if (elementID === "stat-sex") {
-                if (!(newValue === "männlich" || newValue === "weiblich" || newValue === "divers")) {
-                    console.log("Der Geschlecht muss 'männlich' oder 'weiblich' oder 'divers' sein");
-                    return false;
-                }
-            }
             return true;
         }
 
-        function getUnit(elementID) { //fügt die einheiten nach der änderung der daten zu
-            if (elementID === "stat-age" || elementID === "stat-sex") {
-                return "";
-            } else if (elementID === "stat-weight") {
-                return " kg";
-            } else if (elementID === "stat-height") {
-                return " cm";
-            } else if (elementID === "stat-max-hr" || elementID === "stat-resting-hr") {
-                return " bpm";
+        async function checkUsernameInDB(username) {
+            try {
+                const response = await fetch(`/check-username?username=${encodeURIComponent(username)}`);
+
+                if (!response.ok) {
+                    console.error("Serverfehler bei der Prüfung");
+                    return false;
+                }
+
+                const data = await response.json() //erwarte json istaken: true/false
+                return data.isTaken;
+            } catch (error) {
+                console.error("Netzwerkfehler: ", error);
+                return false;
+            }
+        }
+
+        function validateForm() {  //prüft ob alle eingaben gültig sind
+            const fields = [
+                "firstName", "secondName", "sex",
+                "age", "weight", "height",
+                "maxHR", "restingHR"
+            ];
+
+            for (const fieldID of fields) {
+                const element = document.getElementById(fieldID);
+                if (!element || !checkUserInput(fieldID, element.value)) {
+                    return false; //stop bei erster ungültigen angabe
+                }
             }
 
-            return "";
+            const maxHR = Number(document.getElementById("maxHR").value);
+            const restingHR = Number(document.getElementById("restingHR").value);
+
+            if ((maxHR !== 0) && (maxHR - restingHR) < 50) {
+                alert("Differenz zwischen maxHR und ruheHR muss über 50 sein");
+                return false;
+            }
+
+            return true;
         }
-
-        function loadTrainingChart() {
-            fetch('http://localhost:8000/api/training-history')
-            .then(response => response.json()) //server-antwort in json umwandeln
-            .then(data => {
-
-                //diagramm für alle monate
-                const allMonthsDates = data.allTime.map(e => e.date);
-                const allMonthsDistances = data.allTime.map(e => Number(e.distance.toFixed(1)));
-
-                const ctxAllMonths = document.getElementById('allMonthsChart').getContext('2d');
-
-                new Chart(ctxAllMonths, {
-                    type: 'bar', //art von diagramm
-                    data: {     //daten, dei angezeigt werden müssen
-                        labels: allMonthsDates, //x-achse
-                        datasets: [{
-                            label: 'Distanz (km)',
-                            data: allMonthsDistances, //y-achse
-                            backgroundColor: '#004aad',
-                            borderColor: '#004aad',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    } 
-                });
-
-                //diagramm für letztes monat
-                const thisMonthDates = data.thisMonth.map(e => e.date);
-                const thisMonthDistances = data.thisMonth.map(e => Number(e.distance.toFixed(1)));
-
-                const ctxThisMonth = document.getElementById('lastMonthChart').getContext('2d');
-
-                new Chart(ctxThisMonth, {
-                    type: 'bar', //art von diagramm
-                    data: {     //daten, dei angezeigt werden müssen
-                        labels: thisMonthDates, //x-achse
-                        datasets: [{
-                            label: 'Distanz (km)',
-                            data: thisMonthDistances, //y-achse
-                            backgroundColor: '#004aad',
-                            borderColor: '#004aad',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    } 
-                });
-            })
-            .catch(err => console.error("Fehler beim Laden der Charts:", err));
-        }
-
-        function uploadProfileData() {
-            fetch('http://localhost:8000/api/profile')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Server-Fehler: " + response.status);
-                }
-               return response.json();
-            })
-            .then(dataList => {
-                const container = document.getElementById('profile-container'); //in den klammern muss div-element sein
-                container.innerHTML = ''; //platzhalter "lade.. " entfernen
-
-                if (!dataList || dataList.length === 0) {
-                    console.log(dataList)
-                    container.innerHTML = '<p>keine profil daten</p>'
-                    return;
-                }
-
-                const user = dataList[0];
-                const hasPhoto = user.profilePhoto && user.profilePhoto.trim() !== ""; //prüft, ob in der db pfad da ist
-                const avatarSrc = hasPhoto ? user.profilePhoto : "";
-                const imageDisplay = hasPhoto ? "block" : "none";
-                const textDisplay = hasPhoto ? "none" : "block";
-                container.innerHTML = `
-                    <div class="profile-card">
-                        
-                        <label for="avatarInput" class="avatar-circle">
-                            <span id="uploadText" style="display: ${textDisplay};">+ Bild wählen</span>
-                            <img id="avatarImage" src="${avatarSrc}" alt="ProfilBild" style="display: ${imageDisplay};">
-                        </label>
-                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
-
-                        <h2>${user.name} ${user.secondName}</h2>
-
-                    </div>
-                `;
-                //befüllen die tabelle mit daten
-                document.getElementById('stat-age').innerText = user.age;
-                document.getElementById('stat-sex').innerText = user.sex;
-                document.getElementById('stat-weight').innerText = user.weight + " kg";
-                document.getElementById('stat-height').innerText = user.height + " cm";
-                document.getElementById('stat-max-hr').innerText = user.maxHR + " bpm";
-                document.getElementById('stat-resting-hr').innerText = user.restingHR + " bpm";
-                document.getElementById('stat-max-distance').innerText = user.maxDistance + " km";
-                document.getElementById('stat-max-speed').innerText = user.maxSpeed + " km/h";
-                document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain + " m";
-                document.getElementById('stat-max-calorie-burn').innerText = user.maxCalorieBurn + " kcal";
-                document.getElementById('stat-max-trainingload').innerText = user.maxTrainingLoad;
-
-                const avatarInput = document.getElementById('avatarInput');
-                document.getElementById('avatarInput').addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;                           
         
-                    const avatarImage = document.getElementById('avatarImage');
-                    
-                    //debug
-                    console.log("image from user: ", avatarImage); 
+        document.addEventListener("DOMContentLoaded", () => {
+            const submitBtn = document.getElementById("submitBtn");
+            if (submitBtn) {
+                submitBtn.addEventListener("click", submitRegistration)
+            }
+        })
 
-                    const uploadText = document.getElementById('uploadText');
-                    avatarImage.src = URL.createObjectURL(file);
-                    avatarImage.style.display = 'block';
-                    uploadText.style.display = 'none';
-
-                    fetch('/api/upload-avatar', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/octet-stream'},
-                        body: file //sendet bild als binärdaten
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("bild wurd an db gesendet");
-                        } else {
-                            console.log("fehler");
-                        }
-                    })
-                    .catch(err => console.error("Fehler beim Laden:", err))
-                            
-                });  
-            }) 
-        }
-        window.addEventListener('DOMContentLoaded', uploadProfileData);
-        window.addEventListener('DOMContentLoaded', loadTrainingChart);
     </script>
-
 </body>
 </html>
 

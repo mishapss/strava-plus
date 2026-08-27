@@ -708,4 +708,68 @@ public class SQLite {
         String konsoleString = "Hurra, du hast den Challenge erfolgreich abgeschollesen";
         System.out.println(konsoleString);
     }
+
+    public static void saveNewUserToDatabase(
+        String firstName,
+        String secondName,
+        int age,
+        String sex, 
+        int weight,
+        int height,
+        int maxHR,
+        int restingHR,
+        String username
+    ) {
+        String sqlQueryToSaveNewUser = """
+            INSERT INTO users 
+            (name, secondName, age, sex, weight, height, maxHR, restingHR, username)
+            VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        if (maxHR == 0) {
+            maxHR = 220 - age; 
+        }
+        
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryToSaveNewUser)) {
+                pstmt.setString(1, firstName);
+                pstmt.setString(2, secondName);
+                pstmt.setInt(3, age);
+                pstmt.setString(4, sex);
+                pstmt.setInt(5, weight);
+                pstmt.setInt(6, height);
+                pstmt.setInt(7, maxHR);
+                pstmt.setInt(8, restingHR);
+                pstmt.setString(9, username);
+
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+
+    public static boolean checkUsernameInDB(String username) {
+        String sqlQuery = "SELECT COUNT(*) FROM users WHERE username = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; //true, wenn counter > 0, es gab schon
+                }
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
+
 }

@@ -1,14 +1,12 @@
-//import com.sun.jndi.toolkit.ctx.HeadTail;
-import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
-//import java.io.*;
 
-//import java.io.File;
+import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
+
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-//import java.io.File;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.DriverManager;
@@ -17,8 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.InputStream; // um die saten vom Client zu lesen
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper; 
@@ -114,6 +111,95 @@ public class SimplePostServer{
             }
         });
 
+        server.createContext("/register", exchange -> {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                Path path = Paths.get("html/register.html");
+
+                if (Files.exists(path)) {
+                    byte[] htmlBytes = Files.readAllBytes(path);
+                    exchange.getResponseHeaders().set("Content-type", "text/html; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, htmlBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(htmlBytes);
+                    }
+                } else {exchange.sendResponseHeaders(404, -1);}
+            }
+
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                try {
+                    InputStream is = exchange.getRequestBody(); //eingabe vom user lesen
+                    byte[] data = is.readAllBytes();                    
+                    
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode jsonNode = mapper.readTree(data);
+                    
+                    String firstName = jsonNode.get("firstName").asText();
+                    String secondName = jsonNode.get("secondName").asText();
+                    int age = jsonNode.get("age").asInt();
+                    String sex = jsonNode.get("sex").asText();
+                    int weight = jsonNode.get("weight").asInt();
+                    int height = jsonNode.get("height").asInt();
+                    int maxHR = jsonNode.get("maxHR").asInt();
+                    int restingHR = jsonNode.get("restingHR").asInt();
+                    String username = jsonNode.get("username").asText();
+
+                    SQLite.saveNewUserToDatabase(firstName, secondName, age, sex, weight, height, maxHR, restingHR, username);
+
+                    String response = "{\"status\": \"success\", \"message\": \"User erfolgreich registriert\"}";
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, response.getBytes(StandardCharsets.UTF_8).length);
+
+                    System.out.println("erfolgreich gespeichert");
+                    
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(response.getBytes(StandardCharsets.UTF_8));
+                    os.close();
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                }
+            } else {exchange.sendResponseHeaders(405, -1);}
+        });
+
+        server.createContext("/check-username", exchange -> {
+            try {
+                if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    String query = exchange.getRequestURI().getQuery(); //bekommt den vollständigen url ziel vom user, getQuery filtert den teil, der nach dem ? steht
+                    String username = ""; //leere variable
+
+                    if (query != null && query.startsWith("username=")) {
+                        for (String param : query.split("&")) {
+                            String[] pair = param.split("=");
+                            if (pair.length > 1 && "username".equals(pair[0])) {
+                                username = pair[1];
+                                break;
+                            }
+                        }
+                    }
+
+                    boolean isTaken = SQLite.checkUsernameInDB(username);
+
+                    String jsonResponse = "{\"isTaken\": " + isTaken + "}";
+
+                    byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, responseBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(responseBytes);
+                    }
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
+            }   
+        });
+
         server.createContext("/profile", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 Path path = Paths.get("html/profile.html");
@@ -190,25 +276,20 @@ public class SimplePostServer{
                     
                     InputStream is = exchange.getRequestBody(); //liest die eingabe-stream
                     byte[] data = is.readAllBytes();
-                    System.out.println("1");
 
                     Path uploadDir = Paths.get("images"); //definiert zielpfad
-                    System.out.println("2");
                     if (!Files.exists(uploadDir)) {
                         Files.createDirectories(uploadDir);
                     }
 
                     Path filePath = uploadDir.resolve("user_1.png"); //relative pfad-angabe für die datei
                     Files.write(filePath, data);
-                    System.out.println("3");
 
                     String imagePathForDB = "/images/user_1.png";
                     ProfileLoader.saveAvatarPathToDB(1, imagePathForDB); //speichert pfad in db
-                    System.out.println("imagePath: " + imagePathForDB);
 
                     String responseText = "alles lief gut"; //schickt antwort
                     byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
-                    System.out.println("4");
 
                     exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                     exchange.sendResponseHeaders(200, responseBytes.length);
