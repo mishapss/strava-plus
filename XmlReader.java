@@ -288,7 +288,7 @@ public class XmlReader {
             //System.out.print(gpxFiles);
 
             //18-1
-            double[] corosWerte = {
+            double[] corosWerteAerob = {
                 3.3, 1.2, 3.4, 4.0, 2.4, 
                 2.6, 3.0, 3.7, 2.3, 2.2, 
                 3.0, 2.4, 2.5, 3.9, 4.3, 2.8, 2.2,

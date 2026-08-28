@@ -9,4 +9,6 @@ DELETE FROM training;
 
 ALTER TABLE users ADD maxElevationGain REAL;
 
-ALTER TABLE users ADD trainingLoad INTEGER
+ALTER TABLE users ADD trainingLoad INTEGER;
+
+ALTER TABLE users ADD hashedPassword TEXT

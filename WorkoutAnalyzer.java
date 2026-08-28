@@ -16,8 +16,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
     
     public WorkoutResult analyzeWorkout(List<TrkPt> points) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
-        //XmlReader reader = new XmlReader(); // erstellt ein neues XmlReader objekt, um die GPX-Datei zu lesen
-
+        
         int[] hr = SQLite.getHRDaten();
 
         int maxHR = hr[0];

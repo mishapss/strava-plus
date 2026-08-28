@@ -718,13 +718,14 @@ public class SQLite {
         int height,
         int maxHR,
         int restingHR,
-        String username
+        String username,
+        String hashedPassword
     ) {
         String sqlQueryToSaveNewUser = """
             INSERT INTO users 
-            (name, secondName, age, sex, weight, height, maxHR, restingHR, username)
+            (name, secondName, age, sex, weight, height, maxHR, restingHR, username, hashedPassword) 
             VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         if (maxHR == 0) {
@@ -743,6 +744,7 @@ public class SQLite {
                 pstmt.setInt(7, maxHR);
                 pstmt.setInt(8, restingHR);
                 pstmt.setString(9, username);
+                pstmt.setString(10, hashedPassword);
 
                 pstmt.executeUpdate();
             } catch (SQLException e) {

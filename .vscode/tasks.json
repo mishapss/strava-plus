@@ -7,6 +7,42 @@
       "command": "sqlite3 strava.db < schema.sql",
       "problemMatcher": [],
       "group": "build"
+    },
+    {
+      "type": "java (build)",
+      "paths": [
+        "${workspace}"
+      ],
+      "isFullBuild": false,
+      "group": "build",
+      "problemMatcher": [],
+      "label": "java (build): Build Workspace",
+      "detail": "$(tools) Build all the Java projects in workspace."
+    },
+    {
+      "type": "java (buildArtifact)",
+      "targetPath": "${workspaceFolder}/${workspaceFolderBasename}.jar",
+      "elements": [
+        "${compileOutput}",
+        "${dependencies}"
+      ],
+      "problemMatcher": [],
+      "label": "java (buildArtifact): strava_plus",
+      "group": "build"
+    },
+    {
+      "type": "java (buildArtifact)",
+      "targetPath": "${workspaceFolder}/${workspaceFolderBasename}.jar",
+      "elements": [
+        "${compileOutput}",
+        "${dependencies}"
+      ],
+      "problemMatcher": [],
+      "label": "java (buildArtifact): strava_plus",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }

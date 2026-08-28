@@ -116,11 +116,11 @@ public class SimplePostServer{
                 Path path = Paths.get("html/register.html");
 
                 if (Files.exists(path)) {
-                    byte[] htmlBytes = Files.readAllBytes(path);
-                    exchange.getResponseHeaders().set("Content-type", "text/html; charset=UTF-8");
-                    exchange.sendResponseHeaders(200, htmlBytes.length);
+                    byte[] htmlBytes = Files.readAllBytes(path); //in array den inhalt speichern
+                    exchange.getResponseHeaders().set("Content-type", "text/html; charset=UTF-8"); //sagen dem browser, dass es html ist
+                    exchange.sendResponseHeaders(200, htmlBytes.length); //200 und länge senden 
 
-                    try (OutputStream os = exchange.getResponseBody()) {
+                    try (OutputStream os = exchange.getResponseBody()) { //speichern die daten der seite in exchange.getResponseBody()
                         os.write(htmlBytes);
                     }
                 } else {exchange.sendResponseHeaders(404, -1);}
@@ -128,11 +128,11 @@ public class SimplePostServer{
 
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 try {
-                    InputStream is = exchange.getRequestBody(); //eingabe vom user lesen
-                    byte[] data = is.readAllBytes();                    
+                    InputStream is = exchange.getRequestBody(); //die daten vorbereiten zum lesen
+                    byte[] data = is.readAllBytes(); //eingabe vom user lesen                    
                     
                     ObjectMapper mapper = new ObjectMapper();
-                    JsonNode jsonNode = mapper.readTree(data);
+                    JsonNode jsonNode = mapper.readTree(data); //in json umwandeln
                     
                     String firstName = jsonNode.get("firstName").asText();
                     String secondName = jsonNode.get("secondName").asText();
@@ -143,8 +143,14 @@ public class SimplePostServer{
                     int maxHR = jsonNode.get("maxHR").asInt();
                     int restingHR = jsonNode.get("restingHR").asInt();
                     String username = jsonNode.get("username").asText();
+                    String plainPassword = jsonNode.get("password").asText();
 
-                    SQLite.saveNewUserToDatabase(firstName, secondName, age, sex, weight, height, maxHR, restingHR, username);
+                    String hashedPassword = PasswordUtil.hashPasswort(plainPassword);
+                    
+                    System.out.println("plainPassword: " + plainPassword);
+                    System.out.println("hashedPassword: " + hashedPassword); 
+
+                    SQLite.saveNewUserToDatabase(firstName, secondName, age, sex, weight, height, maxHR, restingHR, username, hashedPassword);
 
                     String response = "{\"status\": \"success\", \"message\": \"User erfolgreich registriert\"}";
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -156,11 +162,23 @@ public class SimplePostServer{
                     os.write(response.getBytes(StandardCharsets.UTF_8));
                     os.close();
 
-                } catch (Exception e){
-                    e.printStackTrace();
-                    exchange.sendResponseHeaders(500, -1);
+                } catch (Throwable e) { // Throwable fängt auch NoClassDefFoundError ab!
+                    System.err.println("Fehler bei der Registrierung:");
+                    e.printStackTrace(); 
+                    
+                    // Dem Browser eine 500-Antwort schicken, damit der Stream nicht leer bleibt
+                    try {
+                        String errResponse = "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}";
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.sendResponseHeaders(500, errResponse.getBytes(StandardCharsets.UTF_8).length);
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(errResponse.getBytes(StandardCharsets.UTF_8));
+                        }
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
                 }
-            } else {exchange.sendResponseHeaders(405, -1);}
+            }
         });
 
         server.createContext("/check-username", exchange -> {

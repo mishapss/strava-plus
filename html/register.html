@@ -228,7 +228,6 @@
             <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li>
             <li><a href="http://localhost:8000/profile">Profile</a></li>
             <li><a href="http://localhost:8000/register">Register</a></li>
-            <li></li>
         </ul>
     </nav>
 
@@ -309,20 +308,21 @@
                 return;
             }
 
-            firstName = document.getElementById("firstName").value;
-            secondName = document.getElementById("secondName").value;
-            age = document.getElementById("age").value;
-            sex = document.getElementById("sex").value;
-            weight = document.getElementById("weight").value;
-            height = document.getElementById("height").value;
-            maxHR = document.getElementById("maxHR").value;
-            restingHR = document.getElementById("restingHR").value;
-            username = document.getElementById("username").value;
-            password = document.getElementById("password").value
+            const firstName = document.getElementById("firstName").value;
+            const secondName = document.getElementById("secondName").value;
+            const age = document.getElementById("age").value;
+            const sex = document.getElementById("sex").value;
+            const weight = document.getElementById("weight").value;
+            const height = document.getElementById("height").value;
+            const maxHR = document.getElementById("maxHR").value;
+            const restingHR = document.getElementById("restingHR").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
+            // Asynchrone Datenbankabfrage
             const isTaken = await checkUsernameInDB(username);
             if (isTaken) {
-                alert("Username ist besetzt");
+                alert("Username ist schon besetzt");
                 return;
             }
 
@@ -360,12 +360,7 @@
             });
         }
 
-        function checkUserInput(elementID, userInput) {
-            if ((elementID === "age") && (userInput <= 7 || userInput > 122)) { //prüft welcher element die eingabe ist
-                alert("Alter muss im Bereich 7-122 sein"); //prüft ob die alter eingabe gültig ist
-                return false;
-            }
-
+        function checkUserInput(elementID, userInput) { //checkt leere eingabe ohne db aufruf
             if (elementID === "firstName" || elementID === "secondName") {
                 const containsNumber = /\d/.test(userInput); //prüft, ob die eingabe ziffern enthält
 
@@ -375,8 +370,14 @@
                 }                
             }
 
+            if ((elementID === "age") && (userInput <= 7 || userInput > 122)) { //prüft welcher element die eingabe ist
+                alert("Alter muss im Bereich 6-122 sein"); //prüft ob die alter eingabe gültig ist
+                return false;
+            }            
+
             if (elementID === "sex") {
                 const validGenders = ["männlich", "weiblich", "divers"];
+                //const validGenders = ["m"];
                 if (!validGenders.includes(userInput.toLowerCase())) {
                     alert("Das Geschlecht muss 'männlich', 'weiblich' oder 'divers' sein.");
                     return false;
@@ -384,18 +385,19 @@
             }
 
             if (elementID === "username") {
-                console.log("1");
-                if (userInput.trim() === "" || isTaken) {
-                    console.log("1");
-                    alert("Username darf nicht leer sein oder ist schon besetzt.");
+                console.log("username check leer");
+                if (userInput.trim() === "") {
+                    console.log(userInput.trim() === "");
+                    alert("Username darf nicht leer sein");
                     return false;
-                }
+                } 
             }
 
             if (elementID === "password") {
-                const passIsOk = checkPassword(userInput);
-                if (userInput.trim() === "" || !passIsOk) {
-                    alert("Passwort darf nicht leer sein und muss den Standards entsprechen.");
+                if (userInput.trim() === "") {
+                    alert("Passwort darf nicht leer sein");
+                    return false;
+                } else if (!checkUserPassword(userInput)) { //wenn falsch -> return false
                     return false;
                 }
             }
@@ -413,8 +415,8 @@
                     return false;
                 }
 
-                if ((elementID === "weight") && (num < 5 || num > 150)) {
-                    alert("Das Gewicht muss im Bereich 5 - 150kg sein");
+                if ((elementID === "weight") && (num < 20 || num > 200)) {
+                    alert("Das Gewicht muss im Bereich 20 - 200kg sein");
                     return false;                
                 } 
 
@@ -434,9 +436,6 @@
                     return false;
                 }  
             }
-
-            
-
             return true;
         }
 
@@ -457,11 +456,37 @@
             }
         }
 
+        function checkUserPassword(password) {
+            const hatZahl = /\d/.test(password); // hat eine Zahl 
+            const hatBigLetter = /[A-Z]/.test(password); //hat einen großbuchstaben
+            const hatSmallLetter = /[a-z]/.test(password); // hat einen kleinbuchstaben
+            const hatSpecialCharacter = /[^a-zA-Z0-9]/.test(password); // hat ein sonderzeichen
+
+            if (password.length < 12) {
+                alert("Passwort muss länger 12 Zeichen sein");
+                return false;
+            } else if (!hatZahl) {
+                alert("Passwort muss mindestens eine Zahl haben");
+                return false;
+            } else if (!hatBigLetter) {
+                alert("Passwort muss mindestens einen Großbuchstabe haben");
+                return false;
+            }else if (!hatSmallLetter) {
+                alert("Passwort muss mindestens einen Kleinbuchstabe haben");
+                return false;
+            }else if (!hatSpecialCharacter) {
+                alert("Passwort muss mindestens ein sonderzeichen haben");
+                return false;
+            }
+
+            return true;
+        }
+
         function validateForm() {  //prüft ob alle eingaben gültig sind
             const fields = [
                 "firstName", "secondName", "sex",
                 "age", "weight", "height",
-                "maxHR", "restingHR"
+                "maxHR", "restingHR", "username", "password"
             ];
 
             for (const fieldID of fields) {
@@ -478,7 +503,6 @@
                 alert("Differenz zwischen maxHR und ruheHR muss über 50 sein");
                 return false;
             }
-
             return true;
         }
         

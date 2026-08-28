@@ -228,7 +228,6 @@
             <li><a href="http://localhost:8000/about">Über Strava-Plus</a></li>
             <li><a href="http://localhost:8000/profile">Profile</a></li>
             <li><a href="http://localhost:8000/register">Register</a></li>
-            <li></li>
         </ul>
     </nav>
 
@@ -332,7 +331,7 @@
             const newValue = inputElement.value; //liest neuen wert aus
 
             if (!checkNewValue(newValue, elementID)) {//gültigkeitsprüfung fürs feld
-                alert("Ungültige Angabe!");
+                //alert("Ungültige Angabe!");
                 return;
             }
 
@@ -362,21 +361,53 @@
         }
 
         function checkNewValue(newValue, elementID) { //prüft ob der wert für das feld gültig
-            if (elementID === "stat-age" || elementID === "stat-weight" || elementID === "stat-height" || elementID === "stat-max-hr"
+            /*if (elementID === "stat-max-hr"
                 || elementID === "stat-resting-hr") {
                
                if (isNaN(newValue) || newValue.trim() === "" || Number(newValue) <= 0) {
                 console.log("Die Eingabe muss eine Zahl sein und sie muss größer 0 sein!");
                 return false;
                }
-            }
+            }*/
 
-            if (elementID === "stat-sex") {
-                if (!(newValue === "männlich" || newValue === "weiblich")) {
-                    console.log("Der Geschlecht muss 'männlich' oder 'weiblich' sein");
+            if (elementID === "stat-age") {
+                if ((newValue < 7) || (newValue > 122)) {
+                    alert("Alter muss im Bereich 7 - 122 Jahre sein.");
                     return false;
                 }
             }
+
+            //TODO: specihert die Daten in upperCase, muss in lowerCase
+            if (elementID === "stat-sex") { 
+                if (!(newValue.toLowerCase() === "männlich" || newValue.toLowerCase() === "weiblich" || newValue.toLowerCase() === "divers")) {
+                    alert("Der Geschlecht muss 'männlich', 'weiblich' oder 'divers' sein");
+                    return false;
+                }
+            }
+
+            if (elementID === "stat-weight") {
+                if ((newValue < 20) || (newValue > 200)) {
+                    alert("Das Gewicht muss im Bereich 20 - 200kg sein");
+                    return false;
+                }
+            }
+
+            if (elementID === "stat-height") {
+                if ((newValue < 60) || (newValue > 250)) {
+                    alert("Die Größe muss im Bereich 60 - 250 cm sein");
+                    return false;
+                }
+            }
+
+            if ((elementID === "stat-max-hr") && (newValue < 150 || newValue > 210)) {
+                    alert("Max HR muss im Bereich 150 - 210 sein");
+                    return false;
+                }
+
+            if ((elementID === "stat-resting-hr") && (newValue < 26 || newValue > 90)) {
+                    alert("Min HR muss im Bereich 26 - 90 sein");
+                    return false;
+                }  
             return true;
         }
 
