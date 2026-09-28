@@ -15,6 +15,7 @@ public class ProfileData {
     public String profilePhoto;
     public double maxCalorieBurn;
     public int maxTrainingLoad;
+    public String username;
 
     public ProfileData() {}
 
@@ -34,7 +35,8 @@ public class ProfileData {
         double maxElevationGain,
         String profilePhoto,
         double maxCalorieBurn,
-        int maxTrainingLoad
+        int maxTrainingLoad,
+        String username
     ) {
         this.userID = userID;
         this.name = name;
@@ -52,5 +54,6 @@ public class ProfileData {
         this.profilePhoto = profilePhoto;
         this.maxCalorieBurn = maxCalorieBurn;
         this.maxTrainingLoad = maxTrainingLoad;
+        this.username = username;
     }
 }

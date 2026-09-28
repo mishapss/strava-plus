@@ -25,13 +25,13 @@ public class SQLite {
         }
     }    
 
-    public static int[] getHRDaten(){
+    public static int[] getHRDaten(int userID){
         String sqlAbfrage = "SELECT maxHR, restingHR FROM users WHERE userID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
                 
-                pstmt.setInt(1, 1);
+                pstmt.setInt(1, userID);
                 ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
 
                 if (rs.next()) {
@@ -101,12 +101,13 @@ public class SQLite {
         double aerobicTrainingEffect, 
         double anaerobicTrainingEffect,
         double calories,
-        String fileName
+        String fileName, 
+        int authorID
         ) {
 
         int trainingID = -1;
 
-        boolean trainingVorhanden = checkTraining(distanceBetweenPointsGerundet, dateString);
+        boolean trainingVorhanden = checkTraining(distanceBetweenPointsGerundet, dateString); // einfügen prüfung nach user
 
         if (trainingVorhanden) {
             trainingID = getTrainingID(distanceBetweenPointsGerundet, dateString);
@@ -130,9 +131,10 @@ public class SQLite {
                 aerobicTrainingsEffekt,  
                 anaeobicTrainingsEffekt,
                 calories,
-                fileName
+                fileName,
+                authorID
             )
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             Statement.RETURN_GENERATED_KEYS);
             )
@@ -152,7 +154,8 @@ public class SQLite {
                 aerobicTrainingEffect,
                 anaerobicTrainingEffect,
                 calories,
-                fileName
+                fileName,
+                authorID
             ); 
 
             pstmt.executeUpdate();
@@ -772,6 +775,48 @@ public class SQLite {
         return false;
     }
 
+    public static String getHashedPasswortFromDB(String username) {
+        String SQLQueryToGetHashedPassword = "SELECT hashedPassword FROM users WHERE username = ?";
 
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(SQLQueryToGetHashedPassword)) {
+                
+                pstmt.setString(1, username);
+                ResultSet rs = pstmt.executeQuery();
 
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("hashedPassword");
+
+                    return hashedPassword;
+                };
+            }
+
+            catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+                
+            }   
+            return "error";     
+    }
+
+    public static int getIDFromDB(String username) {
+        String SQLQueryGetIDFromDB = "SELECT userID FROM users WHERE username = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(SQLQueryGetIDFromDB)) {
+                pstmt.setString(1, username);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    int userID = rs.getInt("userID");
+
+                    return userID;
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+                
+            } 
+            return -1;
+    }
 }

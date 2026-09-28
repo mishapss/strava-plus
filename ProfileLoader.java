@@ -12,39 +12,48 @@ public class ProfileLoader {
     public static List<ProfileData> getProfileDataFromDB() { //nimmt Daten aus users tabelle und gibt list zurück
         List<ProfileData> list = new ArrayList<>();
     
-        String sqlQueryGetData = "SELECT * FROM users WHERE userID = ?";
+        int loggedInUserID = UserSession.getCurrentUserID();
+        if (loggedInUserID != -1) {
+            String sqlQueryGetData = "SELECT * FROM users WHERE userID = ?";
 
-        try (var conn = DriverManager.getConnection(url);
-            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetData)) {
-                
-                pstmt.setInt(1,1);
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetData)) {
+                    
+                    pstmt.setInt(1,loggedInUserID);
 
-                ResultSet rs = pstmt.executeQuery();
+                    ResultSet rs = pstmt.executeQuery();
 
-                while (rs.next()) { //felder aus db
-                    list.add(new ProfileData(
-                        rs.getInt("userID"),
-                        rs.getString("name"),
-                        rs.getString("secondName"),
-                        rs.getInt("age"),
-                        rs.getString("sex"),
-                        rs.getDouble("weight"),
-                        rs.getDouble("height"),
-                        rs.getInt("maxHR"),
-                        rs.getInt("restingHR"),
-                        rs.getDouble("totalDistancePerYear"),
-                        rs.getDouble("maxDistance"),
-                        rs.getDouble("maxSpeed"),
-                        rs.getDouble("maxElevationGain"),
-                        rs.getString("profilePhoto"),
-                        rs.getDouble("calorieBurn"),
-                        rs.getInt("trainingLoad")
-                    ));
+                    while (rs.next()) { //felder aus db
+                        list.add(new ProfileData(
+                            rs.getInt("userID"),
+                            rs.getString("name"),
+                            rs.getString("secondName"),
+                            rs.getInt("age"),
+                            rs.getString("sex"),
+                            rs.getDouble("weight"),
+                            rs.getDouble("height"),
+                            rs.getInt("maxHR"),
+                            rs.getInt("restingHR"),
+                            rs.getDouble("totalDistancePerYear"),
+                            rs.getDouble("maxDistance"),
+                            rs.getDouble("maxSpeed"),
+                            rs.getDouble("maxElevationGain"),
+                            rs.getString("profilePhoto"),
+                            rs.getDouble("calorieBurn"),
+                            rs.getInt("trainingLoad"),
+                            rs.getString("username")
+                        ));
+                    }
+                }catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            
+        } else {
+            System.err.println("kein Nutzer eingelogt");
+        }
+
         return list;
+        
     }
 
     public static List<TrainingEntry> getDistanceInMonthforChart() { //bekommt Distanz für jedes Monat aus DB

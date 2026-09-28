@@ -16,14 +16,22 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
     
     public WorkoutResult analyzeWorkout(List<TrkPt> points) { //analysiert hr daten
         List<List<Integer>> heartZones = new ArrayList<>();       //liste für alle gps punkte
+        int loggedInUserID = UserSession.getCurrentUserID(); //userID dynamisch holen
         
-        int[] hr = SQLite.getHRDaten();
+        if (loggedInUserID != -1) {
+            int[] hr = SQLite.getHRDaten(loggedInUserID);
 
-        int maxHR = hr[0];
-        int restingHR = hr[1];
-
+            if (hr != null && hr.length >= 2) {
+                int maxHR = hr[0];
+                int restingHR = hr[1];
+            } else {
+                System.err.println("Warnung: Keine HR-Daten aus SQLite erhalten. Nutze Standardwerte.");
+            }
+        } else {
+            System.err.println("kein Nutzer eingelogt");
+        }
         //debug
-        System.out.println("maxHr: " + maxHR + "ruheHr: " + restingHR);
+        //System.out.println("maxHr: " + maxHR + "ruheHr: " + restingHR);
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -131,12 +139,21 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         double trainingLoad = 0.0;
         double relativeHR = 0.0;    
         double intensityFaktor = 0.0;
-
-        int[] hr = SQLite.getHRDaten();
-
-        int maxHR = hr[0];
-        int restingHR = hr[1];
-
+        int maxHR = 0;
+        int restingHR = 0;
+       
+        int loggedInUserID = UserSession.getCurrentUserID();
+        if (loggedInUserID != -1) {
+            int[] hr = SQLite.getHRDaten(loggedInUserID);
+            if (hr != null && hr.length >= 2) {
+                maxHR = hr[0];
+                restingHR = hr[1];
+            } else {
+                System.err.println("Warnung: Keine HR-Daten aus SQLite erhalten. Nutze Standardwerte.");
+            }
+        } else {
+            System.err.println("kein Nutzer eingelogt");
+        }
         
         for (TrkPt point : points) {
             int currentHeartRate = point.getHeartRate(); // jetzige HR
@@ -218,11 +235,14 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         int weight = 0;
         int age = 0;
         
+        int loggedUserID = UserSession.getCurrentUserID();
+
         String sqlQuery = "SELECT weight, age FROM users WHERE userID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
-                pstmt.setInt(1, 1);
+                pstmt.setInt(1, loggedUserID);
+                
 
                 ResultSet rs = pstmt.executeQuery();
 
@@ -257,6 +277,8 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         }
         double maxGeschwindigkeitKmh = Math.round(maxGeschwindigkeit * 3.6 * 100) / 100.0;
 
+        int loggedUserID = UserSession.getCurrentUserID();
+
         String sqlQuery = "SELECT maxSpeed FROM users WHERE userID = ?";
 
         double maxSpeed = 0.0;
@@ -264,7 +286,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
                 
-                pstmt.setInt(1,1);
+                pstmt.setInt(1, loggedUserID);
 
                 ResultSet rs = pstmt.executeQuery();
 
@@ -284,7 +306,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                 PreparedStatement update = conn.prepareStatement(sqlQueryInsert)) {
 
                     update.setDouble(1, maxGeschwindigkeitKmh);
-                    update.setInt(2, 1);
+                    update.setInt(2, loggedUserID);
                     update.executeUpdate();
 
             } catch (SQLException e) {
@@ -295,13 +317,14 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
     public void chenkNewMaxDistance(List<TrkPt> points) {
         double currentDistance = XmlReader.distanceBetweenPointsGerundet;
+        int loggedUserID = UserSession.getCurrentUserID();
 
         String sqlQueryGetDistance = "SELECT maxDistance FROM users WHERE userID = ?";
         double maxDistance = 0.0;
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
-                pstmt.setInt(1,1);
+                pstmt.setInt(1, loggedUserID);
                 
                 ResultSet rs = pstmt.executeQuery();
 
@@ -320,7 +343,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                     PreparedStatement pstmt = conn.prepareStatement(sqlQuerySaveNewDistance)) {
                     
                     pstmt.setDouble(1, currentDistance);
-                    pstmt.setInt(2, 1);
+                    pstmt.setInt(2, loggedUserID);
                     pstmt.executeUpdate();                    
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -330,6 +353,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
     public void checkNewMaxCalorieBurn(List<TrkPt> points) { //checkt ob es beim Training neue Kalorienverbraucht-Rekord gibt
         double currentCalorieBurn = XmlReader.calories; //kalorien von training
+        int loggedUserID = UserSession.getCurrentUserID();
 
         String sqlQueryGetCalorie = "SELECT calorieBurn FROM users WHERE userID = ?";
 
@@ -339,7 +363,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetCalorie)) {
 
-                pstmt.setInt(1,1);
+                pstmt.setInt(1, loggedUserID);
                 
                 ResultSet rs = pstmt.executeQuery();
                 if (rs.next()) {
@@ -357,7 +381,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                 PreparedStatement pstmtUpdate = conn.prepareStatement(sqlQueryUpdateCalorie)) {
 
                     pstmtUpdate.setDouble(1, currentCalorieBurn);
-                    pstmtUpdate.setInt(2, 1); //1 = userId, bis jetzt nur 1 User
+                    pstmtUpdate.setInt(2, loggedUserID); //1 = userId, bis jetzt nur 1 User
 
                     pstmtUpdate.executeUpdate();
                 } catch (SQLException e) {
@@ -368,6 +392,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
     public void checkNewMaxTrainingLoad(List<TrkPt> points) {
         int currentTrainingLoad = XmlReader.trainingLoad;
+        int loggedUserID = UserSession.getCurrentUserID();
 
         String sqlQueryGetTraningLoad = "SELECT trainingLoad FROM users WHERE userID = ?";
 
@@ -377,7 +402,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmtGet = conn.prepareStatement(sqlQueryGetTraningLoad)) {
 
-                pstmtGet.setInt(1, 1);
+                pstmtGet.setInt(1, loggedUserID);
                 
                 ResultSet rs = pstmtGet.executeQuery();
 
@@ -396,7 +421,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                 PreparedStatement pstmtUpdate = conn.prepareStatement(sqlQuerySaveNewTrainingLoad)) {
 
                     pstmtUpdate.setInt(1, currentTrainingLoad);
-                    pstmtUpdate.setInt(2,1);
+                    pstmtUpdate.setInt(2, loggedUserID);
                     
                     pstmtUpdate.executeUpdate();
 
@@ -408,6 +433,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
 
     public void checkNewElevationGain(List<TrkPt> points) {
         double currentElevation = XmlReader.hoeheSummeGerundet;
+        int loggedUserID = UserSession.getCurrentUserID();
 
         String sqlQueryGetElevation = "SELECT maxElevationGain FROM users WHERE userID = ?";
 
@@ -416,7 +442,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetElevation)) {
             
-            pstmt.setInt(1,1);
+            pstmt.setInt(1, loggedUserID);
 
             ResultSet rs = pstmt.executeQuery();
 
@@ -434,7 +460,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                 PreparedStatement pstmt = conn.prepareStatement(sqlQuerySaveNewElevation)) {
 
                 pstmt.setDouble(1, currentElevation);
-                pstmt.setInt(2,1);
+                pstmt.setInt(2, loggedUserID);
                 pstmt.executeUpdate();
 
             } catch (SQLException e) {

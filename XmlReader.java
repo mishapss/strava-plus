@@ -212,9 +212,11 @@ public class XmlReader {
 
 
             //einfügt die daten om training in datenbank
+            int authorID = UserSession.getCurrentUserID();
+            System.out.print("authorID:" + authorID);
             int trainingID = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
-                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, calories, xmlFile.toString());            
+                hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, calories, xmlFile.toString(), authorID);            
             
             //aktualisiert distanz im jahr
             SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
