@@ -12,4 +12,34 @@ ALTER TABLE users ADD maxElevationGain REAL;
 
 ALTER TABLE users ADD trainingLoad INTEGER;
 
-ALTER TABLE users ADD hashedPassword TEXT
+ALTER TABLE users ADD hashedPassword TEXT;
+ 
+INSERT INTO challengeUserTable (
+        challengeID, userID, status, goal, 
+        challengeStartDate, challengeEndDate, 
+        progressValue, challengeProgress, goalDataType
+    )
+    VALUES 
+        c.challengeID, u.userID, 0, c.goal, 
+        c.challengeStartDate, c.challengeEndDate, 
+        0.0, 0.0, c.goalDataType
+    FROM challenges c, users u
+    WHERE c.challengeID = ? AND u.userID = ?;
+    
+
+
+
+CREATE TABLE challengeUserTable (
+    challengeID INTEGER,
+    userID INTEGER,
+    status INTEGER,
+    goal INTEGER,
+    challengeStartDate TEXT,
+    challengeEndDate TEXT,
+    progressValue REAL,
+    challengeProgress REAL,
+    goalDataType TEXT,
+    PRIMARY KEY (challengeID, userID),
+    FOREIGN KEY("challengeID") REFERENCES challenges("challengeID"),
+    FOREIGN KEY("userID") REFERENCES users("userID")
+)

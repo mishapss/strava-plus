@@ -217,30 +217,35 @@ public class SimplePostServer{
                     }
                     System.out.println(loginSuccessful);
 
-                    String response;
+                    Map<String, Object> responseMap = new HashMap<>();
                     int statusCode;
 
                     if (loginSuccessful) {
-                        response = "{\"status\": \"success\", \"message\": \"User erfolgreich angemeldet\"}";
-                        statusCode = 200;
-                        System.out.println(response);
-
-                        int idFromDB = SQLite.getIDFromDB(username); //userID aus db bekommen
+                        int idFromDB = SQLite.getIDFromDB(username);
                         UserSession.setCurrentUserID(idFromDB); //userID für den Nutzer merken
+
+                        statusCode = 200;
+                        responseMap.put("status", "success");
+                        responseMap.put("message", "User erfolgreich angemeldet");
+                        responseMap.put("userID", idFromDB);
+                        
                     } else {
-                        response = "{\"status\": \"error\", \"message\": \"Falsche Username oder Passwort\"}";
+                        
                         statusCode = 401;
-                        System.out.println(response);
+                        responseMap.put("status", "error");
+                        responseMap.put("message", "Falsche Anmeldedaten");
                     }
 
-                    exchange.getResponseHeaders().set("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(statusCode, response.getBytes(StandardCharsets.UTF_8).length);
-
-                    //System.out.println("erfolgreich angemeldet");
+                    byte[] responseByte = mapper.writeValueAsBytes(responseMap);
                     
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(response.getBytes(StandardCharsets.UTF_8));
-                    os.close();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(statusCode, responseByte.length);
+
+                    try ( OutputStream os = exchange.getResponseBody()) {
+                        os.write(responseByte);
+                    } finally {
+                        exchange.close();
+                    }
                 
                 } catch (Throwable e) { // Throwable fängt auch NoClassDefFoundError ab!
                     System.err.println("Fehler bei der Anmeldung:");
@@ -248,16 +253,29 @@ public class SimplePostServer{
                     
                     // Dem Browser eine 500-Antwort schicken, damit der Stream nicht leer bleibt
                     try {
-                        String errResponse = "{\"status\": \"error\", \"message\": \"" + e.getMessage() + "\"}";
+                        Map<String, String> errMap = new HashMap<>();
+                        errMap.put("status", "error");
+                        errMap.put("message", e.getMessage());
+                        byte[] errBytes = new ObjectMapper().writeValueAsBytes(errMap);
+                        
                         exchange.getResponseHeaders().set("Content-Type", "application/json");
-                        exchange.sendResponseHeaders(500, errResponse.getBytes(StandardCharsets.UTF_8).length);
+                        exchange.sendResponseHeaders(500, errBytes.length);
+
                         try (OutputStream os = exchange.getResponseBody()) {
-                            os.write(errResponse.getBytes(StandardCharsets.UTF_8));
+                            os.write(errBytes);
                         }
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
                 }
+            }
+        });
+
+        server.createContext("/api/logout", exchange -> {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                UserSession.setCurrentUserID(-1); //auf ungültig bei der abmeldung setzen
+                exchange.sendResponseHeaders(200, -1);
+                exchange.close();
             }
         });
 

@@ -58,23 +58,25 @@ public class XmlReader {
         }
 
         XmlMapper xmlMapper = new XmlMapper();                  //tool um aus xml in java zu gehen
+        xmlMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JsonNode root = xmlMapper.readTree(xmlFile);        //xml wird als baumstruktur geladen    
+            List<JsonNode> allTrkpts = root.findValues("trkpt"); //neu
 
-            JsonNode trkptNode = root.path("trk").path("trkseg").path("trkpt");
+            //JsonNode trkptNode = root.path("trk").path("trkseg").path("trkpt");
 
-            for (JsonNode trkpt : trkptNode){
-                double lat = trkpt.path("lat").asDouble();
-                double lon = trkpt.path("lon").asDouble();
-                double ele = trkpt.path("ele").asDouble();
-                String time = trkpt.path("time").asText();
+            for (JsonNode trkptNode : allTrkpts){
+                if (trkptNode.isArray()) {
+                    for (JsonNode pt: trkptNode) {
+                        addParsedPointToList(pt, trackPoints);
+                    }
+                } else if (trkptNode.isObject()) {
+                    addParsedPointToList(trkptNode, trackPoints);
+                }
+            }
 
-                double geschwindigkeitMps = trkpt.path("extensions").path("speed").asDouble();
-                int hr = trkpt.path("extensions").path("hr").asInt();
-
-
-                TrkPt punkt = new TrkPt(lat, lon, ele, time, geschwindigkeitMps, hr);    //jeder punkt als objekt gespeichert 
-                trackPoints.add(punkt);                                                  //jeder punkt zur liste hinzugefügt             
+            if (trackPoints.isEmpty()) {
+                throw new IllegalArgumentException("gpx hat keine gültige trackpoints");
             }
 
             //ausrechnung der Zeit
@@ -238,9 +240,37 @@ public class XmlReader {
         
         } catch (IOException e ){
             System.err.println("Fehler beim Einlesen: " +e.getMessage());
-            return null;
+            throw e;
         }    
     }
+
+    public static void addParsedPointToList(JsonNode trkpt, List<TrkPt> trackPoints) {
+        double lat = trkpt.path("lat").asDouble();
+        double lon = trkpt.path("lon").asDouble();
+        double ele = trkpt.path("ele").asDouble(0.0);
+        String time = trkpt.path("time").asText("");
+
+        // Extensions flexibel auslesen (unterstützt gpxdata:hr, gpxtpx:hr, hr etc.)
+        JsonNode extensions = trkpt.path("extensions");
+        
+        int hr = 0;
+        if (extensions.has("hr")) {
+            hr = extensions.path("hr").asInt();
+        } else if (extensions.has("gpxdata:hr")) {
+            hr = extensions.path("gpxdata:hr").asInt();
+        } else if (extensions.has("TrackPointExtension")) {
+            hr = extensions.path("TrackPointExtension").path("hr").asInt();
+        }
+
+        double geschwindigkeitMps = 0.0;
+        if (extensions.has("speed")) {
+            geschwindigkeitMps = extensions.path("speed").asDouble();
+        } else if (extensions.has("gpxdata:speed")) {
+            geschwindigkeitMps = extensions.path("gpxdata:speed").asDouble();
+        }
+
+        trackPoints.add(new TrkPt(lat, lon, ele, time, geschwindigkeitMps, hr));
+    };
     
 
     public String stringFormatZoneTime(int totalSeconds) {

@@ -194,6 +194,28 @@
         .profil-dashboard-container.rechts {
             margin-left: auto;
         }        
+
+        .log-out-btn {
+            width: auto;                  /* 'auto' verhindert Verzerren des Textes */
+            background-color: #e4e6eb;    /* Standardfarbe (wenn Maus NICHT auf dem Button ist) */
+            color: #333333;               /* Dunkler Text für besseren Kontrast auf hellem Hintergrund */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;           /* Leicht abgerundete Ecken */
+            cursor: pointer;
+            float: right;
+            margin-right: 20px;           /* Abstand zum rechten Bildschirmrand */
+            margin-top: 10px;             /* Optional: Abstand nach oben */
+            font-weight: bold;
+            transition: background-color 0.2s, color 0.2s; /* Sanfter Farbübergang */
+        }
+
+        /* Hover-Zustand: wenn der Cursor AUF dem Button ist */
+        .log-out-btn:hover {
+            background-color: #004aad;    /* Neue Hintergrundfarbe auf Hover */
+            color: #ffffff;               /* Weisse Schrift für Lesbarkeit auf blauem Grund */
+        }
+
         .edit-btn {
             background: none;
             border: none;
@@ -231,6 +253,8 @@
             <li><a href="http://localhost:8000/login">Login</a></li>
         </ul>
     </nav>
+
+    <button class="log-out-btn" onclick="userLogOut()">Abmelden</button>
 
     <div class="profile-container" id="profile-container"></div>
 
@@ -291,15 +315,15 @@
 
             <table class="profil-information-table">
                 <tr>
-                    <td  class="label">max. Distanz</td>
+                    <td class="label">max. Distanz</td>
                     <td id="stat-max-distance" class="value"></td>
                 </tr>
                 <tr>
-                    <td  class="label">max. Geschwindikeit</td>
+                    <td class="label">max. Geschwindikeit</td>
                     <td id="stat-max-speed" class="value"></td>
                 </tr>
                 <tr>
-                    <td  class="label">max. Höhenmeter</td>
+                    <td class="label">max. Höhenmeter</td>
                     <td id="stat-max-elevation-gain" class="value"></td>
                 </tr>
                 <tr>
@@ -324,6 +348,18 @@
                 <input type="text" class="edit-input" id="input-${elementID}" value="${currentValue}">
                 <button class="edit-btn" onclick="saveField('${elementID}', '${fieldName}')">Speichern</button>
             `;
+        }
+
+        function userLogOut() {
+            fetch('/api/logout', {method: 'POST'})
+            .then(() => {
+                localStorage.removeItem('loggedInUserID')
+                localStorage.removeItem('loggedUserID')
+                console.log("loggedInUserID: " + localStorage.getItem('loggedInUserID'));
+                
+                alert("Erfolgreich abgemeldet");
+                window.location.href = "http://localhost:8000/profile";
+            })
         }
 
         function saveField(elementID, fieldName) {
@@ -508,7 +544,8 @@
                     return;
                 }
 
-                const user = dataList[0];
+                const user = dataList[0]
+                console.log("user: " + dataList[0]);
                 const hasPhoto = user.profilePhoto && user.profilePhoto.trim() !== ""; //prüft, ob in der db pfad da ist
                 const avatarSrc = hasPhoto ? user.profilePhoto : "";
                 const imageDisplay = hasPhoto ? "block" : "none";

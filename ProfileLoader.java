@@ -13,13 +13,15 @@ public class ProfileLoader {
         List<ProfileData> list = new ArrayList<>();
     
         int loggedInUserID = UserSession.getCurrentUserID();
+        System.out.println("loggedInUserID:" + loggedInUserID);
+
         if (loggedInUserID != -1) {
             String sqlQueryGetData = "SELECT * FROM users WHERE userID = ?";
 
             try (var conn = DriverManager.getConnection(url);
                 PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetData)) {
                     
-                    pstmt.setInt(1,loggedInUserID);
+                    pstmt.setInt(1, loggedInUserID);
 
                     ResultSet rs = pstmt.executeQuery();
 
@@ -57,59 +59,87 @@ public class ProfileLoader {
     }
 
     public static List<TrainingEntry> getDistanceInMonthforChart() { //bekommt Distanz für jedes Monat aus DB
-        String sqlQueryGetDistance = """
-        SELECT strftime('%Y-%m', date) AS monat, 
-        SUM(distance) AS totalDistance FROM
-        training GROUP BY strftime('%Y-%m', date) 
-        ORDER BY monat ASC
-        """;              
-                
-        List<TrainingEntry> listMonths = new ArrayList<>();
+        List<TrainingEntry> list = new ArrayList<>();
+        
+        int loggedInUserID = UserSession.getCurrentUserID();
 
-        try (var conn = DriverManager.getConnection(url);
-            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
-                
-                ResultSet rs = pstmt.executeQuery();
+        if (loggedInUserID != -1) {
+            String sqlQueryGetDistance = """
+            SELECT strftime('%Y-%m', date) AS monat, 
+            SUM(distance) AS totalDistance 
+            FROM training 
+            WHERE authorID = ? 
+            GROUP BY strftime('%Y-%m', date) 
+            ORDER BY monat ASC
+            """;              
+                    
+            List<TrainingEntry> listMonths = new ArrayList<>();
 
-                while(rs.next()) {
-                    listMonths.add(new TrainingEntry(
-                        rs.getString("monat"),
-                        rs.getDouble("totalDistance")
-                    ));
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
+
+                    pstmt.setInt(1, loggedInUserID);
+
+                    ResultSet rs = pstmt.executeQuery();
+
+                    while(rs.next()) {
+                        listMonths.add(new TrainingEntry(
+                            rs.getString("monat"),
+                            rs.getDouble("totalDistance")
+                        ));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        System.out.print(listMonths);
-        return listMonths;
+            System.out.print(listMonths);
+            return listMonths;
+        } else {
+            System.out.println("kein Nutzer eingelogt");
+        }
+
+        return list;
+        
     }
 
     public static List<TrainingEntry> getDistanceForLastMonthFromDBForChart() { //bekommt Distanz des letzten Monat aus DB
-        String sqlQueryGetDistance = """
-        SELECT date, distance FROM training 
-        WHERE strftime('%Y-%m', date) = 
-        strftime('%Y-%m', 'now')
-        ORDER BY date ASC
-        """;
-                
-        List<TrainingEntry> listLastMonth = new ArrayList<>();
+        List<TrainingEntry> list = new ArrayList<>();
+        
+        int loggedInUserId = UserSession.getCurrentUserID();
+        
+        if (loggedInUserId != -1) {
+            String sqlQueryGetDistance = """
+            SELECT date, distance FROM training 
+            WHERE authorID = ? AND
+            strftime('%Y-%m', date) = strftime('%Y-%m', 'now')
+            ORDER BY date ASC 
+            """;
+                    
+            List<TrainingEntry> listLastMonth = new ArrayList<>();
 
-        try (var conn = DriverManager.getConnection(url);
-            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
-                
-                ResultSet rs = pstmt.executeQuery();
+            try (var conn = DriverManager.getConnection(url);
+                PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetDistance)) {
 
-                while(rs.next()) {
-                    listLastMonth.add(new TrainingEntry(
-                        rs.getString("date"),
-                        rs.getDouble("distance")
-                    ));
+                    pstmt.setInt(1, loggedInUserId);
+                    
+                    ResultSet rs = pstmt.executeQuery();
+
+                    while(rs.next()) {
+                        listLastMonth.add(new TrainingEntry(
+                            rs.getString("date"),
+                            rs.getDouble("distance")
+                        ));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        System.out.print(listLastMonth);
-        return listLastMonth;
+            System.out.print(listLastMonth);
+            return listLastMonth;
+        } else {
+            System.out.println("kein Nutzer eingelogt");
+        }
+
+        return list;
+        
     }
 
     public static void saveAvatarPathToDB(int userID, String imagePath) {

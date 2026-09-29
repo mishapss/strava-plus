@@ -24,11 +24,11 @@ public class FileUploader {
         System.out.println(exist); 
 
         //System.out.println("File exists: " + Files.exists(filePath));
-        System.out.println("Absolute path: " + filePath.toAbsolutePath()); 
+        System.out.println("Absolute path: " + filePath.toAbsolutePath());  
 
         try {
             HttpRequest request = HttpRequest.newBuilder()                                          // startet den aufbau der anfrage
-                .uri(URI.create(HTML_URL))                                                          // Ziel-URL   
+                .uri(URI.create(HTML_URL))                                                          // Ziel-URL    
                 .header("Content-Type", "text/html")                                                // informiert den Server über den Datentyp (Text)
                 .POST(BodyPublishers.ofFile(filePath))                                              // POST-Methode mit Dateiinhalt
                 .build();                                                                           // erstellt endgültige httprequest objekt

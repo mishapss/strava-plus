@@ -281,14 +281,32 @@
                 body: JSON.stringify(userData)
             })
             .then(response => {
-                if (response.ok) {
+                if (!response.ok) {
+                    throw new Error("Fehler beim Login auf der Webseite");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.userID) {
+                    localStorage.setItem('loggedInUserID', data.userID);
+                    console.log("message: " + data.message);
+                    console.log("data.userID: " + data.userID);
+                    console.log("data.userID: " + data);
+                    console.log("loggedInUserID: " + localStorage.getItem('loggedInUserID', data.userID));
                     alert("Login erfolgreich");
+
+                    window.location.href = "http://localhost:8000/profile";
                 } else {
-                    alert("Fehler beim Login auf dem Server");
+                    console.log("message: " + data.message);
+                    console.log("data.userID: " + data.userID);
+                    console.log("data.userID: " + data);
+                    console.log("loggedInUserID: " + localStorage.getItem('loggedInUserID', data.userID));
+                    alert("Login fehlgeschlagen: " + (data.message || "Ungültige Anmeldedaten"));
                 }
             })
             .catch(err => {
                 console.error("Netzwerkfehler: " + err);
+                alert("Login fehlgeschlagen, überprüfe die Anmeldedaten");
             });
         }
 
@@ -354,6 +372,11 @@
         }
         
         document.addEventListener("DOMContentLoaded", () => {
+            const savedUserID = localStorage.getItem('loggedInUserID');
+            if (savedUserID) {
+                //window.location.href = "http://localhost:8000/profile";
+            }
+
             const submitBtn = document.getElementById("submitBtn");
             if (submitBtn) {
                 submitBtn.addEventListener("click", submitLogin
