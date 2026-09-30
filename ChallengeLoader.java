@@ -10,11 +10,39 @@ public class ChallengeLoader {
     //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
     public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
 
-    public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db für upload auf der webseite und gibt als json zurück
-        List<ChallengeData> liste = new ArrayList<>();
-        int loggedInUserId = UserSession.getCurrentUserID();
+    public static List<Integer> getChallengeIDFromChallengeUserTable() { //bekommt challengeID mit status 1
+        int userID = UserSession.getCurrentUserID();
+        List<Integer> challengeIDs = new ArrayList<>(); 
+        String sqlQueryGetChallengeID = "SELECT challengeID FROM challengeUserTable WHERE userID = ? AND status = 1";
 
-        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, goal, pictureChallenge, picture_reward FROM challenges";
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetChallengeID)) {
+                pstmt.setInt(1, userID);
+
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    challengeIDs.add(rs.getInt("challengeID"));
+                    
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        return challengeIDs;
+    }
+
+    //funktion, die status anzeigt
+    public static List<Integer> getStatusesFromDB() {
+        List<Integer> statuses = new ArrayList<>();
+        return statuses;
+    }
+
+    public static List<ChallengeData> getDatenAusDBToUpload() {//nimmt daten aus db für upload auf der webseite und gibt als json zurück
+        //status aus challengeUserTable bekommen für user und nur für users challenges anzeigen
+        //zeigt alle verfügbare challenges an
+        List<ChallengeData> liste = new ArrayList<>();
+        //int loggedInUserId = UserSession.getCurrentUserID();
+
+        String sqlAbfrage = "SELECT challengeID, challengeName, challengeDescription, challengeStartDate, challengeEndDate, goal, pictureChallenge, pictureReward FROM challenges";
         //String sqlAbfrageForStaus = "SELECT status FROM challengeUserTable WHERE userId = ? AND challengeID = ?";
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
@@ -28,10 +56,10 @@ public class ChallengeLoader {
                         rs.getString("challengeDescription"), 
                         rs.getString("challengeStartDate"), 
                         rs.getString("challengeEndDate"), 
-                        rs.getInt("status"), 
+                        //rs.getInt("status"), 
                         rs.getInt("goal"),
                         rs.getString("pictureChallenge"),
-                        rs.getString("picture_reward")
+                        rs.getString("pictureReward")
                     ));
                 }
             } catch (SQLException e) {

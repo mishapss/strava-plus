@@ -223,7 +223,7 @@
             //console.log(imgPath);
 
             completed.forEach(challenge => {//baut dynamische challenge karte für webseite
-                let imgPath = (challenge.imagePathReward || challenge.picture_reward || '');
+                let imgPath = (challenge.imagePathReward || challenge.pictureReward || '');
 
                 const card = document.createElement('div');
                 card.className = 'reward-card';
