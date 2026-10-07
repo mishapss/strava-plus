@@ -1,211 +1,36 @@
 @startuml name
 left to right direction
 
-skinparam packageStyle rectangle
-skinparam shadowing false
-skinparam actorStyle stickman
-
-
 ' --- AKTEURE LINKS ---
 actor User
-actor Entwickler
-actor Server
-actor Analysesoftware
 
 
 rectangle Strava-Plus {
-
-  
-  Entwickler -- (Neue Herausforderung erstelle und in DB speichern)
-
-  (Trainigsdaten in der DB speichern)
-  (Trainingsdatei an den Server zur Analyse schicken)
-
-  ' Registrierung und Login
-  (Registrierung der User) .> (Daten angeben) : include
-  (sich einlogen) .> (Anmeldedate angeben) : include
-  (Daten entgegennehmen) ..> (Daten Prüfen) : include
-  
-  
-  (Herausforderungen dem User anzeigen) ..> (Daten der Herausforderungen aus DB nehmen) : include
-
-   ' Analysekette
-  (Trainingsdatei analysieren) ..> (Trainingsdatei entgegennehmen) : include
-  (Trainingsdatei entgegennehmen) ..> (Daten aus der Trainingsdatei auslesen) : include
-  (Daten aus der Trainingsdatei auslesen) .> (Daten aus der Trainingsdatei analysieren) : include
-  (Daten aus der Trainingsdatei analysieren) .> (analysierte Daten an den Server schicken) : include
-
-  
-    
-
-  (Traingsdaten auf der Trainingsseite anzeigen) ...> (Analysesoftware bearbeitet die Daten ) : <<extend>>
-  note   on link
-    <i>condition:</i>
-    {Analyse lief fehlerlos ab}
-    <i>extension point:</i>
-    Server fragt die Analysedaten ab
-  end note
-
-  ("erfolglose Analyse" Nachricht an User senden) ...> (Analysesoftware analysiert das Training) : <<extend>>
-  note   on link
-    <i>condition:</i>
-    {Analyse ist fehlgeschlagen}
-    <i>extension point:</i>
-    Analysesoftware beendet die Analyse
-  end note
-
-  (UserID in DB speichern) ...> (Server prüft auf den Klick) : <<extend>>
-  note   on link
-    <i>condition:</i>
-    {User klickt auf "beim Herausforderung mitmachen"}
-    <i>extension point:</i>
-    User klickt auf "beim Herausforderung mitmachen"
-  end note
-
-  (Abzeichnung auf der Abzeichnungsseite anzeigen) ...> (Server fragt DB nach abgeschlossenen Challenge) : <<extend>>
-  note   on link
-    <i>condition:</i>
-    {User hat Challenge abgeschlossen}
-    <i>extension point:</i>
-    User geht auf die Abzeichnungsseite
-  end note
-
-  (Die Userdaten auf der Profileseite anzeigen) ...> (Server fragt DB nach Userdaten) : <<extend>>
-  note   on link
-    <i>condition:</i>
-    {User hat sich angemeldet}
-    <i>extension point:</i>
-    User geht auf die Profileseite
-  end note
-
-  package "Anmeldung" {
-    ("erfolglose Anmeldung" Nachricht an User schicken) ...> (Server prüft Anmeldedaten) : <<extend>>
-    note  on link
-      <i>condition:</i>
-      {Anmeldedaten sind falsch}
-      <i>extension point:</i>
-      Server prüft Anmeldedaten
-    end note
-
-    ("erfolgreiche Anmeldung" Nachricht an User schicken) ...> (Server prüft Anmeldedaten)  : <<extend>>
-    note  on link
-      <i>condition:</i>
-      {Anmeldedaten sind richtig}
-      <i>extension point:</i>
-      Server prüft Anmeldedaten
-    end note
-
-    (User zur Profileseite weiterleiten) <. ("erfolgreiche Anmeldung" Nachricht an User schicken) : include
-  }
-
-  package "Registrierung" {
-      ("ungültige Registrierungsdaten" Nachricht an User schicken) ...> (Server prüft Registrierungsdaten) : <<extend>>
-    note on link
-      <i>condition:</i>
-      {Registrierung fehlgeschlagen}
-      <i>extension point:</i>
-      Server prüft Registrierungsdaten
-    end note
-
-    ("erfolgreiche Registrierung" Nachricht an User schicken) ...> (Server prüft Registrierungsdaten) : <<extend>>
-    note  on link
-      <i>condition:</i>
-      {Registrierung ist nicht fehlgeschlagen}
-      <i>extension point:</i>
-      Server prüft Registrierungsdaten
-    end note
-  }
-
-  package "Seiten anzeigen" {
-      (Die Wikiseite dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Wikiseite}
-      <i>extension point:</i>
-      User geht auf die Wikiseite
-    end note
-
-    (Die Trainingsseite dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Trainingsseite}
-      <i>extension point:</i>
-      User geht auf die Trainingsseite
-    end note
-
-    (Die Herausforderungsseite  dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Herausforderungsseite }
-      <i>extension point:</i>
-      User geht auf die Herausforderungsseite 
-    end note
-
-    (Die Abzeichnungsseite  dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Abzeichnungsseite }
-      <i>extension point:</i>
-      User geht auf die Abzeichnungsseite 
-    end note
-
-    (Die Profileseite  dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Profileseite }
-      <i>extension point:</i>
-      User geht auf die Profileseite 
-    end note
-
-    (Die Registrierungsseite  dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Registrierungsseite }
-      <i>extension point:</i>
-      User geht auf die Registrierungsseite 
-    end note
-
-    (Die Loginseite  dem User anzeigen) ...> (Server prüft, wo user sich befindet) : <<extend>>
-    note   on link
-      <i>condition:</i>
-      {user befindet sich auf der Loginseite }
-      <i>extension point:</i>
-      User geht auf die Loginseite 
-    end note 
+  (Abzeichnungen ansehen)
+  package challenge {
+    (Challenges ansehen)
+    (beim challenge mitmachen)
   }
   
+  (sich anmelden)
+  (Trainingsdatei zur Analyse schicken)
+  package Profile {
+    (Profildaten angucken)
+    (Profildaten ändern)
+  }
+  
+  (sich registrieren)
+  (FAQ ansehen)
+
 }
-
-' --- AKTEURE RECHTS ---
-
-
-' --- AKTEUR-BEZIEHUNGEN ---
-User -- (Registrierung der User)
-User -- (Trainingsdatei an den Server zur Analyse schicken)
-User -- (sich einlogen)
-
-Analysesoftware --> (Trainingsdatei analysieren)
-Analysesoftware -->  (Trainigsdaten in der DB speichern)
-
-Server -- (Die Wikiseite dem User anzeigen)
-Server -- (Die Herausforderungsseite  dem User anzeigen)
-Server -- (Die Abzeichnungsseite  dem User anzeigen)
-Server -- (Die Profileseite  dem User anzeigen)
-Server -- (Die Registrierungsseite  dem User anzeigen)
-Server -- (Die Loginseite  dem User anzeigen)
-Server -- (Die Trainingsseite dem User anzeigen)
-
-Server -- (Daten entgegennehmen) 
-Server -- ("erfolglose Anmeldung" Nachricht an User schicken)
-Server -- ("erfolgreiche Anmeldung" Nachricht an User schicken)
-Server -- ("erfolgreiche Registrierung" Nachricht an User schicken)
-Server -- ("ungültige Registrierungsdaten" Nachricht an User schicken)
-Server -- (User zur Profileseite weiterleiten)
-Server -- (Traingsdaten auf der Trainingsseite anzeigen)
-Server -- ("erfolglose Analyse" Nachricht an User senden)
-Server -- (Herausforderungen dem User anzeigen)
-Server -- (UserID in DB speichern)
-Server -- (Abzeichnung auf der Abzeichnungsseite anzeigen)
-Server -- (Die Userdaten auf der Profileseite anzeigen)
+User "1..*" --- "1 ..*" (Abzeichnungen ansehen)
+User "1..*" --- "1..*" (Challenges ansehen)
+User "0..*" --- "0..*" (beim challenge mitmachen)
+User "1" --- "0..*" (sich anmelden)
+User "1" --- "0..*" (Trainingsdatei zur Analyse schicken)
+User "1..*" --- "1" (Profildaten angucken)
+User "1..*" --- "1..*" (Profildaten ändern)
+User "1" --- "1" (sich registrieren)
+User "1..*" --- "1..*" (FAQ ansehen)
 
 @enduml

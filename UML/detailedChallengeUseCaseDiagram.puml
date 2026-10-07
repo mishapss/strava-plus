@@ -1,0 +1,18 @@
+@startuml name
+left to right direction
+
+actor User
+
+rectangle Strava-Plus {
+
+package "Challengeseite" {
+    
+    (Challgenges ansehen) ..> (Challengeseite aufrufen) : <<include>>
+    (beim challenge mitmachen) ..> ('beim challenge teilnehmen' drücken) : <<include>>
+    
+    }
+}
+User "1..*" -- "1..*" (Challgenges ansehen)
+User "0..*" -- "0..*" (beim challenge mitmachen)
+@enduml
+

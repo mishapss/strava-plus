@@ -10,7 +10,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.io.IOException;
 
 public class FileUploader {
-    //private static final String BASE_URL = "http://localhost:8000/notes";                         // URL-Addresse des Servers, an den wir etwas schicken (Variable)
+    //private static final String BASE_URL = "http://localhost:8000/notes";                         // URL-Addresse  des Servers, an den wir etwas schicken (Variable)
     private static final String HTML_URL = "http://localhost:8000/upload-html";
     //private static final String BOUNDARY = "boundary";                                            // string für multipart/form-data, der die teile der datei trennt (notwendig bei multipart/form-data) (Variable)
 

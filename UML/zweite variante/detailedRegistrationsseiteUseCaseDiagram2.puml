@@ -1,0 +1,74 @@
+@startuml name
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor User
+actor frontend
+actor Server
+actor backend
+actor DB
+
+rectangle Strava-Plus {
+
+
+
+package "Registrationsseite" {
+    'user
+    (auf die Registrationsseite gehen)
+
+    'frontend seite bearbeiten
+    (Registrationsseite anzeigen 'frontend') ..> (Userdaten entgegennehmen) : <<include>>
+    (Userdaten entgegennehmen) ..> (Daten prüfen) : <<include>>
+    (Daten prüfen) <.. (Fehlermeldung dem User senden) : <<extend>>
+    note on link
+            <i>condition:</i>
+            {User gibt ungültige Daten}
+            <i>extension point:</i>
+            frontend validiert Angabefelder
+    end note
+    (Daten prüfen) <. (Daten an den Server senden) : <<extend>>
+    note on link
+        <i>condition</i>
+        {User gibt gültige Daten}
+        <i>extension point:</i>
+        frontend validiert Angabefelder
+    end note
+    
+    (Antwort vom Server bekommen) ..> (Antwort dem User zeigen): <<include>>
+    
+    'server seite bearbeiten
+    (Registrationsseite anzeigen 'server') ..> (Daten vom frontend bekommen) : <<include>>
+    
+    (Daten an backend senden)
+    (Antwort vom backend erhalten) ..> (Erfolgsnachricht an den frontend senden) : <<include>> 
+
+    'backend seite bearbeiten
+    (Daten bearbeiten) ..> (Daten vom Server bekommen) : <<include>>
+    (Daten vom Server bekommen) ..> (Daten an DB senden) : <<include>>
+    (Erfolgsnachricht an den Server senden)
+
+    'DB seite bearbeiten
+    (Daten vom backend bekommen) ..> (Daten specihern) : <<include>>
+    
+    
+    }
+}
+User "1..*" -- "1..*" (auf die Registrationsseite gehen)
+
+frontend "1" -- "1..*" (Registrationsseite anzeigen 'frontend')
+frontend "1" -- "1..*" (Antwort vom Server bekommen)
+
+Server "1" -- "1..*" (Registrationsseite anzeigen 'server')
+Server "1" -- "1..*" (Daten an backend senden)
+Server "1" -- "1..*" (Antwort vom backend erhalten)
+
+backend "1" -- "1..*" (Daten bearbeiten)
+backend "1" -- "1..*" (Erfolgsnachricht an den Server senden)
+
+DB "1" -- "1..*" (Daten vom backend bekommen)
+
+@enduml
+

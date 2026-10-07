@@ -1,0 +1,114 @@
+@startuml name
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor User
+actor frontend
+actor Server
+actor backend
+actor DB
+
+rectangle Strava-Plus {
+
+
+
+package "Loginseite" {
+    package "Loginseite laden" {
+    'user
+    (auf die Loginseite gehen)
+
+    'frontend seite laden
+    (Loginseite anzeigen 'frontend') ..> (Daten in passender Form darstellen) : <<include>>
+    }
+    package "Anmeldedaten bearbeiten" {
+        'user
+        (Anmeldedaten angeben)
+
+        'frontend
+        (Userdaten entgegennehmen)
+        (Userdaten auf Gültigkeit prüfen) <.. (Fehlermeldung dem User anzeigen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind ungültig}
+            <i>extension point:</i>
+            frontend prüft die Daten nach Gültigkeit
+        end note
+        (Userdaten auf Gültigkeit prüfen) <. (Anmeldedaten an den server schicken) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind gültig}
+            <i>extension point:</i>
+            frontend prüft die Daten nach Gültigkeit
+        end note
+        (Anmeldedaten an den server schicken)
+        (Antwort vom Server bekommen) <.. (Erfolgsnachricht dem User zeigen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind richtig}
+            <i>extension point:</i>
+            Erfolgsnachricht bekommen
+        end note
+        (Antwort vom Server bekommen) <.. (Erfolglosenachricht dem User zeigen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind falsch}
+            <i>extension point:</i>
+            Erfolgsnachricht bekommen
+        end note
+        (Erfolgsnachricht dem User zeigen) .> (den User an Profileseite weiterleiten) : <<include>>
+
+        'Server
+        (Anmeldedaten bearbeiten 'server') ..> (Anmeldedaten an backend senden) : <<include>>
+        (Antwort vom backend erhalten) 
+        (Antwort an frontend senden)
+
+        'backend
+        (Anmeldedaten bearbeiten 'backend') ..> (Anmeldedaten entgegennehmen) : <<include>>
+        
+        (Anfrage an DB senden) 
+        (Daten von DB bekommen)
+        (Anmeldedaten vergleichen) <.. (Erfolgsnachricht an Server senden): <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind gleich}
+            <i>extension point:</i>
+            backend hat Anmeldedaten verglichen
+        end note
+        (Anmeldedaten vergleichen) <. (Erfolglosenachricht an Server senden): <<extend>>
+        note on link
+            <i>condition:</i>
+            {Anmeldedaten sind ungleich}
+            <i>extension point:</i>
+            backend hat Anmeldedaten verglichen
+        end note
+
+        'DB
+        (Daten bearbeiten) ..> (Anfrage vom backend bekommen) : <<include>>
+        (Anfrage vom backend bekommen) ..> (Anmeldedaten für bestimmten Nutzer an backend senden) : <<include>>
+
+    }
+    }
+}
+User "1..*" -- "1" (auf die Loginseite gehen)
+User "1..*" -- "1..*" (Anmeldedaten angeben)
+
+frontend "1" -- "1" (Loginseite anzeigen 'frontend')
+frontend "1" -- "1..*" (Userdaten entgegennehmen)
+frontend "1" -- "1..*" (Userdaten auf Gültigkeit prüfen)
+frontend "1" -- "1..*" (Antwort vom Server bekommen)
+
+Server "1" -- "1..*" (Anmeldedaten bearbeiten 'server')
+Server "1" -- "1..*" (Antwort vom backend erhalten) 
+Server "1" -- "1..*" (Antwort an frontend senden)
+
+backend "1" -- "1..*" (Anmeldedaten bearbeiten 'backend')
+backend "1" -- "1..*" (Anfrage an DB senden)
+backend "1" -- "1..*" (Daten von DB bekommen)
+backend "1" -- "1..*" (Anmeldedaten vergleichen)
+
+DB "1" -- "1..*" (Daten bearbeiten)
+@enduml
+

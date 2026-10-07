@@ -1,60 +1,14 @@
 @startuml name
 left to right direction
 
-skinparam packageStyle rectangle
-skinparam shadowing false
-skinparam actorStyle stickman
-
 actor User
-actor frontend
-actor Server
-actor backend
 
 rectangle Strava-Plus {
-
-package "Registrationsverfahren" {
-  'user
-  (Registrierung des Users) ..> (Registrationsdaten eingeben) : include
-
-  'frontend
-  (Registration durchführen 'Frontendseite') ..> (Registrationsdaten entgegennehmen) : <<include>>
-  (Registrationsdaten entgegennehmen) ..> (Registrationsdaten an den Server senden) : include
-  (Registrationsdaten an den Server senden) .> (Antwort von dem Server bekommen) : include
-  (Antwort von dem Server bekommen) .> (Antwort dem User anzeigen) : include
-
-  'server
-  (Registration durchführen 'Serverseite') ..> (Registrationsdaten bekommen) : <<include>>
-  (Registrationsdaten bekommen) ..> (Registrationsdaten an den backend senden) : include
-  (Registrationsdaten an den backend senden) ..> (Antwort vom backend bekommen) : <<include>>
-  (Antwort vom backend bekommen) .> (Antwort an frontend weiterleiten) : include
-
-  'backend
-  (Registration durchführen 'Backendseite') ..> (Registrationsdaten vom Server bekommen) : <<include>> 
-  (Registrationsdaten vom Server bekommen) ..>  (Registrationsdaten prüfen) : <<include>> 
-  (Registrationsdaten prüfen) ..> (Name, Nachname, Alter, Gecschlecht, Gewicht, Größe, maxHR, RHR, Username und Passwort prüfen) : include
-
-  (Backend prüft Registrationsdaten) <.. ("erfolglose Nachricht" als Antwort an den Server senden) : <<extend>>
-  note on link
-    <i>condition:</i>
-    {Es wurde ein Fehler in den Registrationdaten gefunden}
-    <i>extension point:</i>
-    Backend hat die Daten geprüft
-  end note
-  (Backend prüft Registrationsdaten) <. ("erfolgreiche Nachricht" als Antwort an den Server senden) : <<extend>>
-  note on link
-    <i>condition:</i>
-    {Es wurde kein Fehler in den Registrationdaten gefunden}
-    <i>extension point:</i>
-    Backend hat die Daten geprüft
-  end note
-  }  
+  package "Registrationsverfahren" {
+    'user
+    (Sich registrieren) ..> (Daten angeben) : <<include>>
+    (Daten angeben) ..> (Registrationsseite aufrufen) : <<include>>
+   }  
 }
-User -- (Registrierung des Users)
-
-frontend -- (Registration durchführen 'Frontendseite')
-
-backend -- (Registration durchführen 'Backendseite')
-backend -- (Backend prüft Registrationsdaten)
-
-Server -- (Registration durchführen 'Serverseite')
+User "1" -- "1" (Sich registrieren)
 @enduml

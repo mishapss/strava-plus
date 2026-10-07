@@ -1,0 +1,14 @@
+@startuml name
+left to right direction
+
+actor User
+
+rectangle Strava-Plus {
+package "Loginseite" {
+    'user
+    (FAQ ansehen) ..> (auf die Wikiseite gehen) : <<include>>
+    }    
+}
+User "1..*" -- "1..*" (FAQ ansehen)
+@enduml
+

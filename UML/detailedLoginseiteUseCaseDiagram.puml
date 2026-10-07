@@ -1,0 +1,16 @@
+@startuml name
+left to right direction
+
+actor User
+
+rectangle Strava-Plus {
+
+package "Loginseite" {
+    'user
+    (Sich anmelden) ..> (Anmeldedaten eingeben) : <<include>>
+    (Anmeldedaten eingeben) ..> (Loginseite aufrufen) : <<include>>
+    }
+}
+User "1" -- "0..*" (Sich anmelden)
+@enduml
+

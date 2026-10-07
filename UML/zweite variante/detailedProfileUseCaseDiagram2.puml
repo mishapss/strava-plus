@@ -1,0 +1,89 @@
+@startuml name
+left to right direction
+
+actor User
+actor frontend
+actor Server
+actor backend
+actor DB
+
+rectangle Strava-Plus {
+
+
+
+package "Profilseite" {
+    package "Profilseite laden" {
+    'user
+    (auf die Profilseite gehen)
+
+    'frontend seite laden
+    (Profilseite anzeigen 'frontend') ..> (Anfrage an den Server senden) : include
+    (Daten über Profilseite vom Server bekommen) ..> (Daten in passende Form darstellen) : include
+
+    'server seite laden
+    (Profilseite anzeigen 'server') ..> (Anfrage vom frontend bekomen) : <<include>>
+    (Anfrage vom frontend bekomen) ..> (Daten an frontend senden) : <<include>>
+    }
+    package "Userdaten auf der Seite anzeigen" {
+        'frontend
+        (Userdaten darstellen) ..> (Anfrage an den server schicken) : <<include>>
+        
+        (Daten vom Server bekomen) <.. (Daten vom Server in passender Form darstellen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Antwort "User angemeldet" bekommen}
+            <i>extension point:</i>
+            frontend bekommt Antwort vom Server
+        end note
+
+        (Daten vom Server bekomen) <.. (Dem User sagen, dass er nicht angemeldet ist) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {Antwort "User nicht angemeldet" bekommen}
+            <i>extension point:</i>
+            frontend bekommt Antwort vom Server
+        end note
+
+        'Server
+        (Userdaten bereitstellen) ..> (Server prüft nach Anmeldung) : <<include>> 
+        (Server prüft nach Anmeldung) <. (Anfrage an DB durch backend weiterleiten) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {User ist angemeldet}
+            <i>extension point:</i>
+            Server prüft nach Anmeldung
+        end note
+        'User angemeldet, alles läuft gut
+        (Anfrage an DB durch backend weiterleiten)
+        (Daten vom DB für bestimmten Nutzer bekommen) .> (Userdaten an frontend senden) : <<include>>
+
+        (Server prüft nach Anmeldung) <.. ("User nicht angemeldet" als Antwort an frontend senden) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {User ist nicht angemeldet}
+            <i>extension point:</i>
+            Server prüft nach Anmeldung
+        end note
+
+        
+        (Daten für bestimmten Nutzer bereitstellen)
+
+    }
+    }
+}
+User "1..*" -- "1..*" (auf die Profilseite gehen)
+
+frontend "1" -- "1..*" (Profilseite anzeigen 'frontend')
+frontend "1" -- "1..*" (Userdaten darstellen)
+frontend "1" -- "1..*" (Daten über Profilseite vom Server bekommen)
+frontend "1" -- "1..*" (Daten vom Server bekomen)
+
+Server "1" -- "1..*" (Profilseite anzeigen 'server')
+Server "1" -- "1..*" (Userdaten bereitstellen)
+Server "1" -- "1..*" (Daten vom DB für bestimmten Nutzer bekommen)
+
+DB "1" -- "1..*" (Daten für bestimmten Nutzer bereitstellen)
+
+backend "1" -- "1..*" (Anfrage an DB durch backend weiterleiten)
+@enduml
+

@@ -1,47 +1,16 @@
 @startuml name
 left to right direction
 
-skinparam packageStyle rectangle
-skinparam shadowing false
-skinparam actorStyle stickman
-
 actor User
-actor Server
-actor frontend
-actor backend
 
 rectangle Strava-Plus {
 
 package "Trainingsdatei bearbeiten" {
   'user
-  (Trainingsdatei zur Analyse schicken)
-
-  'frontend
-  (Die Trainingsdatei entgegennehmen) ..> (Trainingsdatei an den Server schicken) : include 
-  (Trainingsdatei an den Server schicken) ..> (analysierte Daten vom Server empfangen) : include
-  (analysierte Daten vom Server empfangen) ..> (analysierte Daten dem User in passende Form darstellen) : include
-
-  'server
-  (Die Trainingsdatei empfangen) ..> (Trainingsdatei an den Backend senden) : include
-  (Trainingsdatei an den Backend senden) ..> (analysierte Daten empfangen) : include
-  (analysierte Daten empfangen) ..> (analysierte Daten an Frontend senden) : include
-
-  'backend
-  (Trainingsdatei empfangen und analysieren) ..> (Trainingsdatei entgegennehmen) : include
-  (Trainingsdatei entgegennehmen) ..> (Daten aus der Trainingsdatei auslesen) : includel
-  (Daten aus der Trainingsdatei auslesen) ..> (Daten aus der Trainingsdatei analysieren) : include
-  (Daten aus der Trainingsdatei analysieren) .> (analysierte Daten an den Server schicken) : include
-  
-  (Trainigsdaten in der DB speichern)
+  (Trainingsdatei zur Analyse schicken) ..> (Traininsseite aufrufen) : <<include>>
   }  
 }
 
-frontend -- (Die Trainingsdatei entgegennehmen)
+User "1" -- "0..*" (Trainingsdatei zur Analyse schicken)
 
-backend -- (Trainingsdatei empfangen und analysieren)
-backend --  (Trainigsdaten in der DB speichern)
-
-User -- (Trainingsdatei zur Analyse schicken)
-
-Server -- (Die Trainingsdatei empfangen)
 @enduml

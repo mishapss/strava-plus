@@ -4,7 +4,7 @@ import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Serve
 
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
-import java.net.InetSocketAddress; // um die addresse und den Port zu definieren
+import java.net.InetSocketAddress; // um die addresse und den Port zu definieren 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 

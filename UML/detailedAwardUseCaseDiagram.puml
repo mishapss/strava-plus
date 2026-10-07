@@ -1,0 +1,18 @@
+@startuml name
+left to right direction
+ 
+actor User
+
+rectangle "Strava-Plus" {
+    package "Abzeichnungsseite" {
+        (Abzeichnungen einsehen)
+        (Abzeichnungsseite aufrufen)
+        
+        ' Das Einsehen schließt das Aufrufen der Seite ein
+        (Abzeichnungen einsehen) .> (Abzeichnungsseite aufrufen) : <<include>>
+    }
+}
+
+User "1..*" -- "1 ..*" (Abzeichnungen einsehen)
+
+@enduml

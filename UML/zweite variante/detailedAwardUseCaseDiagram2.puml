@@ -1,0 +1,47 @@
+@startuml name
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle stickman
+
+actor User
+actor frontend
+actor Server
+
+rectangle Strava-Plus {
+
+package "Abzeichnunsseite" {
+    package "Abzeichnunsseite laden" {
+        'user
+        (auf die Abzeichnunsseite gehen)
+
+        'frontend seite laden
+        (Abzeichnunsseite anzeigen 'frontend') ..> (Anfrage an den Server senden) : include
+        
+        (Daten über Abzeichnungen vom Server bekommen) 
+        (Daten in passende Form darstellen)
+
+        'server seite laden
+        (Abzeichnunsseite anzeigen 'server') ..> (Anfrage vom frontend bekomen) : <<include>>
+        
+        (Anfrage an DB senden) ..> (Daten von der DB für bestimmten Nutzer bekommen) : <<include>>
+        (Daten von der DB für bestimmten Nutzer bekommen) .> (Daten an den frontend senden) : <<include>>
+
+        'DB
+        (Daten für bestimmten Nutzer bereitstellen)
+    }
+    }
+}
+User -- (auf die Abzeichnunsseite gehen)
+
+frontend "1" -- "1" (Abzeichnunsseite anzeigen 'frontend')
+frontend "1" -- "0..*" (Daten über Abzeichnungen vom Server bekommen)
+frontend "1" -- "0..*" (Daten in passende Form darstellen)
+
+Server "1" -- "1" (Abzeichnunsseite anzeigen 'server')
+Server "1" -- "1..*" (Anfrage an DB senden)
+
+DB "1" -- "1..*" (Daten für bestimmten Nutzer bereitstellen)
+@enduml
+

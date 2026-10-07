@@ -1,0 +1,17 @@
+@startuml name
+left to right direction
+
+actor User
+
+rectangle Strava-Plus {
+
+package "Profilseite" {
+    'user
+    (Profildaten angucken) ..> (auf die Profilseite gehen) : <<include>>
+    (Profildaten ändern) ..> (auf die Profilseite gehen) : <<include>>   
+    }
+}
+User "1..*" -- "1" (Profildaten angucken)
+User "1..*" -- "1..*" (Profildaten ändern)
+@enduml
+

@@ -1,0 +1,31 @@
+@startuml name
+left to right direction
+
+actor User
+actor frontend
+actor Server
+
+rectangle Strava-Plus {
+
+package "Trainingsseite" {
+    'user
+    (auf die Trainingsseite gehen) 
+
+    'frontend
+    (Trainingsseite anzeigen 'frontend') ..> (Anfrage an den Server senden) : include
+    
+    (Kartendaten vom Server bekommen) ..> (Karte darstellen) : include
+    
+    'server
+    (Trainingsseite anzeigen 'Server') ..> (Anfrage vom frontend bekommen) : include
+    (Kartendaten an Frontend senden)
+  }    
+}
+User "1" -- "1" (auf die Trainingsseite gehen)
+
+frontend "1" -- "1" (Trainingsseite anzeigen 'frontend')
+frontend "1" -- "1..*" (Kartendaten vom Server bekommen)
+
+Server "1" -- "1" (Trainingsseite anzeigen 'Server')
+Server "1" -- "1..*" (Kartendaten an Frontend senden)
+@enduml

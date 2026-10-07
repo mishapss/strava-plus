@@ -13,5 +13,8 @@
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\bcprov-jdk18on-1.78.1.jar",
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-dataformat-xml-2.17.0.jar",
         "c:\\Users\\MikhailLeshchenko\\strava_plus\\lib\\jackson-annotations-2.17.0.jar"
-    ]
+    ],
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": true,
+    "files.eol": "\n"
 }

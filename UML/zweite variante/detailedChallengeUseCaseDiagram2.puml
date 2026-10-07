@@ -1,0 +1,94 @@
+@startuml name
+left to right direction
+
+actor User
+actor frontend
+actor Server
+actor backend
+
+rectangle Strava-Plus {
+
+package "Challengeseite" {
+    package "challengeseite laden" {
+    'user
+    (auf die Challengeseite gehen)
+
+    'frontend seite laden
+    (Challengeseite anzeigen 'frontend') ..> (Anfrage an den Server 'Challengeseite' senden) : include
+    (Anfrage an den Server 'Challengeseite' senden)
+    (Daten über Challenges vom Server bekommen) ..> (Daten in passende Form darstellen) : include
+
+    'server seite laden
+    (Challengeseite anzeigen 'server') ..> (Anfrage vom frontend bekomen) : <<include>>
+    (Anfrage vom frontend bekomen) 
+    (Anfrage an DB senden)
+    (Daten von der DB für bestimmten Nutzer bekommen) ..> (Daten an den frontend senden) : <<include>>
+
+    }
+    package "User für challenge anmelden" {
+        (beim Challenge teilnehmen) ..> (auf den Knopf 'beim challenge teilnehmen' drücken) : <<include>>
+
+        'frontend
+        'user für challenge registrieren
+        (den user beim challenge registrieren 'frontend') ..> (frontend wartet auf den Klick auf Knopf) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {User drückte den Knopf}
+            <i>extension point:</i>
+            User drückt den Knopf
+        end note
+        'prüfung zur anmeldung einfügen
+        (den user beim challenge registrieren 'frontend') ..> (Anfrage an den Server senden) : <<include>>
+        (Anfrage an den Server senden)
+        (neu Daten und Antwort von Server bekommen)
+        (neu Daten darstellen und dem User antworten) ..> (Zusage-Antwort dem User senden) : <<include>>
+        (neu Daten darstellen und dem User antworten) ..> (Absage-Antwort dem User senden) : <<include>>
+        (Zusage-Antwort dem User senden) .> (den User auf Anmeldung prüfen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {User ist angemeldet}
+            <i>extension point:</i>
+            Server bekommt Anfrage vom Frontend
+        end note
+        (Absage-Antwort dem User senden) .> (den User auf Anmeldung prüfen) : <<extend>>
+        note on link
+            <i>condition:</i>
+            {User ist nicht angemeldet}
+            <i>extension point:</i>
+            Server bekommt Anfrage vom Frontend
+        end note
+
+        'Server
+        'user für challenge registrieren
+        (den user beim challenge registrieren 'server') ..> (Anfrage vom frontend bekommen) : <<include>>
+        (Anfrage vom frontend bekommen) ..> (Anfrage an backend zur Wechselung der users Status senden) : <<include>>
+        (Anfrage an backend zur Wechselung der users Status senden) ..> (Antwort von backend bekommen) : <<include>>
+        (Antwort von backend bekommen) .> (Antwort und neu Daten an den frontend senden) : <<include>>
+
+        'backend
+        'user für challenge registrieren
+        (Anfrage vom server bekommen) ..> (status des users in DB wechseln) : <<include>>
+        (antwort an den server senden)
+
+    }
+    }
+}
+User "1..*" -- "1" (auf die Challengeseite gehen)
+User "0..*" -- "0..*" (beim Challenge teilnehmen)
+
+frontend "1" -- "1" (Challengeseite anzeigen 'frontend')
+frontend "1" -- "1..*" (den user beim challenge registrieren 'frontend')
+frontend "1" -- "1..*" (Daten über Challenges vom Server bekommen)
+frontend -- (neu Daten und Antwort von Server bekommen)
+frontend -- (neu Daten darstellen und dem User antworten)
+
+Server "1" -- "1" (Challengeseite anzeigen 'server')
+Server "1" -- "1..*" (den user beim challenge registrieren 'server')
+Server -- (Anfrage an DB senden)
+Server -- (Daten von der DB für bestimmten Nutzer bekommen)
+
+
+backend "1" -- "1..*" (Anfrage vom server bekommen)
+backend "1" -- "1..*" (antwort an den server senden)
+@enduml
+

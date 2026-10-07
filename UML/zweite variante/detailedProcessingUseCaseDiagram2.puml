@@ -1,0 +1,47 @@
+@startuml name
+left to right direction
+
+actor User
+actor Server
+actor frontend
+actor backend
+
+rectangle Strava-Plus {
+package "Trainingsdatei bearbeiten" {
+  'user
+  (Trainingsdatei zur Analyse schicken)
+
+  'frontend
+  (Die Trainingsdatei entgegennehmen 'frontend') ..> (Trainingsdatei an den Server schicken) : <<include>> 
+  
+  (analysierte Daten vom Server empfangen) ..> (analysierte Daten dem User in passende Form darstellen) : <<include>>
+
+  'server
+  (Die Trainingsdatei bearbeiten) ..> (Die Trainingsdatei empfangen) : <<include>>
+  (Die Trainingsdatei empfangen)
+  (Trainingsdatei an den Backend senden)
+  
+  (analysierte Daten vom backend empfangen) ..> (analysierte Daten an Frontend senden) : <<include>>
+
+  'backend
+  (Trainingsdatei empfangen und analysieren) ..> (Trainingsdatei entgegennehmen) : <<include>>
+  (Trainingsdatei entgegennehmen) ..> (Daten aus der Trainingsdatei auslesen) : <<include>>
+  (Daten aus der Trainingsdatei auslesen) ..> (Daten aus der Trainingsdatei analysieren) : <<include>>
+  (Daten aus der Trainingsdatei analysieren) .> (analysierte Daten an den Server schicken) : <<include>>
+  
+  (Trainigsdaten in der DB speichern)
+  }  
+}
+
+frontend "1" -- "1" (Die Trainingsdatei entgegennehmen 'frontend')
+frontend "1" -- "1..*" (analysierte Daten vom Server empfangen)
+
+backend "1" -- "1" (Trainingsdatei empfangen und analysieren)
+backend "1" -- "1..*" (Trainigsdaten in der DB speichern)
+
+User "1" -- "0..*" (Trainingsdatei zur Analyse schicken)
+
+Server "1" -- "1" (Die Trainingsdatei bearbeiten)
+Server "1" -- "1..*" (analysierte Daten vom backend empfangen)
+Server "1" -- "1..*" (Trainingsdatei an den Backend senden)
+@enduml
