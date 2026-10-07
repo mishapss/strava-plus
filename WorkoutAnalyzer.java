@@ -469,3 +469,14 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         }
     }
 }
+
+
+
+ 
+
+ 
+ 
+ 
+ 
+ 
+
