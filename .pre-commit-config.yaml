@@ -1,9 +1,8 @@
 ﻿repos:
-  
   - repo: local
     hooks: 
       - id: check-java-utf8
         name: Check Java files for valid UTF-8
         entry: python -c "import sys; [open(f, encoding='utf-8').read() for f in sys.argv[1:]]"
         language: python
-        files: \.java$
+        
