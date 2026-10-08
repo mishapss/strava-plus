@@ -23,3 +23,8 @@ How to use the app:
 3. Open the website: http://localhost:8000/upload-html
 4. Choose the GPX file of your bike ride.
 5. Click the button "Send to server".
+
+# important prerequisites for developing the code
+
+* Installed pre_commit (command to install: python -m pre_commit install)
+* Installed python 

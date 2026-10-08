@@ -460,10 +460,10 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
                 PreparedStatement pstmt = conn.prepareStatement(sqlQuerySaveNewElevation)) {
 
                 pstmt.setDouble(1, currentElevation);
-                pstmt.setInt(2, loggedUserID);
+                pstmt.setInt(2, loggedUserID);                              
                 pstmt.executeUpdate();
 
-            } catch (SQLException e) {
+            } catch (SQLException e) {                                  
                 e.printStackTrace();
             }
         }
@@ -479,4 +479,15 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
  
  
  
+
+
+
+  
+
+ 
+ 
+ 
+ 
+ 
+    
 

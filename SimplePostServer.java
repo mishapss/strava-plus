@@ -630,7 +630,11 @@ public class SimplePostServer{
                     challengeID = Integer.parseInt(query.split("=")[1]);
                 }
 
-                boolean userTeilnimmt = ChallengeLoader.challengePruefer(challengeID);
+                int userID = UserSession.getCurrentUserID(); //bekommt userID von angemeldeten user
+
+                boolean userTeilnimmt = ChallengeLoader.challengePruefer(challengeID, userID); 
+                
+                System.out.print(userTeilnimmt);
 
                 String jsonResponse = "{\"userTeilnimmt\": " + userTeilnimmt + "}";
 

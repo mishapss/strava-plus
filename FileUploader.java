@@ -33,7 +33,7 @@ public class FileUploader {
                 .POST(BodyPublishers.ofFile(filePath))                                              // POST-Methode mit Dateiinhalt
                 .build();                                                                           // erstellt endgültige httprequest objekt
 
-            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());          // sendet die anfrage und wartet auf antwort
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());          // sendet  die anfrage und wartet auf antwort
                                                                                                     // BodyHandlers.ofString() sagt, dass wir den Antwort als string bekommen wollen
             int statusCode = response.statusCode();                                                 // Variable um den Code der Antwort zu speichern
 

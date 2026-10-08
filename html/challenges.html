@@ -269,7 +269,7 @@
     window.addEventListener('DOMContentLoaded', uploadChallenges); //wartet bis die grundstruktur der html-seite geladen ist und dann ruft funktion auf
 
     function pruefeObTeilnehmer(challengeID, buttonElemnt) {
-        fetch('http://localhost:8000/api/check-participation?challengeID=' + challengeID)
+        fetch('http://localhost:8000/api/check-participation?challengeID=' + challengeID) 
         .then(response => {
             if (!response.ok) {
                 throw new Error("Server-Fehler: " + response.status);

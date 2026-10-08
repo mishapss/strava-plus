@@ -20,9 +20,9 @@ INSERT INTO challengeUserTable (
         progressValue, challengeProgress, goalDataType
     )
     VALUES 
-        c.challengeID, u.userID, 0, c.goal, 
+        (c.challengeID, u.userID, 0, c.goal, 
         c.challengeStartDate, c.challengeEndDate, 
-        0.0, 0.0, c.goalDataType
+        0.0, 0.0, c.goalDataType)
     FROM challenges c, users u
     WHERE c.challengeID = ? AND u.userID = ?;
     
