@@ -1,1 +1,0 @@
-asdpython -c "import sys; [open(f, encoding='utf-8').read() for f in sys.argv[1:]]"
