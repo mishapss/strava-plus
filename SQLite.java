@@ -352,7 +352,7 @@ public class SQLite {
         //1. challenge prüfen, ob er gemacht wird
         String sqlAbfrageKilometer = "SELECT goal, progressValue, challengeID, challengeProgress FROM challengeUserTable WHERE status = '1' AND goalDataType = 'km'";
 
-        class ChallengeData {
+        class ChallengeData {  
         int id;
         double progressValue;
         double goal;
