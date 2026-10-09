@@ -12,6 +12,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.ZoneId;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class XmlReader {
 
@@ -37,12 +42,30 @@ public class XmlReader {
     public static double calories;
     public static double aerobicTrainingEffect;
     public static double anaerobicTrainingEffect;
+    //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
+    public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
 
     public double getdistanceBetweenPointsGerundet() {
         return distanceBetweenPointsGerundet;
     }
 
+    public static boolean saveGpxToDB(int userID, String originalFileName, String filePath) {
 
+        String sql = "INSERT INTO user_files (userID, originalFileName, filePath) VALUES (?, ?, ?)";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userID);
+            pstmt.setString(2, originalFileName);
+            pstmt.setString(3, filePath);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public static Training loadGpx(String fileName) throws Exception { //lesen gpx
         File xmlFile = new File(fileName);                       //datei-objekt erstellen, öffnen                                   
@@ -88,7 +111,6 @@ public class XmlReader {
 
             // Превращаем текстовые строки в объекты времени Instant
             Instant startToParse = Instant.parse(startTimeString);
-            System.out.println(startToParse); //2026-06-29T16:33:35Z
             Instant endToParse = Instant.parse(endTimeString);
 
             //berechnung des datums
@@ -97,11 +119,9 @@ public class XmlReader {
             int year = date.getYear();
             int month = date.getMonthValue();
             
-            System.out.println("test zum monthausgabe");
-            System.out.println(String.format("%02d", month));
+
             
             int day = date.getDayOfMonth();
-            System.out.println("day: " + day + " month: " + month + " year: " + year);
             XmlReader.dateString = dateString;
 
 
@@ -192,10 +212,6 @@ public class XmlReader {
             maxHeartRate = analyzer.getMaxHr(trackPoints);
 
             //ausgabe
-            System.out.print(" average Speed: " + averageSpeedGerundet + " trainingsbelsatung: " + trainingLoad +
-            " distance: " + distanceBetweenPointsGerundet + " time: " + time + " maxHR: " + maxHeartRate
-            + " Anstieg: " + hoeheSummeGerundet + " max speed: " + maxGeschwindigkeitKmh + " activeTimeFormatted: " + activeTimeFormatted +
-            " average HR: " + averageHR + " calories: " + calories + "\n" );
             
             geoJsonData = buildGeoJsonForMap(trackPoints);       //wandelt die liste in geojson 
             System.out.println("JSON erzeugt!");
@@ -212,16 +228,17 @@ public class XmlReader {
 
             SQLite.updateChallengeProgressTage(dateString, distanceBetweenPointsGerundet, distanceBetweenPoints);
 
+            int loggedUserID = UserSession.getCurrentUserID();
+            SQLite.addDistanzToJahr(loggedUserID, distanceBetweenPoints);
 
             //einfügt die daten om training in datenbank
             int authorID = UserSession.getCurrentUserID();
-            System.out.print("authorID:" + authorID);
             int trainingID = SQLite.addTrainingDatenToDB(
                 dateString, distanceBetweenPoints, time, activeTimeFormatted, averageSpeed, maxGeschwindigkeitKmh, 
                 hoeheSumme, averageHR, maxHeartRate, trainingLoad, aerobicTrainingEffect, anaerobicTrainingEffect, calories, xmlFile.toString(), authorID);            
             
             //aktualisiert distanz im jahr
-            SQLite.addDistanzToJahr("Mischa", distanceBetweenPoints);
+            
 
 
             //hr daten vom training in db einfügen
@@ -288,7 +305,6 @@ public class XmlReader {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.print("test");
         String[] gpxFiles = {
                 "datenauswertung/radtraining/25.gpx",
                 "datenauswertung/radtraining/24.gpx",
@@ -317,7 +333,6 @@ public class XmlReader {
                 "datenauswertung/radtraining/1.gpx"
             };
 
-            //System.out.print(gpxFiles);
 
             //18-1
             double[] corosWerteAerob = {
@@ -353,7 +368,6 @@ public class XmlReader {
             int iterationen = 9000000;
             double[] optimaleFactors = FaktorSucher.optimizeFactorsAnaerob(datasetAnaerob, iterationen);
 
-            System.out.println("\n--- Gefundene optimale Gewichtungsfaktoren ---");
             for (int i = 0; i < optimaleFactors.length; i++) {
                 System.out.printf("Faktor f%d (Zone %d): %.4f%n", i, i, optimaleFactors[i]);
             }
@@ -428,7 +442,6 @@ public class XmlReader {
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();         //schön formatiertes json 
         String formattedJson = writer.writeValueAsString(list);                //java -> json string 
 
-        System.out.println(formattedJson);
     }
 
     public static String buildGeoJsonForMap(ArrayList<TrkPt> trackPoints) throws Exception {

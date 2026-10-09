@@ -308,6 +308,10 @@
         
         fetch('http://localhost:8000/geojson', { 
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/gpx+xml',
+            'X-File-Name': encodeURIComponent(selectedFile.name)
+          },
           body: selectedFile
         })
         .then(response => response.text())

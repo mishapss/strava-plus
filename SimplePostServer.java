@@ -66,11 +66,26 @@ public class SimplePostServer{
                     InputStream is = exchange.getRequestBody();                                             //daten vom user lesen
                     byte[] data = is.readAllBytes();
 
+                    String headerFileName = exchange.getRequestHeaders().getFirst("X-File-Name");
+                    String originalFileName = (headerFileName != null)
+                        ? java.net.URLDecoder.decode(headerFileName, StandardCharsets.UTF_8) 
+                        : "training.gpx";
+
+                    String serverFileName = System.currentTimeMillis() + "_" + originalFileName;
+                    Path savePath = Paths.get("uploads", serverFileName);
+                    if (savePath.getParent() != null ) {
+                        Files.createDirectories(savePath.getParent());
+                    }
+                    
+
                     // 1. Сохраняем присланный с сайта файл (один раз!)
-                    Files.write(Paths.get("uploaded_file.gpx"), data);
+                    Files.write(savePath, data);
 
                     // 2. Парсим этот новый файл
-                    XmlReader.loadGpx("uploaded_file.gpx");
+                    XmlReader.loadGpx(savePath.toString());
+
+                    int loggedUserID = UserSession.getCurrentUserID();
+                    XmlReader.saveGpxToDB(loggedUserID, originalFileName, savePath.toString());
                         
                     // 3. Обновляем память сервера НОВЫМИ данными!
                     savedGeoJson = XmlReader.geoJsonData; 
@@ -78,8 +93,11 @@ public class SimplePostServer{
 
                     // 4. Отправляем успешный ответ браузеру
                     String response = "datei verarbeitet";
-                    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");       
-                    exchange.sendResponseHeaders(200, response.getBytes("UTF-8").length);
+                    byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); 
+                    exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, responseBytes.length);
 
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(response.getBytes("UTF-8"));

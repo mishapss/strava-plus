@@ -17,17 +17,12 @@ ALTER TABLE users ADD trainingLoad INTEGER;
 
 ALTER TABLE users ADD hashedPassword TEXT;
  
-CREATE TABLE challengeUserTable (
-    challengeID INTEGER,
-    userID INTEGER,
-    status INTEGER,
-    goal INTEGER,
-    challengeStartDate TEXT,
-    challengeEndDate TEXT,
-    progressValue REAL,
-    challengeProgress REAL,
-    goalDataType TEXT,
-    PRIMARY KEY (challengeID, userID),
-    FOREIGN KEY("challengeID") REFERENCES challenges("challengeID"),
-    FOREIGN KEY("userID") REFERENCES users("userID")
-)
+
+
+CREATE TABLE IF NOT EXISTS user_files (
+    fileID INTEGER PRIMARY KEY AUTOINCREMENT,
+    userID INTEGER NOT NULL,
+    originalFileName TEXT NOT NULL,
+    filePath TEXT NOT NULL,
+    uploadDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

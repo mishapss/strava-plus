@@ -30,8 +30,7 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         } else {
             System.err.println("kein Nutzer eingelogt");
         }
-        //debug
-        //System.out.println("maxHr: " + maxHR + "ruheHr: " + restingHR);
+        
         
         for (int i = 0; i < 6; i ++) {
             heartZones.add(new ArrayList<>());
@@ -216,17 +215,16 @@ public class WorkoutAnalyzer { //klasse für die analyze des trainings
         double anaerobicWert = zones[0] * faktor0 + zones[1] * faktor1 + zones[2] * faktor2 + zones[3] * faktor3 + 
         zones[4] * faktor4 + zones[5] * faktor5; //zeit in den aeroben zonen
 
-        System.out.println("anaerobicWert: " + anaerobicWert);
+        
         
         double anaerobicFraction = anaerobicWert / (zones[0] + zones[1] + zones[2] + zones[3] + zones[4] + zones[5]); //anteil der aeroben zeit an der gesamten zeit
-        System.out.println("anaerobicFraction: " + anaerobicFraction);
+        
 
         double anaerobicTrainingEffect = trainingLoad * anaerobicFraction; //berechnung des aeroben trainingseffekt
-        System.out.println("anaerobicTrainingEffect: " + anaerobicTrainingEffect);
+        
 
         double anaerobicTE = 5 * (1 - Math.pow(e, (-anaerobicTrainingEffect / 60))); //berechnung des aeroben trainingseffekt auf einer skala von 0 bis 5     
-        System.out.println("anaerobicTE: " + anaerobicTE);
-        System.out.println("ate: " + Math.round(anaerobicTE * 10.0) / 10.0);
+        
         return Math.round(anaerobicTE * 10.0) / 10.0;
     }
 
