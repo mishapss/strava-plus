@@ -7,6 +7,9 @@ WHERE challengeID IN (1, 2, 7, 8,3,4,5,6,9,10);
 DELETE FROM heart_zone;
 DELETE FROM training;
 DELETE FROM users;
+DELETE FROM challengeUserTable;
+
+ALTER TABLE training ADD userID INTEGER;
 
 ALTER TABLE users ADD maxElevationGain REAL;
 
@@ -14,21 +17,6 @@ ALTER TABLE users ADD trainingLoad INTEGER;
 
 ALTER TABLE users ADD hashedPassword TEXT;
  
-INSERT INTO challengeUserTable (
-        challengeID, userID, status, goal, 
-        challengeStartDate, challengeEndDate, 
-        progressValue, challengeProgress, goalDataType
-    )
-    VALUES 
-        (c.challengeID, u.userID, 0, c.goal, 
-        c.challengeStartDate, c.challengeEndDate, 
-        0.0, 0.0, c.goalDataType)
-    FROM challenges c, users u
-    WHERE c.challengeID = ? AND u.userID = ?;
-    
-
-
-
 CREATE TABLE challengeUserTable (
     challengeID INTEGER,
     userID INTEGER,

@@ -11,6 +11,8 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.plaf.InsetsUIResource;
+
 public class SQLite {
     public static int trainingLoad;
 
@@ -70,12 +72,15 @@ public class SQLite {
     }
 
     public static boolean checkTrainingID(int trainingID) {
-        String sqlAbfrage = "SELECT trainingID FROM heart_zone WHERE trainingID = ?";
+        int loggedUserID = UserSession.getCurrentUserID();
+
+        String sqlAbfrage = "SELECT trainingID FROM heart_zone WHERE trainingID = ? and userID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement ptsmt = conn.prepareStatement(sqlAbfrage)) {
 
                 ptsmt.setInt(1, trainingID);
+                ptsmt.setInt(2, loggedUserID);
 
                 ResultSet rs = ptsmt.executeQuery();
 
@@ -113,11 +118,14 @@ public class SQLite {
             trainingID = getTrainingID(distanceBetweenPointsGerundet, dateString);
             return trainingID;
         }
+        
+        int loggedUserID = UserSession.getCurrentUserID();
 
         try (var conn = DriverManager.getConnection(url); //verbindung zum DB
             PreparedStatement pstmt = conn.prepareStatement(
             """
             INSERT INTO training (
+                userID,
                 date, 
                 distance, 
                 duration,
@@ -134,13 +142,14 @@ public class SQLite {
                 fileName,
                 authorID
             )
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             Statement.RETURN_GENERATED_KEYS);
             )
         {
             setParameters( //einfügt die daten in db
                 pstmt,
+                loggedUserID,
                 dateString,
                 distanceBetweenPointsGerundet,
                 time,
@@ -190,9 +199,12 @@ public class SQLite {
             return;
         }
 
+        int loggedUserID = UserSession.getCurrentUserID();
+
         String sql = """
             INSERT INTO heart_zone (
                 trainingID,
+                userID,
                 zone0,
                 zone1,
                 zone2,
@@ -202,7 +214,7 @@ public class SQLite {
                 averageHR,
                 maxHR
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         try (var conn = DriverManager.getConnection(url); //verbindung zum DB
@@ -211,6 +223,7 @@ public class SQLite {
             setParameters(
                 pstmt,
                 trainingID,
+                loggedUserID,
                 timeIn0HrZone,
                 timeIn1HrZone,
                 timeIn2HrZone,
@@ -231,15 +244,17 @@ public class SQLite {
 
     public static boolean checkTraining(double distanceBetweenPointsGerundet, String dateString) {
         //abfrage zur tabelle, ob das training schon hochgeladen wurde
-        String sqlAbfrage = "SELECT * FROM training WHERE distance = ? and date = ?";
+        int loggedUserID = UserSession.getCurrentUserID();
+        String sqlAbfrage = "SELECT * FROM training WHERE distance = ? AND date = ? AND userID = ?";
 
         try (var conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sqlAbfrage)) {
                 
                 pstmt.setDouble(1, distanceBetweenPointsGerundet);
                 pstmt.setString(2, dateString);
+                pstmt.setInt(3, loggedUserID);
                 ResultSet rs = pstmt.executeQuery(); //führt die abfrage aus und liefert das ergebnis
-                getDistanzJahrAusDB(2026);
+                //getDistanzJahrAusDB(2026);
 
                 return rs.next();
 

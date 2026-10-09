@@ -20,8 +20,8 @@ public class FileUploader {
         Path filePath = Paths.get(fileName);                                                        //pfad zu datei als pfad objekt
         HttpClient client = HttpClient.newHttpClient();                                             // erstellt HttpClient, der die anfrage sendet
 
-        boolean exist = Files.exists(filePath);                                                     // überprüfung, ob die datei existiert
-        System.out.println(exist); 
+        boolean exist = Files.exists(filePath);                                                     // überprüfung, ob die datei existiert  
+        System.out.println(exist);  
 
         //System.out.println("File exists: " + Files.exists(filePath));
         System.out.println("Absolute path: " + filePath.toAbsolutePath());  

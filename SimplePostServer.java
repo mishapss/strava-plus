@@ -553,7 +553,7 @@ public class SimplePostServer{
                 Path path = Paths.get("html/challenges.html"); // verweist auf die datei in ordner
 
                 if (Files.exists(path)) { //prüft ob die datei existiert 
-                    byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array ein
+                    byte[] htmlBytes = Files.readAllBytes(path); //list den inhalt der html-datei als array e  in   
                     exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
                     exchange.sendResponseHeaders(200, htmlBytes.length);
                     
