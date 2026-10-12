@@ -317,7 +317,7 @@
         .then(response => response.text())
         .then(data => {
             console.log("Сервер успешно обработал файл:", data);
-            // Файл обработан на бэкенде, теперь обновляем карту и таблицу данными из Java!
+            // Файл обработан на бэкенде, теперь обновляем карту и таблицу данными Java
             updateDashboard();
         })
         .catch(err => console.error("Ошибка при отправке файла:", err));
@@ -326,9 +326,40 @@
       }
     });
 
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileNameFromURL = urlParams.get('file');
+
+        if (fileNameFromURL) {
+            console.log("fileName aus URL erkannt: ", fileNameFromURL);
+            reanalyzeAndLoadTraining(fileNameFromURL);
+        } else {
+            updateDashboard();
+        }
+    })
+
+    function reanalyzeAndLoadTraining(fileName) {
+        fetch(`http://localhost:8000/api/reanalyze?file=${encodeURIComponent(fileName)}`, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("datei erfolgreich analysiert");
+                updateDashboard();
+            } else {
+                console.error("fehler bei neuanalyse");
+            }
+        }) 
+        .catch(err => console.error("netzwerkfehler: ", err))
+    }
+
     // 3. Функция запроса GeoJSON и обновления интерфейса
-    function updateDashboard() {
-      fetch('http://localhost:8000/geojson')
+    function updateDashboard(trainingID = null) {
+      let fetchURL = 'http://localhost:8000/geojson';
+      if (trainingID) {
+        fetchURL += `?id=${trainingID}`;
+      }
+      fetch(fetchURL)
         .then(res => res.json())
         .then(geojson => {
           console.log("Получен GeoJSON от сервера:", geojson);

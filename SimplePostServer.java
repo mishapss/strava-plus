@@ -46,7 +46,7 @@ public class SimplePostServer{
                                       
 
         server.createContext("/geojson", exchange -> {                                                      //http://localhost:8000/geojson
-            String method = exchange.getRequestMethod();                                                    //get oder post
+            String method = exchange.getRequestMethod();                                                          //get oder post
 
             if ("GET".equals(method)) {
                 // GeoJSON aus XmlReader holen
@@ -109,6 +109,34 @@ public class SimplePostServer{
                 }
             } else {
                 exchange.sendResponseHeaders(405, -1);
+            }
+        });
+
+        server.createContext("/api/reanalyze", exchange -> {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                try {
+                    String query = exchange.getRequestURI().getQuery();
+                    String filePath = "";
+                    if (query != null && query.startsWith("file=")) {
+                        filePath = java.net.URLDecoder.decode(query.substring(5), StandardCharsets.UTF_8);
+                    }
+
+                    if (!filePath.isEmpty()) {
+                        XmlReader.loadGpx(filePath);
+                        savedGeoJson = XmlReader.geoJsonData;
+                        exchange.sendResponseHeaders(200, -1);
+                    } else {
+                        exchange.sendResponseHeaders(400, -1);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                } finally {
+                    exchange.close();
+                }
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
             }
         });
 
@@ -411,22 +439,33 @@ public class SimplePostServer{
                     InputStream is = exchange.getRequestBody(); //liest die eingabe-stream
                     byte[] data = is.readAllBytes();
 
-                    Path uploadDir = Paths.get("images"); //definiert zielpfad
-                    if (!Files.exists(uploadDir)) {
-                        Files.createDirectories(uploadDir);
+                    String headerFileName = exchange.getRequestHeaders().getFirst("X-File-Name");
+                    String originalFileName = (headerFileName != null)
+                        ? java.net.URLDecoder.decode(headerFileName, StandardCharsets.UTF_8)
+                        : "avatar.jpg";
+
+                    String serverFileName = System.currentTimeMillis() + "_" + originalFileName;
+                    Path savePath = Paths.get("images", serverFileName); //definiert zielpfad
+                    if (savePath.getParent() != null) {
+                        Files.createDirectories(savePath.getParent());
                     }
 
-                    Path filePath = uploadDir.resolve("user_1.png"); //relative pfad-angabe für die datei
-                    Files.write(filePath, data);
+                    Files.write(savePath, data);
 
-                    String imagePathForDB = "/images/user_1.png";
-                    ProfileLoader.saveAvatarPathToDB(1, imagePathForDB); //speichert pfad in db
+                    int loggedUserID = UserSession.getCurrentUserID();
+                    XmlReader.saveImageToDB(loggedUserID, originalFileName, savePath.toString());
 
                     String responseText = "alles lief gut"; //schickt antwort
                     byte[] responseBytes = responseText.getBytes(StandardCharsets.UTF_8);
 
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                     exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                     exchange.sendResponseHeaders(200, responseBytes.length);
+
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(responseText.getBytes("UTF-8"));
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     exchange.sendResponseHeaders(500, -1);

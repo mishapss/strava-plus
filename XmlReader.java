@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;                                                        //datei öfnen
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Duration;
@@ -42,6 +43,7 @@ public class XmlReader {
     public static double calories;
     public static double aerobicTrainingEffect;
     public static double anaerobicTrainingEffect;
+    
     //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
     public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
 
@@ -65,6 +67,25 @@ public class XmlReader {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean saveImageToDB(int loggedUserID, String originalFileName, String filePath) {
+
+        String sqlQuery = "UPDATE users SET profilePhoto = ?, photoFilePath = ? WHERE userID = ?";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            pstmt.setString(1, originalFileName);
+            pstmt.setString(2, filePath);
+            pstmt.setInt(3, loggedUserID);
+
+            return pstmt.executeUpdate() > 0;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
     }
 
     public static Training loadGpx(String fileName) throws Exception { //lesen gpx

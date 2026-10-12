@@ -316,7 +316,12 @@
             <table class="profil-information-table">
                 <tr>
                     <td class="label">max. Distanz</td>
-                    <td id="stat-max-distance" class="value"></td>
+                    <td class="value">
+                        <a href="#" id="link-max-distance" class="training-link">
+                            <span id="stat-max-distance">---</span> km
+                        </a>
+                    </td>
+                    
                 </tr>
                 <tr>
                     <td class="label">max. Geschwindikeit</td>
@@ -328,7 +333,7 @@
                 </tr>
                 <tr>
                     <td class="label">max. Kalorienverbrauch</td>
-                    <td id="stat-max-calorie-burn" class="value"></td>
+                    <td id="stat-max-calories" class="value"></td>
                 </tr>
                 <tr>
                     <td class="label">höchste Trainingsbelastung</td>
@@ -398,15 +403,6 @@
         }
 
         function checkNewValue(newValue, elementID) { //prüft ob der wert für das feld gültig
-            /*if (elementID === "stat-max-hr"
-                || elementID === "stat-resting-hr") {
-               
-               if (isNaN(newValue) || newValue.trim() === "" || Number(newValue) <= 0) {
-                console.log("Die Eingabe muss eine Zahl sein und sie muss größer 0 sein!");
-                return false;
-               }
-            }*/
-
             if (elementID === "stat-age") {
                 if ((newValue < 7) || (newValue > 122)) {
                     alert("Alter muss im Bereich 7 - 122 Jahre sein.");
@@ -414,7 +410,6 @@
                 }
             }
 
-            //TODO: specihert die Daten in upperCase, muss in lowerCase
             if (elementID === "stat-sex") { 
                 if (!(newValue.toLowerCase() === "männlich" || newValue.toLowerCase() === "weiblich" || newValue.toLowerCase() === "divers")) {
                     alert("Der Geschlecht muss 'männlich', 'weiblich' oder 'divers' sein");
@@ -545,6 +540,23 @@
                 }
 
                 const user = dataList[0]
+                console.log("user: ", user);
+                console.log("trainingID: ", user.maxDistanceTrainingID);
+                console.log("maxDistanceFileName: ", user.maxDistanceFileName);
+
+                const linkElement = document.getElementById('link-max-distance');
+
+                if (user && user.maxDistanceTrainingID) {
+                    linkElement.href = `/upload-html?file=${encodeURIComponent(user.maxDistanceFileName)}`;
+                    linkElement.style.pointerEvents = 'auto';
+                    linkElement.style.textDecoration = 'underline';
+                } else {
+                    linkElement.href = '#';
+                    linkElement.style.pointerEvents = 'none';
+                    linkElement.style.textDecoration = 'none';
+                }
+
+                
                 console.log("user: " + dataList[0]);
                 const hasPhoto = user.profilePhoto && user.profilePhoto.trim() !== ""; //prüft, ob in der db pfad da ist
                 const avatarSrc = hasPhoto ? user.profilePhoto : "";
@@ -570,10 +582,10 @@
                 document.getElementById('stat-height').innerText = user.height + " cm";
                 document.getElementById('stat-max-hr').innerText = user.maxHR + " bpm";
                 document.getElementById('stat-resting-hr').innerText = user.restingHR + " bpm";
-                document.getElementById('stat-max-distance').innerText = user.maxDistance + " km";
+                document.getElementById('stat-max-distance').innerText = user.maxDistance;
                 document.getElementById('stat-max-speed').innerText = user.maxSpeed + " km/h";
                 document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain + " m";
-                document.getElementById('stat-max-calorie-burn').innerText = user.maxCalorieBurn + " kcal";
+                document.getElementById('stat-max-calories').innerText = user.maxCalories + " kcal";
                 document.getElementById('stat-max-trainingload').innerText = user.maxTrainingLoad;
 
                 const avatarInput = document.getElementById('avatarInput');

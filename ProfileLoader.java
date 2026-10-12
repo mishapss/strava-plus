@@ -9,54 +9,168 @@ public class ProfileLoader {
     //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
     public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
 
-    public static List<ProfileData> getProfileDataFromDB() { //nimmt Daten aus users tabelle und gibt list zurück
-        List<ProfileData> list = new ArrayList<>();
-    
-        int loggedInUserID = UserSession.getCurrentUserID();
-        System.out.println("loggedInUserID:" + loggedInUserID);
+    public static int getMaxDistanceFromTrainingTable() {
+        
+        int loggedUserID = UserSession.getCurrentUserID();
+        int maxDistanceTrainingID = -1;
+        
 
-        if (loggedInUserID != -1) {
-            String sqlQueryGetData = "SELECT * FROM users WHERE userID = ?";
+        String sqlQuery = "SELECT distance, trainingID FROM training WHERE userID = ? ORDER BY distance DESC LIMIT 1";
 
-            try (var conn = DriverManager.getConnection(url);
-                PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetData)) {
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                
+                pstmt.setInt(1, loggedUserID);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
                     
-                    pstmt.setInt(1, loggedInUserID);
-
-                    ResultSet rs = pstmt.executeQuery();
-
-                    while (rs.next()) { //felder aus db
-                        list.add(new ProfileData(
-                            rs.getInt("userID"),
-                            rs.getString("name"),
-                            rs.getString("secondName"),
-                            rs.getInt("age"),
-                            rs.getString("sex"),
-                            rs.getDouble("weight"),
-                            rs.getDouble("height"),
-                            rs.getInt("maxHR"),
-                            rs.getInt("restingHR"),
-                            rs.getDouble("totalDistancePerYear"),
-                            rs.getDouble("maxDistance"),
-                            rs.getDouble("maxSpeed"),
-                            rs.getDouble("maxElevationGain"),
-                            rs.getString("profilePhoto"),
-                            rs.getDouble("calorieBurn"),
-                            rs.getInt("trainingLoad"),
-                            rs.getString("username")
-                        ));
-                    }
-                }catch (SQLException e) {
-                    e.printStackTrace();
+                    maxDistanceTrainingID = rs.getInt("trainingID");
+                    
                 }
-            
-        } else {
-            System.err.println("kein Nutzer eingelogt");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return maxDistanceTrainingID;
+        
+    }
+
+    public static List<ProfileData> getProfileDataFromDB() { 
+        List<ProfileData> list = new ArrayList<>();
+        int loggedInUserID = UserSession.getCurrentUserID();
+
+        if (loggedInUserID == -1) {
+            System.err.println("Kein Nutzer eingeloggt");
+            return list;
+        }
+
+        String sqlQueryPersonalBest = """
+                SELECT 
+                trainingID, 
+                distance, 
+                maxSpeed, 
+                elevationGain, 
+                calories, 
+                trainingLoad, 
+                fileName 
+                FROM training 
+                WHERE userID = ?
+                """;
+
+        double maxDistance = 0.0;
+        String maxDistanceFileName = "";
+        double maxSpeed = 0.0;
+        String maxSpeedFileName = "";
+        double maxElevationGain = 0.0;
+        String maxElevationGainFileName = "";
+        double maxCalories = 0.0;
+        String maxCaloriesFileName = "";
+        int maxTrainingLoad = 0;
+        String maxTrainingLoadFileName = "";
+
+        // 1. Schritt: Bestleistungen ermitteln
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryPersonalBest)) {
+                
+                pstmt.setInt(1, loggedInUserID);
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    double distance = rs.getDouble("distance");
+                    double speed = rs.getDouble("maxSpeed");
+                    double elevationGain = rs.getDouble("elevationGain");
+                    double calories = rs.getDouble("calories");
+                    int trainingLoad = rs.getInt("trainingLoad");
+                    String fileName = rs.getString("filename");
+
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                        maxDistanceFileName = fileName;
+                    }
+                    if (speed > maxSpeed) {
+                        maxSpeed = speed;
+                        maxSpeedFileName = fileName;
+                    }
+                    if (elevationGain > maxElevationGain) {
+                        maxElevationGain = elevationGain;
+                        maxElevationGainFileName = fileName;
+                    }
+                    if (calories > maxCalories) {
+                        maxCalories = calories;
+                        maxCaloriesFileName = fileName;
+                    }
+                    if (trainingLoad > maxTrainingLoad) {
+                        maxTrainingLoad = trainingLoad;
+                        maxTrainingLoadFileName = fileName;
+                    }
+                } 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        int maxDistanceTrainingID = getMaxDistanceFromTrainingTable();
+
+        // 2. Schritt: Benutzerdaten abrufen und zusammenführen
+        String sqlQueryGetData = """
+            SELECT 
+            userID,
+            name,
+            secondName,
+            age,
+            sex,
+            weight,
+            height,
+            maxHR,
+            restingHR,
+            totalDistancePerYear,
+            photoFilePath,
+            username
+            FROM users 
+            WHERE userID = ?
+        """;
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQueryGetData)) {
+                
+            pstmt.setInt(1, loggedInUserID);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                list.add(new ProfileData(
+                    rs.getInt("userID"),
+                    rs.getString("name"),
+                    rs.getString("secondName"),
+                    rs.getInt("age"),
+                    rs.getString("sex"),
+                    rs.getDouble("weight"),
+                    rs.getDouble("height"),
+                    rs.getInt("maxHR"),
+                    rs.getInt("restingHR"),
+                    rs.getDouble("totalDistancePerYear"),
+                    maxDistanceTrainingID,
+                    maxDistance,
+                    maxDistanceFileName,
+                    maxSpeed,
+                    maxSpeedFileName,
+                    maxElevationGain,
+                    maxElevationGainFileName,
+                    maxCalories,
+                    maxCaloriesFileName,
+                    maxTrainingLoad,
+                    maxTrainingLoadFileName,
+                    rs.getString("photoFilePath"),
+                    rs.getString("username")
+                ));
+            }
+        } catch (SQLException f) {
+            f.printStackTrace();
         }
 
         return list;
-        
     }
+
 
     public static List<TrainingEntry> getDistanceInMonthforChart() { //bekommt Distanz für jedes Monat aus DB
         List<TrainingEntry> list = new ArrayList<>();

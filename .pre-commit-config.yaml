@@ -6,5 +6,3 @@ repos:
         entry: python check_utf8.py
         language: python
         files: \.(java|html|xml|json|md|properties|yml|yaml|txt)$
-
-      
