@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class ChallengeLoader {
     //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
@@ -107,16 +109,41 @@ public class ChallengeLoader {
             return false;
     }
 
+    public static double parseTimeStringToMin(String activeTime) {
+        try {
+            String[] parts = activeTime.split(":");
+            if (parts.length == 3) {
+                // Format: HH:mm:ss (z.B. 1:37:16)
+                double hours = Double.parseDouble(parts[0]);
+                double minutes = Double.parseDouble(parts[1]);
+                double seconds = Double.parseDouble(parts[2]);
+                
+                // Umrechnung in Gesamtminuten
+                return (hours * 60.0) + minutes + (seconds / 60.0);
+            } else if (parts.length == 2) {
+                // Falls mal nur Minuten:Sekunden dastehen (mm:ss)
+                double minutes = Double.parseDouble(parts[0]);
+                double seconds = Double.parseDouble(parts[1]);
+                return minutes + (seconds / 60.0);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Fehler beim Parsen der Zeit: " + activeTime);
+        }
+        return 0.0;
+    }
+
     //prüft alte trainings
     public static double checkOldTrainingsToUploadInChallenge(int userID, String startDatum, String endDatum) {
         String sqlAbfrageSelectAllTrainings = """
             SELECT
             date,
-            distance
+            distance,
+            duration
             FROM training 
             WHERE userID = ? and date >= ? AND date < ?""";
 
         double oldDistance = 0.0;
+        int oldDuration = 0;
         System.out.println("Suche alte Trainings für User: " + userID + " von " + startDatum + " bis " + endDatum);
 
         try (var conn = DriverManager.getConnection(url);
@@ -131,8 +158,16 @@ public class ChallengeLoader {
                 while (rs.next()) {
                     double distance = rs.getDouble("distance");
                     String trainingDate = rs.getString("date");
+                    String duration = rs.getInt("activeTime");
+//TODO: MIT DER ZEITPARSUNG SICH SCHLAU MACHEN
+                    if (duration != null && !duration.isEmpty()) {
+                        double minutes = parseTimeStringToMin(duration);
+                        oldDuration += minutes;
+                    }
+
                     System.out.println("Gefundenes altes Training am " + trainingDate + " mit Distanz: " + distance);
                     oldDistance += distance;
+                    
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -183,7 +218,7 @@ public class ChallengeLoader {
                     double oldDistance = checkOldTrainingsToUploadInChallenge(loggedUserID, challengeStartDate, challengeEndDate);
                     
                     if (oldDistance > 0) {
-                        updateStartChallengeDataKilometers(challengeID, loggedUserID, oldDistance);
+                        updateStartChallengeDataKilometers(challengeID, loggedUserID, oldDistance, goal);
                     }
                     return true;
                 }
@@ -194,8 +229,8 @@ public class ChallengeLoader {
         return false;
     }
 
-    public static void updateStartChallengeDataKilometers(int challengeID, int userID, double oldDistance) { 
-        // Korrigiert: Mit AND verknüpft und challengeID mit einbezogen, damit nur diese eine Challenge aktualisiert wird!
+    public static void updateStartChallengeDataKilometers(int challengeID, int userID, double oldDistance, int goal) { 
+
         String sqlAbfrageUpdateKM = """
             UPDATE challengeUserTable 
             SET progressValue = ?
@@ -213,5 +248,25 @@ public class ChallengeLoader {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+
+
+        //challengeprogress updaten
+        String sqlAbfrageUpdateChallengeProgress = """
+            UPDATE challengeUserTable
+            SET challengeProgress = ?
+            WHERE challengeID = ? AND userID = ? AND goalDataType = 'km'
+            """;        
+
+        try (var connection = DriverManager.getConnection(url);
+            PreparedStatement pstmt = connection.prepareStatement(sqlAbfrageUpdateChallengeProgress)) {
+
+                pstmt.setDouble(1, (oldDistance / goal));
+                pstmt.setInt(2, challengeID);
+                pstmt.setInt(3, userID);
+                pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    } 
 }
