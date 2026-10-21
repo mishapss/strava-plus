@@ -323,21 +323,40 @@
                     </td>
                     
                 </tr>
+                
                 <tr>
                     <td class="label">max. Geschwindikeit</td>
-                    <td id="stat-max-speed" class="value"></td>
+                    <td class="value">
+                        <a href="#" id="link-max-speed" class="training-link">
+                            <span id="stat-max-speed">---</span> km/h
+                        </a>
+                    </td>
                 </tr>
+
                 <tr>
                     <td class="label">max. Höhenmeter</td>
-                    <td id="stat-max-elevation-gain" class="value"></td>
+                    <td class="value">
+                        <a href="#" id="link-max-elevation-gain" class="training-link">
+                            <span id="stat-max-elevation-gain">---</span> m
+                        </a>
+                    </td>
                 </tr>
+
                 <tr>
                     <td class="label">max. Kalorienverbrauch</td>
-                    <td id="stat-max-calories" class="value"></td>
+                    <td class="value">
+                        <a href="#" id="link-max-calorie-burn" class="training-link">
+                            <span id="stat-max-calories">---</span> kcal
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">höchste Trainingsbelastung</td>
-                    <td id="stat-max-trainingload" class="value"></td>
+                    <td class="value">
+                        <a href="#" id="link-max-trainingload" class="training-link">
+                            <span id="stat-max-trainingload">---</span>
+                        </a>
+                    </td>
                 </tr>
             </table>
         </div>                
@@ -521,6 +540,21 @@
             .catch(err => console.error("Fehler beim Laden der Charts:", err));
         }
 
+        function setupTrainingLink(elementID, fileName, user) {
+            const linkElement = document.getElementById(elementID);
+            if (!linkElement) return;
+
+            if (user && fileName) {
+                linkElement.href = `/upload-html?file=${encodeURIComponent(fileName)}`;
+                linkElement.style.pointerEvents = 'auto';
+                linkElement.style.textDecoration = 'underline';
+            } else {
+                linkElement.href = '#';
+                linkElement.style.pointerEvents = 'none';
+                linkElement.style.textDecoration = 'none';
+            }
+        }
+
         function uploadProfileData() {
             fetch('http://localhost:8000/api/profile')
             .then(response => {
@@ -541,20 +575,17 @@
 
                 const user = dataList[0]
                 console.log("user: ", user);
-                console.log("trainingID: ", user.maxDistanceTrainingID);
+                console.log("trainingID für maxDistance: ", user.maxDistanceTrainingID);
                 console.log("maxDistanceFileName: ", user.maxDistanceFileName);
+                console.log("trainingID für maxSpeed: ", user.maxSpeedTrainingID);
+                console.log("maxSpeedFileName: ", user.maxSpeedFileName);
 
-                const linkElement = document.getElementById('link-max-distance');
+                setupTrainingLink('link-max-distance', user.maxDistanceFileName, user);
+                setupTrainingLink('link-max-speed', user.maxSpeedFileName, user);
+                setupTrainingLink('link-max-elevation-gain', user.maxElevationGainFileName, user);
+                setupTrainingLink('link-max-calorie-burn', user.maxCaloriesFileName, user);
+                setupTrainingLink('link-max-trainingload', user.maxTrainingLoadFileName, user);
 
-                if (user && user.maxDistanceTrainingID) {
-                    linkElement.href = `/upload-html?file=${encodeURIComponent(user.maxDistanceFileName)}`;
-                    linkElement.style.pointerEvents = 'auto';
-                    linkElement.style.textDecoration = 'underline';
-                } else {
-                    linkElement.href = '#';
-                    linkElement.style.pointerEvents = 'none';
-                    linkElement.style.textDecoration = 'none';
-                }
 
                 
                 console.log("user: " + dataList[0]);
@@ -582,10 +613,10 @@
                 document.getElementById('stat-height').innerText = user.height + " cm";
                 document.getElementById('stat-max-hr').innerText = user.maxHR + " bpm";
                 document.getElementById('stat-resting-hr').innerText = user.restingHR + " bpm";
-                document.getElementById('stat-max-distance').innerText = user.maxDistance;
-                document.getElementById('stat-max-speed').innerText = user.maxSpeed + " km/h";
-                document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain + " m";
-                document.getElementById('stat-max-calories').innerText = user.maxCalories + " kcal";
+                document.getElementById('stat-max-distance').innerText = (Math.round((user.maxDistance + Number.EPSILON) * 100) / 100);
+                document.getElementById('stat-max-speed').innerText = user.maxSpeed;
+                document.getElementById('stat-max-elevation-gain').innerText = user.maxElevationGain;
+                document.getElementById('stat-max-calories').innerText = user.maxCalories;
                 document.getElementById('stat-max-trainingload').innerText = user.maxTrainingLoad;
 
                 const avatarInput = document.getElementById('avatarInput');

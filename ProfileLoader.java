@@ -9,11 +9,10 @@ public class ProfileLoader {
     //public static final String url = "jdbc:sqlite:C:\\Users\\User\\projects_programming\\strava-plus-main\\db\\test.db";
     public static final String url = "jdbc:sqlite:C:\\Users\\MikhailLeshchenko\\strava_plus\\db\\test.db";
 
-    public static int getMaxDistanceFromTrainingTable() {
+    public static int getMaxDistanceTrainingIDFromTrainingTable() {
         
         int loggedUserID = UserSession.getCurrentUserID();
         int maxDistanceTrainingID = -1;
-        
 
         String sqlQuery = "SELECT distance, trainingID FROM training WHERE userID = ? ORDER BY distance DESC LIMIT 1";
 
@@ -23,18 +22,83 @@ public class ProfileLoader {
                 pstmt.setInt(1, loggedUserID);
                 ResultSet rs = pstmt.executeQuery();
 
-                if (rs.next()) {
-                    
+                if (rs.next()) {                   
                     maxDistanceTrainingID = rs.getInt("trainingID");
-                    
                 }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-
         return maxDistanceTrainingID;
+    }
+
+    public static int getMaxSpeedTrainingIDFromTrainingTable() {
         
+        int loggedUserID = UserSession.getCurrentUserID();
+        int maxSpeedTrainingID = -1;
+
+        String sqlQuery = "SELECT maxSpeed, trainingID FROM training WHERE userID = ? ORDER BY maxSpeed DESC LIMIT 1";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                
+                pstmt.setInt(1, loggedUserID);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {                   
+                    maxSpeedTrainingID = rs.getInt("trainingID");
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return maxSpeedTrainingID;
+    }
+
+    public static int getMaxElevationGainTrainingIDFromTrainingTable() {
+        
+        int loggedUserID = UserSession.getCurrentUserID();
+        int maxElevationGainTrainingID = -1;
+
+        String sqlQuery = "SELECT elevationGain, trainingID FROM training WHERE userID = ? ORDER BY elevationGain DESC LIMIT 1";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                
+                pstmt.setInt(1, loggedUserID);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {                   
+                    maxElevationGainTrainingID = rs.getInt("trainingID");
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return maxElevationGainTrainingID;
+    }
+
+    public static int getMaxCalorieBurnTrainingIDFromTrainingTable() {
+        
+        int loggedUserID = UserSession.getCurrentUserID();
+        int maxCalorieBurnTrainingID = -1;
+
+        String sqlQuery = "SELECT calories, trainingID FROM training WHERE userID = ? ORDER BY calories DESC LIMIT 1";
+
+        try (var conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+                
+                pstmt.setInt(1, loggedUserID);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {                   
+                    maxCalorieBurnTrainingID = rs.getInt("trainingID");
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return maxCalorieBurnTrainingID;
     }
 
     public static List<ProfileData> getProfileDataFromDB() { 
@@ -59,6 +123,7 @@ public class ProfileLoader {
                 WHERE userID = ?
                 """;
 
+        double maxDistanceRaw = 0.0;
         double maxDistance = 0.0;
         String maxDistanceFileName = "";
         double maxSpeed = 0.0;
@@ -85,8 +150,8 @@ public class ProfileLoader {
                     int trainingLoad = rs.getInt("trainingLoad");
                     String fileName = rs.getString("filename");
 
-                    if (distance > maxDistance) {
-                        maxDistance = distance;
+                    if (distance > maxDistanceRaw) {
+                        maxDistanceRaw = distance;
                         maxDistanceFileName = fileName;
                     }
                     if (speed > maxSpeed) {
@@ -110,7 +175,13 @@ public class ProfileLoader {
             e.printStackTrace();
         }
 
-        int maxDistanceTrainingID = getMaxDistanceFromTrainingTable();
+        maxDistance = Math.round(maxDistanceRaw * 100.0) / 100.0;
+        System.out.println("maxdistance: " + maxDistance);
+
+        int maxDistanceTrainingID = getMaxDistanceTrainingIDFromTrainingTable();
+        int maxSpeedTrainingID = getMaxSpeedTrainingIDFromTrainingTable();
+        int maxElevationGainTrainingID = getMaxElevationGainTrainingIDFromTrainingTable();
+        int maxCalorieBurnTrainingID = getMaxCalorieBurnTrainingIDFromTrainingTable();
 
         // 2. Schritt: Benutzerdaten abrufen und zusammenführen
         String sqlQueryGetData = """
@@ -136,6 +207,7 @@ public class ProfileLoader {
                 
             pstmt.setInt(1, loggedInUserID);
             ResultSet rs = pstmt.executeQuery();
+            
 
             while (rs.next()) {
                 list.add(new ProfileData(
@@ -152,10 +224,13 @@ public class ProfileLoader {
                     maxDistanceTrainingID,
                     maxDistance,
                     maxDistanceFileName,
+                    maxSpeedTrainingID,
                     maxSpeed,
                     maxSpeedFileName,
+                    maxElevationGainTrainingID,
                     maxElevationGain,
                     maxElevationGainFileName,
+                    maxCalorieBurnTrainingID,
                     maxCalories,
                     maxCaloriesFileName,
                     maxTrainingLoad,
@@ -163,6 +238,7 @@ public class ProfileLoader {
                     rs.getString("photoFilePath"),
                     rs.getString("username")
                 ));
+                System.out.print(list);
             }
         } catch (SQLException f) {
             f.printStackTrace();

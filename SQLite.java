@@ -655,6 +655,10 @@ public class SQLite {
              
     }
 
+    //public static boolean addOldTrainingsTOChallenge(String dateString, int challengeID) {
+
+    //}
+
     public static boolean checkTrainingGueltigeBereich(String dateString, int challengeID) {
         String sqlAbfrage = "SELECT challengeStartDate, challengeEndDate FROM challengeUserTable WHERE challengeID = ?";
         

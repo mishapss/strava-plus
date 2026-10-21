@@ -1,7 +1,4 @@
-
-//import com.sun.accessibility.internal.resources.accessibility_de;
 import com.sun.net.httpserver.*; // import von allen eingebauten Java-HTTP-Server Klassen
-
 import java.io.IOException; // Fehlerbehandlung
 import java.io.OutputStream; // um antworten an den Client zu senden
 import java.net.InetSocketAddress; // um die addresse und den Port zu definieren 
@@ -413,6 +410,7 @@ public class SimplePostServer{
         server.createContext("/api/profile", exchange -> {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 List<ProfileData> data = ProfileLoader.getProfileDataFromDB();
+                System.out.println("Daten:" + data);
 
                 ObjectMapper mapper = new ObjectMapper();
                 String jsonResponse = mapper.writeValueAsString(data);

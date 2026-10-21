@@ -1,7 +1,7 @@
 import java.net.http.HttpClient; // klasse, um http-anfrage zu senden
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Paths; // klasse, um mit dateien auf system zu arbeiten  
+import java.nio.file.Paths; // klasse, um mit dateien auf system zu arbeiten
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.net.URI; // klasse, um der url des servers zu erstellen

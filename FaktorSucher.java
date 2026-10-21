@@ -175,23 +175,3 @@ public class FaktorSucher {
 
     }
 }
-
-/*
-Faktor f0 (Zone 0): 0,4206
-Faktor f1 (Zone 1): 0,4206
-Faktor f2 (Zone 2): 0,7713
-Faktor f3 (Zone 3): 0,7713
-Faktor f4 (Zone 4): 0,7713
-Faktor f5 (Zone 5): 0,7713
-0.01157670951257006 
-
-
-Faktor f0 (Zone 0): 0,0000
-Faktor f1 (Zone 1): 0,0000
-Faktor f2 (Zone 2): 0,0000
-Faktor f3 (Zone 3): 3,6264
-Faktor f4 (Zone 4): 3,7257
-Faktor f5 (Zone 5): 3,8252
--2.0999624073871628
-
-*/

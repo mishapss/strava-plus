@@ -12,10 +12,13 @@ public class ProfileData {
     public int maxDistanceTrainingID;
     public double maxDistance;
     public String maxDistanceFileName;
+    public int maxSpeedTrainingID;
     public double maxSpeed;
     public String maxSpeedFileName;
+    public int maxElevationGainTrainingID;
     public double maxElevationGain;
     public String maxElevationGainFileName;
+    public int maxCalorieBurnTrainingID;
     public double maxCalories;
     public String maxCaloriesFileName;
     public int maxTrainingLoad;
@@ -39,10 +42,13 @@ public class ProfileData {
         int maxDistanceTrainingID,
         double maxDistance,
         String maxDistanceFileName,
+        int maxSpeedTrainingID,
         double maxSpeed,
         String maxSpeedFileName,
+        int maxElevationGainTrainingID,
         double maxElevationGain,
         String maxElevationGainFileName,
+        int maxCalorieBurnTrainingID,
         double maxCalories,
         String maxCaloriesFileName,
         int maxTrainingLoad,
@@ -62,15 +68,18 @@ public class ProfileData {
         this.gesamteDistanzProjahr = gesamteDistanzProjahr;
         this.maxDistanceTrainingID = maxDistanceTrainingID;
         this.maxDistance = maxDistance;    
-        this.maxDistanceFileName = maxDistanceFileName;    
+        this.maxDistanceFileName = maxDistanceFileName;
+        this.maxSpeedTrainingID = maxSpeedTrainingID;
         this.maxSpeed = maxSpeed;
-        this.maxSpeedFileName = maxSpeedFileName; // Ergänzt
+        this.maxSpeedFileName = maxSpeedFileName;  
+        this.maxElevationGainTrainingID = maxElevationGainTrainingID;
         this.maxElevationGain = maxElevationGain;
-        this.maxElevationGainFileName = maxElevationGainFileName; // Ergänzt
+        this.maxElevationGainFileName = maxElevationGainFileName;  
+        this.maxCalorieBurnTrainingID = maxCalorieBurnTrainingID;
         this.maxCalories = maxCalories;
-        this.maxCaloriesFileName = maxCaloriesFileName; // Ergänzt
+        this.maxCaloriesFileName = maxCaloriesFileName;  
         this.maxTrainingLoad = maxTrainingLoad;
-        this.maxTrainingLoadFileName = maxTrainingLoadFileName; // Ergänzt
+        this.maxTrainingLoadFileName = maxTrainingLoadFileName;  
         this.profilePhoto = profilePhoto;
         this.username = username;
     }

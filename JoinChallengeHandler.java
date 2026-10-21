@@ -61,6 +61,7 @@ public class JoinChallengeHandler implements HttpHandler{ //die klasse kann die 
                             challengeStartDate = rs.getString("challengeStartDate");
                             challengeEndDate = rs.getString("challengeEndDate");
                             goalDataType = rs.getString("goalDataType");
+                            System.out.println("challengeEndDate: " + challengeEndDate);
                         } else {
                             // Challenge wurde in DB nicht gefunden -> 404 Not Found zurückgeben
                             System.out.println("Challenge mit ID " + challengeID + " existiert nicht.");
@@ -75,6 +76,8 @@ public class JoinChallengeHandler implements HttpHandler{ //die klasse kann die 
 
                 boolean successfullySave = ChallengeLoader.saveParticipationInDB(challengeID, goal, challengeStartDate, challengeEndDate, goalDataType); //d-teil
 
+                System.out.print("debug : " + successfullySave);//debug
+                
                 String jsonResponse = "{\"success\": " + successfullySave + "}"; //1.e-teil 
 
                 byte[] jsonResponseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);             // 2.e-teil
