@@ -326,6 +326,9 @@ public class XmlReader {
     }
 
     public static void main(String[] args) throws Exception {
+        HuffmanEncoder.GPXreader("uploads/1792660232782_26.gpx");
+    }
+        /*
         String[] gpxFiles = {
                 "datenauswertung/radtraining/25.gpx",
                 "datenauswertung/radtraining/24.gpx",
@@ -366,11 +369,11 @@ public class XmlReader {
 
             double[] corosWerteAnaerob = {
                 0.2, 0.0, 0.2, 0.0, 0.0, 
-                0.0, 0.0, 0.0/*18 - 22.08 */, 0.2, 0.0, 
+                0.0, 0.0, 0.018 - 22.08 , 0.2, 0.0, 
                 0.0, 0.6, 0.4, 0.0, 0.1, 0.3, 0.1,
                 0.0, 0.0, 0.0, 1.2, 0.0,
                 0.0, 0.0, 0.0
-            };
+            }; 
 
             ArrayList<Training> meineTrainings = new ArrayList<>();
 
@@ -417,7 +420,7 @@ public class XmlReader {
                 System.out.println("totalDifferenz: " + totalDifferenz);
                 System.out.println(totalDifferenz > -2.0999624073871628);
             }
-    }
+    } */
  
     public static double distance(TrkPt a, TrkPt b) { //distanz ausrechnen mit Haversine-Formel 
         //double fullDist = 0;
