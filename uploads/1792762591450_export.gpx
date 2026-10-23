@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="overpass-turbo"><metadata><desc>Filtered OSM data converted to GPX by overpass turbo</desc><copyright author="The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."/><time>2026-10-23T13:33:53Z</time></metadata><wpt lat="41.8953181" lon="12.5031327"><name>node/246574144</name><desc>amenity=drinking_water
+check_date=2023-12-31
+flow=constant
+fountain=nasone</desc><link href="http://osm.org/browse/node/246574144"/></wpt><wpt lat="41.8952417" lon="12.5030581"><name>node/246574145</name><desc>amenity=drinking_water
+check_date=2023-12-31
+flow=constant
+fountain=nasone</desc><link href="http://osm.org/browse/node/246574145"/></wpt><wpt lat="41.894806" lon="12.4919399"><name>node/246574149</name><desc>amenity=drinking_water
+flow=push-button
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, Via Leonina, Roma, Italia May 03, 2023 07-31-24 PM.jpeg</desc><link href="http://osm.org/browse/node/246574149"/></wpt><wpt lat="41.8948869" lon="12.4909457"><name>node/246574150</name><desc>amenity=drinking_water
+check_date=2026-04-30
+fee=no
+fountain=nasone
+wikimedia_commons=File:Fountain Piazza dei Serpenti, Roma, Italia Oct 05, 2022 04-43-54 PM.jpeg</desc><link href="http://osm.org/browse/node/246574150"/></wpt><wpt lat="41.8944984" lon="12.487739"><name>node/246574151</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain Via degli Ibernesi, Roma, Italia Jul 08, 2023 05-22-02 PM.jpeg</desc><link href="http://osm.org/browse/node/246574151"/></wpt><wpt lat="41.8975832" lon="12.5031998"><name>node/246661215</name><desc>amenity=drinking_water
+check_date=2024-01-05
+fountain=nasone</desc><link href="http://osm.org/browse/node/246661215"/></wpt><wpt lat="41.897553" lon="12.4901207"><name>node/246661218</name><desc>amenity=drinking_water
+created_by=JOSM</desc><link href="http://osm.org/browse/node/246661218"/></wpt><wpt lat="41.8972914" lon="12.4977508"><name>node/246661219</name><desc>amenity=drinking_water
+fountain=decorative
+historic=fountain
+support=wall_mounted
+wikimedia_commons=File:Drinking fountain in Via Paolina, Roma, Italia Oct 24, 2025 12-54-05 PM.jpeg</desc><link href="http://osm.org/browse/node/246661219"/></wpt><wpt lat="41.8967142" lon="12.4859132"><name>Fontana delle tre cannelle</name><desc>amenity=drinking_water
+capacity=3
+fountain=nasone
+name=Fontana delle tre cannelle
+wikidata=Q76938649
+wikimedia_commons=File:Fontanella delle tre cannelle.jpg</desc><link href="http://osm.org/browse/node/248743319"/></wpt><wpt lat="41.8960661" lon="12.4870372"><name>node/248743322</name><desc>amenity=drinking_water
+fountain=drinking
+wheelchair=limited
+wikimedia_commons=File:Drinking fountain, Largo Angelicum, Roma, Italia Jul 08, 2023 05-19-02 PM.jpeg</desc><link href="http://osm.org/browse/node/248743322"/></wpt><wpt lat="41.8959904" lon="12.4903891"><name>node/250889642</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in via dei Serpenti, Roma, Italia Oct 24, 2025 12-33-07 PM.jpeg</desc><link href="http://osm.org/browse/node/250889642"/></wpt><wpt lat="41.885391" lon="12.485289"><name>node/251773348</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, Belvedere Romolo e Remo, Circo Massimo, Roma, Italia Jun 16, 2023 11-48-14 AM.jpeg</desc><link href="http://osm.org/browse/node/251773348"/></wpt><wpt lat="41.8870009" lon="12.4827727"><name>node/251773349</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, via del Circo Massimo, Roma, Italia Jun 16, 2023 12-02-12 PM.jpeg</desc><link href="http://osm.org/browse/node/251773349"/></wpt><wpt lat="41.8933168" lon="12.4838554"><name>node/251773551</name><desc>amenity=drinking_water
+fountain=drinking
+inscription=Acqua Marcia
+wheelchair=yes
+wikimedia_commons=File:Drinking fountain Campidoglio, Roma, Italia Jul 08, 2023 05-48-27 PM.jpeg</desc><link href="http://osm.org/browse/node/251773551"/></wpt><wpt lat="41.8885804" lon="12.4836676"><name>node/251792639</name><desc>amenity=drinking_water
+fountain=nasone
+tap=no
+wikimedia_commons=File:Nasone via di San Teodoro, Roma, Italia Sep 08, 2021 06-03-56 PM.jpeg</desc><link href="http://osm.org/browse/node/251792639"/></wpt><wpt lat="41.8961224" lon="12.4929031"><name>node/252602350</name><desc>amenity=drinking_water
+created_by=JOSM</desc><link href="http://osm.org/browse/node/252602350"/></wpt><wpt lat="41.8961363" lon="12.49709"><name>node/252609581</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/252609581"/></wpt><wpt lat="41.8917675" lon="12.5022052"><name>node/252899499</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone Merulana, Roma, Italia Mar 22, 2022 04-53-33 PM.jpeg</desc><link href="http://osm.org/browse/node/252899499"/></wpt><wpt lat="41.8835122" lon="12.5030297"><name>node/253704802</name><desc>amenity=drinking_water
+check_date=2024-09-25
+fountain=nasone
+tap=push_button
+wikimedia_commons=File:Drinking fountain in Via della Ferratella in Laterano, Roma, Italia Mar 28, 2025 10-23-02 AM.jpeg</desc><link href="http://osm.org/browse/node/253704802"/></wpt><wpt lat="41.8947199" lon="12.4963709"><name>node/256572272</name><desc>amenity=drinking_water
+fountain=nasone</desc><link href="http://osm.org/browse/node/256572272"/></wpt><wpt lat="41.8883122" lon="12.4809626"><name>node/264897052</name><desc>amenity=drinking_water
+fountain=nasone</desc><link href="http://osm.org/browse/node/264897052"/></wpt><wpt lat="41.8926848" lon="12.4931113"><name>node/266310817</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Largo della Polveriera, Roma, Italia Sep 22, 2025 01-16-07 PM.jpeg</desc><link href="http://osm.org/browse/node/266310817"/></wpt><wpt lat="41.8932611" lon="12.4901658"><name>node/266317282</name><desc>amenity=drinking_water
+check_date=2023-10-03
+fountain=drinking</desc><link href="http://osm.org/browse/node/266317282"/></wpt><wpt lat="41.8824798" lon="12.4840162"><name>node/266773743</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, Aventino, Rome, Italy Oct 08, 2023 06-57-30 PM.jpeg</desc><link href="http://osm.org/browse/node/266773743"/></wpt><wpt lat="41.8833501" lon="12.4875256"><name>node/266965232</name><desc>amenity=drinking_water
+fountain=nasone
+tap=no
+wikimedia_commons=File:Nasone, Viale Aventino, Roma, Italia Nov 04, 2020 09-28-54 AM.jpeg</desc><link href="http://osm.org/browse/node/266965232"/></wpt><wpt lat="41.8855249" lon="12.494358"><name>node/270198478</name><desc>amenity=drinking_water
+fountain=roman_wolf
+wikimedia_commons=File:Roman wolf fountain, Parco del Celio, Roma, Italia Sep 01, 2020 12-32-47 PM.jpeg</desc><link href="http://osm.org/browse/node/270198478"/></wpt><wpt lat="41.8837598" lon="12.4947844"><name>node/270198479</name><desc>amenity=drinking_water
+fountain=roman_wolf
+wikimedia_commons=File:Roman Wolf Fountain, Villa Celimontana, Roma, Italia Sep 01, 2020 12-41-19 PM.jpeg</desc><link href="http://osm.org/browse/node/270198479"/></wpt><wpt lat="41.8854777" lon="12.4932314"><name>node/270198480</name><desc>amenity=drinking_water
+fountain=roman_wolf
+wikimedia_commons=File:Roman wolf fountain, Celio, Roma, Italia Sep 01, 2020 12-03-35 PM.jpeg</desc><link href="http://osm.org/browse/node/270198480"/></wpt><wpt lat="41.889461" lon="12.5009036"><name>node/280155143</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/280155143"/></wpt><wpt lat="41.8963253" lon="12.4922226"><name>node/281351519</name><desc>amenity=drinking_water
+check_date=2026-04-23
+fee=no
+fountain=nasone</desc><link href="http://osm.org/browse/node/281351519"/></wpt><wpt lat="41.8915913" lon="12.5003989"><name>node/281352641</name><desc>amenity=drinking_water
+bottle=yes
+fountain=nasone
+wheelchair=yes
+wikimedia_commons=File:Nasone via botta, Roma, Italia Jun 30, 2022 06-23-28 PM.jpeg</desc><link href="http://osm.org/browse/node/281352641"/></wpt><wpt lat="41.8824822" lon="12.5028633"><name>node/302112951</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Piazzale Ipponio, Roma, Italia Feb 22, 2026 01-04-19 PM.jpeg</desc><link href="http://osm.org/browse/node/302112951"/></wpt><wpt lat="41.8937726" lon="12.5010324"><name>node/327114989</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain at Via Merulana, Brancaccio, Roma, Italia Sep 12, 2025 10-48-50 AM.jpeg</desc><link href="http://osm.org/browse/node/327114989"/></wpt><wpt lat="41.8869371" lon="12.4949446"><name>node/388983995</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/388983995"/></wpt><wpt lat="41.8877413" lon="12.494519"><name>node/388984003</name><desc>amenity=drinking_water
+fountain=nasone</desc><link href="http://osm.org/browse/node/388984003"/></wpt><wpt lat="41.8903641" lon="12.5029448"><name>node/469752582</name><desc>amenity=drinking_water
+fountain=nasone</desc><link href="http://osm.org/browse/node/469752582"/></wpt><wpt lat="41.8913309" lon="12.4934283"><name>node/495113034</name><desc>amenity=drinking_water
+check_date=2025-09-22
+fountain=stone_block
+wikimedia_commons=File:Drinking fountain in Parco del Colle Oppio, Roma, Italia Sep 22, 2025 01-18-55 PM.jpeg</desc><link href="http://osm.org/browse/node/495113034"/></wpt><wpt lat="41.8829156" lon="12.4997696"><name>node/551785500</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Via della Ferratella in Laterano, Rome, Italy Mar 30, 2024 12-33-07 PM.jpeg</desc><link href="http://osm.org/browse/node/551785500"/></wpt><wpt lat="41.8902623" lon="12.4867108"><name>node/685457655</name><desc>amenity=drinking_water
+check_date=2024-11-14
+fountain=drinking
+man_made=water_tap
+wikimedia_commons=File:Drinking fountain in the Orti Farnesiani sul Palatino, Roma, Italia Mar 01, 2026 04-32-10 PM.jpeg</desc><link href="http://osm.org/browse/node/685457655"/></wpt><wpt lat="41.8891234" lon="12.4875779"><name>node/685461877</name><desc>amenity=drinking_water
+check_date=2021-11-01</desc><link href="http://osm.org/browse/node/685461877"/></wpt><wpt lat="41.8829819" lon="12.4915911"><name>node/685465032</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone, Viale delle Terme di Caracalla, Roma, Italia Sep 01, 2020 10-57-05 AM.jpeg</desc><link href="http://osm.org/browse/node/685465032"/></wpt><wpt lat="41.8887986" lon="12.4879526"><name>node/953890053</name><desc>amenity=drinking_water
+check_date=2023-04-30
+man_made=water_tap</desc><link href="http://osm.org/browse/node/953890053"/></wpt><wpt lat="41.890985" lon="12.4883755"><name>node/953890062</name><desc>amenity=drinking_water
+check_date=2021-11-01
+man_made=water_tap</desc><link href="http://osm.org/browse/node/953890062"/></wpt><wpt lat="41.8922224" lon="12.4824521"><name>node/953909049</name><desc>amenity=drinking_water
+fountain=roman_wolf
+wikimedia_commons=File:Fountain, Foro Romano, Roma, Italia Mar 15, 2022 10-52-31 PM.jpeg</desc><link href="http://osm.org/browse/node/953909049"/></wpt><wpt lat="41.8889852" lon="12.4968765"><name>node/953909059</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone via dei santi Quattro,roma,italy 62022.jpeg</desc><link href="http://osm.org/browse/node/953909059"/></wpt><wpt lat="41.8867552" lon="12.4954695"><name>node/1157932638</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Piazza Celimontana, Roma, Italia Jul 12, 2025 04-51-22 PM.jpeg</desc><link href="http://osm.org/browse/node/1157932638"/></wpt><wpt lat="41.8900377" lon="12.4942213"><name>node/1170494282</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, Piazza del Colosseo, Rome, Italy Oct 28, 2023 06-05-04 PM.jpeg</desc><link href="http://osm.org/browse/node/1170494282"/></wpt><wpt lat="41.8952404" lon="12.4919485"><name>node/1407542660</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain Via degli Zingari, Roma, Italia May 03, 2023 07-35-28 PM.jpeg</desc><link href="http://osm.org/browse/node/1407542660"/></wpt><wpt lat="41.8907173" lon="12.4883955"><name>node/1656861982</name><desc>amenity=drinking_water
+check_date=2021-11-01
+fountain=drinking
+man_made=water_tap
+wikimedia_commons=File:Drinking fountain on the Foro Romano, Roma, Italia Mar 01, 2026 04-11-51 PM.jpeg</desc><link href="http://osm.org/browse/node/1656861982"/></wpt><wpt lat="41.8890191" lon="12.5019658"><name>node/1701226235</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/1701226235"/></wpt><wpt lat="41.8968428" lon="12.4878685"><name>node/2105948243</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/2105948243"/></wpt><wpt lat="41.8911676" lon="12.4987211"><name>node/2537299968</name><desc>amenity=drinking_water
+fountain=nasone
+indoor=no
+wikimedia_commons=File:Nasone via mecenate, Roma, Italia Jun 30, 2022 06-19-16 PM.jpeg</desc><link href="http://osm.org/browse/node/2537299968"/></wpt><wpt lat="41.8877205" lon="12.5020523"><name>node/2724305949</name><desc>amenity=drinking_water
+check_date=2025-05-01
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Via San Giovanni in Laterano, Roma, Italia May 01, 2025 05-08-26 PM.jpg</desc><link href="http://osm.org/browse/node/2724305949"/></wpt><wpt lat="41.8911658" lon="12.4821627"><name>node/3056141350</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone Piazza della Consolazione, Roma, Italia Sep 08, 2021 06-22-13 PM.jpeg</desc><link href="http://osm.org/browse/node/3056141350"/></wpt><wpt lat="41.8915162" lon="12.4841145"><name>node/3098527533</name><desc>amenity=drinking_water
+fountain=nasone</desc><link href="http://osm.org/browse/node/3098527533"/></wpt><wpt lat="41.8873381" lon="12.4934389"><name>node/3785014818</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/3785014818"/></wpt><wpt lat="41.8867114" lon="12.4927208"><name>node/3786621294</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/3786621294"/></wpt><wpt lat="41.8955726" lon="12.4931902"><name>node/5167443540</name><desc>access=yes
+amenity=drinking_water
+covered=no
+fee=no
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Piazza degli Zingari, Roma, Italia Aug 03, 2025 12-35-42 PM.jpeg</desc><link href="http://osm.org/browse/node/5167443540"/></wpt><wpt lat="41.8863528" lon="12.490124"><name>node/5314059440</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone piazza di San Gregorio, Roma, Italia Sep 01, 2020 11-51-42 AM.jpeg</desc><link href="http://osm.org/browse/node/5314059440"/></wpt><wpt lat="41.8912427" lon="12.4978518"><name>node/5340247517</name><desc>amenity=drinking_water
+fountain=drinking
+note=not a nasone, historic drinking fountain
+wikimedia_commons=File:Drinking fountain, Parco del Colle Oppio, Roma, Italia Jun 30, 2022 07-51-16 PM.jpeg</desc><link href="http://osm.org/browse/node/5340247517"/></wpt><wpt lat="41.8913872" lon="12.4973968"><name>node/5340252322</name><desc>amenity=drinking_water
+fountain=drinking
+note=not a nasone, historic drinking fountain
+wikimedia_commons=File:Drinking fountain, Parco del Colle Oppio, Roma, Italia Jun 30, 2022 07-49-50 PM.jpeg</desc><link href="http://osm.org/browse/node/5340252322"/></wpt><wpt lat="41.8917992" lon="12.491523"><name>node/5535092255</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain at Largo Gaetana Agnesi, Colosseo, Roma, Italia Sep 22, 2025 11-22-58 AM.jpeg</desc><link href="http://osm.org/browse/node/5535092255"/></wpt><wpt lat="41.8936702" lon="12.4923174"><name>node/5732659653</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, Piazza di San Pietro in Vincoli, Roma, Italia May 03, 2023 10-23-44 PM.jpeg</desc><link href="http://osm.org/browse/node/5732659653"/></wpt><wpt lat="41.8880861" lon="12.4884569"><name>node/5801329944</name><desc>amenity=drinking_water
+description:de=Wasserbrunnen
+man_made=water_tap</desc><link href="http://osm.org/browse/node/5801329944"/></wpt><wpt lat="41.8939824" lon="12.4936946"><name>node/6280605307</name><desc>amenity=drinking_water
+indoor=yes
+level=1</desc><link href="http://osm.org/browse/node/6280605307"/></wpt><wpt lat="41.8971021" lon="12.4941377"><name>node/6547153465</name><desc>amenity=drinking_water
+check_date=2025-08-19
+fountain=drinking</desc><link href="http://osm.org/browse/node/6547153465"/></wpt><wpt lat="41.8924043" lon="12.4870814"><name>node/6547164641</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Fountain Via in Miranda, Foro Romano, Roma, Italia Oct 05, 2022 04-55-47 PM.jpeg</desc><link href="http://osm.org/browse/node/6547164641"/></wpt><wpt lat="41.8906483" lon="12.4926424"><name>node/6841124063</name><desc>access=customers
+amenity=drinking_water
+bottle=yes
+check_date=2024-01-04
+fee=no
+indoor=yes
+man_made=water_tap
+wheelchair=yes
+wikimedia_commons=File:Drinking water tap, Colosseo, Roma, Italia Mar 11, 2023 03-29-29 PM.jpeg</desc><link href="http://osm.org/browse/node/6841124063"/></wpt><wpt lat="41.8915996" lon="12.4941883"><name>node/7085935353</name><desc>access=yes
+amenity=drinking_water
+fee=no
+man_made=water_tap</desc><link href="http://osm.org/browse/node/7085935353"/></wpt><wpt lat="41.8882028" lon="12.4955486"><name>node/7203154248</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Nasone Via Marco Aurelio, Roma, Italia Jun 30, 2022 08-08-32 PM.jpeg</desc><link href="http://osm.org/browse/node/7203154248"/></wpt><wpt lat="41.8894443" lon="12.4918731"><name>node/7780730299</name><desc>access=yes
+amenity=drinking_water
+bottle=yes
+building=water_dispenser
+carbonated=yes
+chilled=yes
+drinking_water=yes
+fee=no
+fountain=bottle_refill
+man_made=water_tap
+operator=Acea
+operator:wikidata=Q3604235
+wikimedia_commons=File:Casetta dell’acqua al Colosseo, Roma, Italia Mar 11, 2023 04-38-01 PM.jpeg</desc><link href="http://osm.org/browse/node/7780730299"/></wpt><wpt lat="41.8966135" lon="12.4947756"><name>node/7869827179</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Via delle Vasche, Roma, Italia Aug 03, 2025 12-32-47 PM.jpeg</desc><link href="http://osm.org/browse/node/7869827179"/></wpt><wpt lat="41.8877336" lon="12.4847106"><name>node/9108120217</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/9108120217"/></wpt><wpt lat="41.8931636" lon="12.4971047"><name>node/9878433809</name><desc>amenity=drinking_water
+fountain=stone_block
+man_made=water_tap
+wikimedia_commons=File:Drinking fountain in Parco del Colle Oppio, Roma, Italia Oct 03, 2025 11-02-58 AM.jpeg</desc><link href="http://osm.org/browse/node/9878433809"/></wpt><wpt lat="41.8923945" lon="12.4836941"><name>node/9983658444</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/9983658444"/></wpt><wpt lat="41.8919755" lon="12.4818028"><name>node/10082714502</name><desc>amenity=drinking_water
+fountain=drinking
+historic=yes
+note=this is a unique historic drinking fountain, not a nasone</desc><link href="http://osm.org/browse/node/10082714502"/></wpt><wpt lat="41.8909862" lon="12.4825648"><name>node/10994133196</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain, via dei Fienili, Roma, Italia Jun 16, 2023 12-08-40 PM.jpeg</desc><link href="http://osm.org/browse/node/10994133196"/></wpt><wpt lat="41.8845222" lon="12.4829659"><name>node/11248332587</name><desc>amenity=drinking_water
+fountain=roman_wolf
+wikimedia_commons=File:Drinking fountain, Giardino delle Rose, Rome, Italy Oct 08, 2023 04-46-26 PM.jpeg</desc><link href="http://osm.org/browse/node/11248332587"/></wpt><wpt lat="41.886821" lon="12.4910146"><name>node/11773723130</name><desc>access=yes
+amenity=drinking_water
+bottle=yes
+fee=no
+fountain=nasone
+wheelchair=yes
+wikimedia_commons=File:Drinking water at the Museo della Forma Urbis, Rome, Italy Mar 30, 2024 01-12-54 PM.jpeg</desc><link href="http://osm.org/browse/node/11773723130"/></wpt><wpt lat="41.8927804" lon="12.4947847"><name>node/11812551762</name><desc>amenity=drinking_water
+fountain=stone_block
+wikimedia_commons=File:Drinking fountain in Parco del Colle Oppio, Roma, Italia Oct 03, 2025 11-07-06 AM.jpeg</desc><link href="http://osm.org/browse/node/11812551762"/></wpt><wpt lat="41.89035" lon="12.4896798"><name>node/11885861241</name><desc>amenity=drinking_water
+fountain=drinking</desc><link href="http://osm.org/browse/node/11885861241"/></wpt><wpt lat="41.8901826" lon="12.4902836"><name>node/12033088194</name><desc>amenity=drinking_water
+fountain=drinking</desc><link href="http://osm.org/browse/node/12033088194"/></wpt><wpt lat="41.8904503" lon="12.4892954"><name>node/12033095972</name><desc>amenity=drinking_water
+fountain=drinking</desc><link href="http://osm.org/browse/node/12033095972"/></wpt><wpt lat="41.8924751" lon="12.4870232"><name>node/12097935090</name><desc>amenity=drinking_water
+bottle=yes
+fountain=bottle_refill</desc><link href="http://osm.org/browse/node/12097935090"/></wpt><wpt lat="41.8898644" lon="12.4902565"><name>node/12622944323</name><desc>amenity=drinking_water
+bottle=yes
+description=free clean drinking water. naturale and frizzante.
+fountain=bottle_refill
+opening_hours=24/7</desc><link href="http://osm.org/browse/node/12622944323"/></wpt><wpt lat="41.8906947" lon="12.4870931"><name>node/12623101980</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/12623101980"/></wpt><wpt lat="41.8930706" lon="12.4978446"><name>node/12873430690</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/12873430690"/></wpt><wpt lat="41.8967454" lon="12.4961563"><name>node/13045340104</name><desc>amenity=drinking_water
+fountain=nasone
+wikimedia_commons=File:Drinking fountain in Via dei Quattro Cantoni, Roma, Italia Aug 03, 2025 12-28-36 PM.jpeg</desc><link href="http://osm.org/browse/node/13045340104"/></wpt><wpt lat="41.8904357" lon="12.4917548"><name>node/14041052877</name><desc>amenity=drinking_water</desc><link href="http://osm.org/browse/node/14041052877"/></wpt><wpt lat="41.8934907" lon="12.4845604"><name>node/14159255601</name><desc>amenity=drinking_water
+check_date=2026-10-04
+fountain=drinking
+historic=yes
+operator=Acea ATO2
+wikimedia_commons=File:Drinking fountain in the Foro Romano, Roma, Italia Oct 04, 2026 06-00-02 PM.jpeg</desc><link href="http://osm.org/browse/node/14159255601"/></wpt></gpx>

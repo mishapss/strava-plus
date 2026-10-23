@@ -5,7 +5,7 @@ public class HuffmanNode implements Comparable<HuffmanNode> { //definiert, wie d
     HuffmanNode right;
 
     ////konstruktor für die blätter
-    public HuffmanNode(char character, int frequency) {
+    public HuffmanNode(char character, double frequency) {
         this.character = character;
         this.frequency = frequency;
         this.left = null;  //blatt ist nicht sortiert
@@ -13,7 +13,7 @@ public class HuffmanNode implements Comparable<HuffmanNode> { //definiert, wie d
     }
 
     
-    public HuffmanNode(int frequency, HuffmanNode left, HuffmanNode right) {
+    public HuffmanNode(double frequency, HuffmanNode left, HuffmanNode right) {
         this.character = '\0'; //Platzhalter, gibt´s kein Zeichen
         this.frequency = frequency;
         this.left = left;
@@ -22,6 +22,7 @@ public class HuffmanNode implements Comparable<HuffmanNode> { //definiert, wie d
 
     @Override
     public int compareTo(HuffmanNode other) {
-        return Integer.compareTo(this.frequency, other.frequency);
+        return Double.compare(this.frequency, other.frequency);
     }
 }
+
