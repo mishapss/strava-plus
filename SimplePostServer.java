@@ -39,7 +39,7 @@ public class SimplePostServer{
         } catch (Exception e) {
             System.out.println("keine initiale datei gefunden, warte auf upload");
             savedGeoJson = "{}";
-        }                           
+        }                            
                                       
 
         server.createContext("/geojson", exchange -> {                                                      //http://localhost:8000/geojson

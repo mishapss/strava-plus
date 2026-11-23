@@ -138,6 +138,104 @@
     .challenge-card button:hover {
         background: #06489e;
     }
+
+    /*Block für die Erstellung der neuen Challenges*/
+    /* Wrapper für den Bereich unter dem Grid */
+    .create-challenge-wrapper {
+        max-width: 1200px;
+        margin: 10px auto 40px auto;
+        padding: 0 20px;
+    }
+
+    /* Hauptbutton "Challenge erstellen" */
+    #challenge-create-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 7px;
+        background: #004aad;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    #challenge-create-btn:hover {
+        background: #06489e;
+    }
+
+    #challenge-create-btn:active {
+        transform: scale(0.98);
+    }
+
+    /* Aufklappbares Formular im Stil der Challenge-Karten */
+    #challengeCreateContainer {
+        background: white;
+        border-radius: 10px;
+        padding: 24px;
+        margin-top: 16px;
+        max-width: 600px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    #challengeCreateContainer h3 {
+        margin: 0 0 18px 0;
+        font-size: 20px;
+        color: #222;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 14px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 6px;
+        color: #333;
+    }
+
+    .form-group input {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #004aad;
+        box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+    }
+
+    /* Speichern-Button im Formular (grün zur klaren Unterscheidung) */
+    #new-challenge-send-btn {
+        margin-top: 10px;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 7px;
+        background: #198754;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    #new-challenge-send-btn:hover {
+        background: #157347;
+    }
+
+    .hidden-field{
+        display: none;
+        margin-top: 10px;
+    }
     </style>
 </head>
 <body>
@@ -153,7 +251,48 @@
 
 	<div id="challenges-container" class="challenges-container">
         <p>Lade Herausforderungen</p>
-    </div>    
+    </div>
+    
+    <div class="create-challenge-wrapper">
+    
+        <button type="button" id="challenge-create-btn">+ Neue Challenge erstellen</button>
+
+        <div id="challengeCreateContainer" class="hidden-field">
+            <h3>Neue Herausforderung anlegen</h3>
+
+            <div class="form-group">
+                <label for="challengeName">Name der Challenge</label>
+                <input type="text" id="challengeName" name="challengeName" placeholder="z. B. Juni Rad-Challenge 500 km" required>
+            </div>
+
+            <div class="form-group">
+                <label for="challengedDescription">Beschreibung der Challenge</label>
+                <input type="text" id="challengeDescription" name="challengeDescription" placeholder="Beschreibe kurz das Ziel der Challenge" required>
+            </div>
+
+            <div class="form-group">
+                <label for="challengeStartDate">Startdatum</label>
+                <input type="date" id="challengeStartDate" name="challengeStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="challengeEndDate">Enddatum</label>
+                <input type="date" id="challengeEndDate" name="challengeEndtDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="challengeGoal">Zielwert</label>
+                <input type="number" id="challengeGoal" name="challengeGoal" placeholder="z. B. 500" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="challengeGoalDataType">Einheit des Ziels</label>
+                <input type="text" id="challengeGoalDataType" name="challengeGoalDataType" placeholder="km, höhenmeter, minuten, tage" required>
+            </div>
+
+            <button type="button" id="new-challenge-send-btn" onclick="sendNewChallenge()">Neue Challenge speichern</button>
+        </div>
+    </div>
 
     <script>
     function uploadChallenges() {
@@ -267,6 +406,45 @@
     }
 
     window.addEventListener('DOMContentLoaded', uploadChallenges); //wartet bis die grundstruktur der html-seite geladen ist und dann ruft funktion auf
+
+    // challenge erstellen
+    const triggerButton = document.getElementById("challenge-create-btn");
+    const container = document.getElementById("challengeCreateContainer");
+    const sendButton = document.getElementById("new-challenge-send-btn");
+    
+    triggerButton.addEventListener("click", () => {
+        if (container.style.display === "none" || container.style.display === "") {
+            container.style.display = "block";
+            triggerButton.textContent = "Abbrechen";
+        } else {
+            container.style.display = "none";
+            triggerButton.textContent = "Neues Challenge erstellen";
+        }
+    });
+
+    sendButton.addEventListener("click", sendNewChallenge);
+
+    function sendNewChallenge() {
+        //werten aus den felder bekommen
+        const challengeName = document.getElementById("challengeName").value;
+        const challengeDescription = document.getElementById("challengeDescription").value;
+        const challengeStartDate = document.getElementById("challengeStartDate").value;
+        const challengeEndDate = document.getElementById("challengeEndDate").value;
+        const challengeGoal = document.getElementById("challengeGoal").value;
+        const challengeGoalDataType = document.getElementById("challengeGoalDataType").value;
+
+        //prüfen, ob alle Felder richtig ausgefüllt sind
+        //datum prüfen
+        const today = new Date();
+        const dateToday = today.toLocaleDateString('de-DE');
+        
+        if (challengeStartDate === dateToday.toDateString()) {
+            console.log("true");
+        } else {
+            console.log("false");
+        }
+        
+    }
 
     function pruefeObTeilnehmer(challengeID, buttonElemnt) {
         fetch('http://localhost:8000/api/check-participation?challengeID=' + challengeID) 
