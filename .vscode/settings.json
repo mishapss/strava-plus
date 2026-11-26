@@ -1,7 +1,9 @@
 {
     "java.project.sourcePaths": [
-        "."
+        "java-dateien"
     ],
+    "java.project.outputPath": ["class-dateien"],
+
     "java.project.referencedLibraries": [
         "lib\\slf4j-nop-2.0.12.jar",
         "lib\\slf4j-api-2.0.12.jar",

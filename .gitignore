@@ -1,0 +1,15 @@
+*.class
+class-dateien/
+*.log
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+db/
+uploads/
+datenauswertung/
+BetriebsTickets/
+Organisatorisches\ fürs\ projekt/
+uploaded_file.gpx
+
+.vscode/

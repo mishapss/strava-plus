@@ -1,0 +1,34 @@
+services:
+  app:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../db:/javaapp/db
+      - ../uploads:/javaapp/uploads
+      - "C:/Users/MikhailLeshchenko/strava_plus/db/test.db:/javaapp/db/test.db"
+      - "C:/Users/MikhailLeshchenko/strava_plus/images/:/javaapp/images"
+      - "C:/Users/MikhailLeshchenko/strava_plus/bilds/:/javaapp/bilds"
+      - "C:/Users/MikhailLeshchenko/strava_plus/bilds_medals/:/javaapp/bilds_medals"
+      - "C:/Users/MikhailLeshchenko/strava_plus/uploads/:/javaapp/uploads"
+      - "C:/Users/MikhailLeshchenko/strava_plus/datenauswertung/:/javaapp/datenauswertung"
+    
+    environment:
+      - DB_URL=jdbc:sqlite:/javaapp/db/test.db
+
+  
+
+
+  sqlite:
+    image: hibitdev/sqlite:latest
+    container_name: sqlite
+    hostname: sqlite.hibit
+    ports:
+      - "8191:8191"
+    volumes:
+      - ./sqlite:/db
+      - "C:/Users/MikhailLeshchenko/strava_plus/db/test.db:/sqlite/db/test2.db"
+    command: ["tail", "-f", "/dev/null"] #haltet den container am laufen
+
